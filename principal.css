@@ -1,0 +1,118 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+body {
+    background-color: #f3f5f9;
+}
+
+/* Contenedor azul oscuro */
+.menu {
+    width: 240px;
+    height: 100vh;
+    background-color: #071342;
+    color: white;
+    padding: 25px 15px;
+    display: flex;
+    flex-direction: column;
+    border-top-right-radius: 16px;
+    border-bottom-right-radius: 16px;
+}
+
+/* Logo superior */
+.logo {
+    padding: 0 8px 30px 8px;
+}
+
+.logo img {
+    width: 170px;
+    height: auto;
+}
+
+/* Lista de enlaces */
+.opciones {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex: 1;
+}
+
+.opciones a {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: #cbd5e1;
+    text-decoration: none;
+    padding: 12px 15px;
+    border-radius: 10px;
+    font-size: 15px;
+}
+
+.opciones a:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+/* Píldora celeste/azul cuando está seleccionado */
+.opciones a.activo {
+    background-color: #2563eb;
+    color: white;
+    font-weight: bold;
+}
+
+.icono {
+    width: 18px;
+    height: 18px;
+}
+
+/* Parte inferior (Usuario y Salir) */
+.pie-menu {
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
+    padding-top: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.usuario {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 8px;
+}
+
+.avatar {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.usuario strong {
+    font-size: 14px;
+    display: block;
+}
+
+.usuario p {
+    font-size: 12px;
+    color: #94a3b8;
+}
+
+.salir {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: #cbd5e1;
+    text-decoration: none;
+    padding: 10px 15px;
+    border-radius: 10px;
+    font-size: 14px;
+}
+
+.salir:hover {
+    background-color: rgba(255, 255, 255, 0.08);
+    color: white;
+}
