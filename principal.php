@@ -1,8 +1,17 @@
 <?php
-// PHP
-$nombre = "Javier Mena";
+session_start();
+
+// Si presionó "Cerrar Sesión", destruye la sesión y vuelve a inicio_sesion.php
+if (isset($_GET['salir'])) {
+    session_destroy();
+    header("Location: inicio_sesion.php");
+    exit();
+}
+
+// Datos iniciales en variables PHP (sin base de datos)
+$nombre = $_SESSION["usuario"] ?? "Javier Mena";
 $primer_nombre = "Javier";
-$rol = "Coordinador";
+$rol = $_SESSION["rol"] ?? "Coordinador";
 $anio_escolar = "2026";
 
 $estado_periodo = "Activo";
@@ -19,7 +28,7 @@ $dias_cierre = 45;
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panel Principal - CEDES Don Bosco</title>
-    <link rel="stylesheet" href="principal.css?v=8">
+    <link rel="stylesheet" href="principal.css?v=9">
 </head>
 <body>
 
@@ -86,7 +95,7 @@ $dias_cierre = 45;
                 </div>
             </div>
 
-            <a href="#" class="salir">
+            <a href="principal.php?salir=1" class="salir">
                 <svg class="icono" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
                     <polyline points="16 17 21 12 16 7"></polyline>

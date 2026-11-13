@@ -1,15 +1,30 @@
 <?php
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-
 session_start();
-if (isset($_SESSION['usuario_id'])) {
-    if ($_SESSION['rol'] === 'coordinador') {
-        header("Location: dashboard_coordinador.php");
+
+// Credenciales temporales (sin base de datos)
+$cedula_valida = "18965420";
+$contrasena_valida = "7894";
+
+// Si se envió el formulario al presionar "Ingresar"
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $cedula = trim($_POST['cedula'] ?? '');
+    $password = trim($_POST['password'] ?? '');
+
+    if ($cedula === $cedula_valida && $password === $contrasena_valida) {
+        $_SESSION['usuario_id'] = 1;
+        $_SESSION['usuario'] = "Javier Mena";
+        $_SESSION['rol'] = "Coordinador";
+        header("Location: principal.php");
+        exit();
     } else {
-        header("Location: dashboard_docente.php");
+        header("Location: inicio_sesion.php?error=1");
+        exit();
     }
+}
+
+// Si ya tiene una sesión activa, redirige directo a principal.php
+if (isset($_SESSION['usuario_id'])) {
+    header("Location: principal.php");
     exit();
 }
 ?>
@@ -36,7 +51,7 @@ if (isset($_SESSION['usuario_id'])) {
                 </div>
             <?php endif; ?>
 
-            <form action="login.php" method="POST" class="login-form">
+            <form action="inicio_sesion.php" method="POST" class="login-form">
                 
                 <div class="input-box">
                     <span class="icon">
