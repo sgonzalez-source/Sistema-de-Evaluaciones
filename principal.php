@@ -1,7 +1,7 @@
 <?php
 session_start();
 
-// Si presionó "Cerrar Sesión", destruye la sesión y vuelve a inicio_sesion.php
+// Si confirmó "Cerrar Sesión" en el modal, destruye la sesión y vuelve a inicio_sesion.php
 if (isset($_GET['salir'])) {
     session_destroy();
     header("Location: inicio_sesion.php");
@@ -28,7 +28,7 @@ $dias_cierre = 45;
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panel Principal - CEDES Don Bosco</title>
-    <link rel="stylesheet" href="principal.css?v=9">
+    <link rel="stylesheet" href="principal.css?v=10">
 </head>
 <body>
 
@@ -95,14 +95,15 @@ $dias_cierre = 45;
                 </div>
             </div>
 
-            <a href="principal.php?salir=1" class="salir">
+            <!-- Abre la ventana modal de confirmación -->
+            <button type="button" class="salir" onclick="abrirModalSalir()">
                 <svg class="icono" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
                     <polyline points="16 17 21 12 16 7"></polyline>
                     <line x1="21" y1="12" x2="9" y2="12"></line>
                 </svg>
                 <span>Cerrar Sesión</span>
-            </a>
+            </button>
         </div>
     </aside>
 
@@ -295,6 +296,34 @@ $dias_cierre = 45;
     </main>
 </div>
 
+<!-- MODAL DE CONFIRMACIÓN PARA CERRAR SESIÓN -->
+<div class="fondo-modal" id="modal-salir" onclick="cerrarModalSiFuera(event)">
+    <div class="caja-modal">
+        <button type="button" class="cerrar-modal-x" onclick="cerrarModalSalir()" aria-label="Cerrar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+        </button>
+
+        <div class="icono-modal-rojo">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                <polyline points="16 17 21 12 16 7"></polyline>
+                <line x1="21" y1="12" x2="9" y2="12"></line>
+            </svg>
+        </div>
+
+        <h2>¿Desea cerrar sesión?</h2>
+        <p>Estás a punto de salir del sistema de evaluaciones. Tendrás que volver a ingresar tus credenciales para acceder.</p>
+
+        <div class="botones-modal">
+            <button type="button" class="btn-modal-cancelar" onclick="cerrarModalSalir()">Cancelar</button>
+            <a href="principal.php?salir=1" class="btn-modal-confirmar">Cerrar Sesión</a>
+        </div>
+    </div>
+</div>
+
 <script>
     function iniciarBienvenida() {
         const ahora = new Date();
@@ -397,6 +426,28 @@ $dias_cierre = 45;
             cerrarEditorFecha();
         }
     }
+
+    // Funciones de la ventana modal de Cerrar Sesión
+    function abrirModalSalir() {
+        document.getElementById('modal-salir').classList.add('visible');
+    }
+
+    function cerrarModalSalir() {
+        document.getElementById('modal-salir').classList.remove('visible');
+    }
+
+    function cerrarModalSiFuera(evento) {
+        if (evento.target.id === 'modal-salir') {
+            cerrarModalSalir();
+        }
+    }
+
+    // Cerrar el modal también si presiona la tecla Escape
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            cerrarModalSalir();
+        }
+    });
 </script>
 
 </body>
