@@ -16,8 +16,7 @@ $rol = "Coordinador";
     <aside class="menu">
         <!-- Encabezado / Logo -->
         <div class="logo">
-            <h2>CEDES Don Bosco</h2>
-            <span>Sistema de Evaluaciones</span>
+            <img src="logo_white.png" alt="CEDES Don Bosco" class="logo-blanco">
         </div>
 
         <!-- Opciones de navegación -->
