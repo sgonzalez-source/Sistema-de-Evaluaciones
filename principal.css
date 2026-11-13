@@ -2,46 +2,53 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: Arial, Helvetica, sans-serif;
+    font-family: 'Segoe UI', Arial, Helvetica, sans-serif;
 }
 
 body {
-    background-color: #f3f5f9;
+    background-color: #f1f5f9;
+    color: #0f172a;
 }
 
-/* Contenedor azul oscuro */
+.contenedor-general {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* ================= MENÚ LATERAL AZUL ================= */
 .menu {
-    width: 245px;
+    width: 235px;
     height: 100vh;
+    position: sticky;
+    top: 0;
     background-color: #071342;
     color: white;
-    padding: 25px 15px;
+    padding: 20px 14px;
     display: flex;
     flex-direction: column;
     border-top-right-radius: 16px;
     border-bottom-right-radius: 16px;
+    flex-shrink: 0;
 }
 
-/* Logo superior */
 .logo {
-    padding: 0 8px 25px 8px;
+    padding: 0 8px 18px 8px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    margin-bottom: 20px;
+    margin-bottom: 16px;
     text-align: center;
 }
 
 .logo-blanco {
-    width: 175px;
+    width: 160px;
     height: auto;
     display: block;
     margin: 0 auto;
 }
 
-/* Lista de enlaces */
 .opciones {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 6px;
     flex: 1;
 }
 
@@ -51,9 +58,9 @@ body {
     gap: 12px;
     color: #cbd5e1;
     text-decoration: none;
-    padding: 12px 15px;
+    padding: 10px 14px;
     border-radius: 10px;
-    font-size: 15px;
+    font-size: 14.5px;
     transition: background 0.2s, color 0.2s;
 }
 
@@ -62,39 +69,30 @@ body {
     color: #ffffff;
 }
 
-/* Píldora azul brillante cuando está seleccionado */
-.opciones a.activo {
-    background-color: #2563eb;
-    color: #ffffff;
-    font-weight: bold;
-}
-
-/* Tamaño uniforme para los íconos SVG */
 .icono {
-    width: 20px;
-    height: 20px;
+    width: 19px;
+    height: 19px;
     flex-shrink: 0;
 }
 
-/* Parte inferior (Usuario y Salir) */
 .pie-menu {
     border-top: 1px solid rgba(255, 255, 255, 0.15);
-    padding-top: 18px;
+    padding-top: 14px;
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 10px;
 }
 
 .usuario {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
     padding: 0 8px;
 }
 
 .avatar-iniciales {
-    width: 38px;
-    height: 38px;
+    width: 36px;
+    height: 36px;
     border-radius: 50%;
     background-color: #1e3a8a;
     border: 1.5px solid #3b82f6;
@@ -103,19 +101,19 @@ body {
     align-items: center;
     justify-content: center;
     font-weight: bold;
-    font-size: 14px;
+    font-size: 13px;
     flex-shrink: 0;
 }
 
 .usuario strong {
-    font-size: 14px;
+    font-size: 13.5px;
     display: block;
 }
 
 .usuario p {
-    font-size: 12px;
+    font-size: 11.5px;
     color: #94a3b8;
-    margin-top: 2px;
+    margin-top: 1px;
 }
 
 .salir {
@@ -124,13 +122,480 @@ body {
     gap: 12px;
     color: #cbd5e1;
     text-decoration: none;
-    padding: 10px 15px;
+    padding: 9px 14px;
     border-radius: 10px;
-    font-size: 14px;
+    font-size: 13.5px;
     transition: background 0.2s, color 0.2s;
 }
 
 .salir:hover {
     background-color: rgba(255, 255, 255, 0.08);
     color: #ffffff;
+}
+
+/* ================= CONTENIDO PRINCIPAL PROPORCIONADO ================= */
+.contenido {
+    flex: 1;
+    padding: 18px 36px;
+    max-width: 1280px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+/* --- BANNER DE BIENVENIDA COMPACTO --- */
+.banner-bienvenida {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 15px;
+    padding: 15px 24px;
+    box-shadow: 0 2px 10px rgba(15, 23, 42, 0.03);
+    position: relative;
+    overflow: hidden;
+}
+
+.banner-bienvenida::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 5px;
+    background: linear-gradient(180deg, #071342 0%, #2563eb 100%);
+}
+
+.saludo-tiempo {
+    display: block;
+    font-size: 11.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.7px;
+    color: #2563eb;
+    margin-bottom: 2px;
+}
+
+.banner-bienvenida h1 {
+    font-size: 25px;
+    color: #071342;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    margin-bottom: 2px;
+}
+
+.nombre-destacado {
+    color: #071342;
+}
+
+.subtitulo {
+    color: #64748b;
+    font-size: 13.5px;
+}
+
+.bienvenida-der {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
+}
+
+.pildora-info {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    background-color: #eff6ff;
+    color: #1e3a8a;
+    border: 1px solid #bfdbfe;
+    padding: 6px 13px;
+    border-radius: 10px;
+    font-size: 13px;
+}
+
+.pildora-info svg {
+    width: 16px;
+    height: 16px;
+    color: #2563eb;
+}
+
+.fecha-hoy {
+    font-size: 12px;
+    color: #64748b;
+    font-weight: 500;
+}
+
+/* Estilo base equilibrado para los widgets */
+.tarjeta {
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 15px;
+    padding: 15px 22px;
+    box-shadow: 0 2px 10px rgba(15, 23, 42, 0.03);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.tarjeta:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(15, 23, 42, 0.06);
+}
+
+.etiqueta-gris {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    color: #64748b;
+}
+
+/* --- WIDGET 1: CONTROL DEL PERIODO HORIZONTAL --- */
+.fila-periodo-compacta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+}
+
+.titulo-con-icono {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.icono-caja {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.icono-caja.azul {
+    background-color: #eff6ff;
+    color: #2563eb;
+}
+
+.icono-caja svg {
+    width: 18px;
+    height: 18px;
+}
+
+.titulo-con-icono h2 {
+    font-size: 17px;
+    color: #071342;
+    font-weight: 700;
+}
+
+.texto-ayuda {
+    font-size: 12px;
+    color: #64748b;
+    display: block;
+}
+
+.datos-periodo-inline {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    background-color: #f8fafc;
+    padding: 10px 22px;
+    border-radius: 12px;
+    border: 1px solid #f1f5f9;
+}
+
+.columna-dato {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.etiqueta-mini {
+    font-size: 11.5px;
+    color: #64748b;
+    font-weight: 500;
+}
+
+.insignia-estado {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    width: fit-content;
+}
+
+.punto-estado {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background-color: currentColor;
+}
+
+.insignia-estado.activo {
+    background-color: #dcfce7;
+    color: #15803d;
+}
+
+.insignia-estado.cerrado {
+    background-color: #fee2e2;
+    color: #b91c1c;
+}
+
+.valor-fecha {
+    font-size: 16px;
+    color: #0f172a;
+    font-weight: 700;
+}
+
+.separador-vertical {
+    width: 1px;
+    height: 34px;
+    background-color: #cbd5e1;
+}
+
+.boton-naranja {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    background-color: #c2410c;
+    color: #ffffff;
+    border: none;
+    padding: 9px 16px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(194, 65, 12, 0.2);
+    transition: background 0.2s;
+    flex-shrink: 0;
+}
+
+.boton-naranja svg {
+    width: 15px;
+    height: 15px;
+}
+
+.boton-naranja:hover {
+    background-color: #9a3412;
+}
+
+.editor-fecha {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 6px;
+}
+
+.editor-fecha input[type="date"] {
+    padding: 5px 8px;
+    border: 1px solid #cbd5e1;
+    border-radius: 7px;
+    font-size: 13px;
+    background-color: #ffffff;
+}
+
+.boton-guardar {
+    background-color: #16a34a;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 7px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.boton-cancelar {
+    background-color: #e2e8f0;
+    color: #334155;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 7px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+/* --- FILA DE 3 MÉTRICAS --- */
+.fila-metricas {
+    display: flex;
+    gap: 16px;
+}
+
+.metrica {
+    flex: 1;
+    border-top: 4px solid transparent;
+    padding: 14px 20px;
+}
+
+.metrica.borde-azul {
+    border-top-color: #2563eb;
+}
+
+.metrica.borde-verde {
+    border-top-color: #16a34a;
+}
+
+.metrica.borde-naranja {
+    border-top-color: #ea580c;
+}
+
+.metrica-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+}
+
+.icono-mini {
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.icono-mini svg {
+    width: 16px;
+    height: 16px;
+}
+
+.icono-mini.azul {
+    background-color: #eff6ff;
+    color: #2563eb;
+}
+
+.icono-mini.verde {
+    background-color: #f0fdf4;
+    color: #16a34a;
+}
+
+.icono-mini.naranja {
+    background-color: #fff7ed;
+    color: #ea580c;
+}
+
+.numero-grande {
+    font-size: 24px;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.unidad {
+    font-size: 15.5px;
+    font-weight: 600;
+    color: #475569;
+}
+
+.fila-progreso {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.barra-fondo {
+    flex: 1;
+    height: 10px;
+    background-color: #e2e8f0;
+    border-radius: 99px;
+    overflow: hidden;
+}
+
+.barra-relleno {
+    height: 100%;
+    background: linear-gradient(90deg, #16a34a, #22c55e);
+    border-radius: 99px;
+    transition: width 0.4s ease;
+}
+
+/* --- FILA DE 2 TAREAS --- */
+.fila-tareas {
+    display: flex;
+    gap: 16px;
+    flex: 1;
+}
+
+.tarjeta-tareas {
+    flex: 1;
+    padding: 16px 22px;
+}
+
+.cabecera-tareas {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    padding-bottom: 9px;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.cabecera-tareas h3 {
+    font-size: 16px;
+    color: #071342;
+    font-weight: 700;
+}
+
+.badge-titulo {
+    font-size: 11.5px;
+    font-weight: 600;
+    padding: 3px 9px;
+    border-radius: 20px;
+}
+
+.badge-titulo.pendiente {
+    background-color: #fef3c7;
+    color: #b45309;
+}
+
+.badge-titulo.listo {
+    background-color: #dcfce7;
+    color: #15803d;
+}
+
+.lista-tareas {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.item-check {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13.5px;
+    color: #1e293b;
+    cursor: pointer;
+    user-select: none;
+    padding: 8px 12px;
+    background-color: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    transition: background 0.2s, border-color 0.2s;
+}
+
+.item-check:hover {
+    background-color: #eff6ff;
+    border-color: #bfdbfe;
+}
+
+.item-check input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: #16a34a;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.item-check.completada {
+    background-color: #f0fdf4;
+    border-color: #bbf7d0;
+}
+
+.item-check.completada span {
+    color: #64748b;
+    text-decoration: line-through;
 }
