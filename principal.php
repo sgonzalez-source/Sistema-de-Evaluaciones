@@ -34,13 +34,14 @@ $dias_cierre = 11;
 
 <div class="contenedor-general">
 
-    <!-- MENÚ LATERAL AZUL (EXPANDIBLE / COLAPSABLE TIPO ICON-RAIL) -->
+    <!-- MENÚ LATERAL AZUL -->
     <aside class="menu" id="sidebar-menu">
+        <script>if(localStorage.getItem('menu_colapsado')==='1')document.getElementById('sidebar-menu').classList.add('colapsado');</script>
         <div class="logo">
             <img src="logo_white.png" alt="CEDES Don Bosco" class="logo-blanco">
         </div>
 
-        <!-- BOTÓN HAMBURGUESA DENTRO DEL PANEL AZUL -->
+        <!-- BOTÓN HAMBURGUESA -->
         <button type="button" class="btn-hamburguesa-menu" onclick="alternarMenu()" title="Expandir / Contraer menú" aria-label="Alternar menú lateral">
             <svg class="icono" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <line x1="3" y1="6" x2="21" y2="6"></line>
@@ -115,7 +116,7 @@ $dias_cierre = 11;
         </div>
     </aside>
 
-    <!-- ÁREA DERECHA: CONTENIDO PRINCIPAL COMPACTO -->
+    <!-- CONTENIDO PRINCIPAL -->
     <main class="contenido">
         
         <!-- ENCABEZADO DE BIENVENIDA -->
@@ -138,7 +139,7 @@ $dias_cierre = 11;
             </div>
         </header>
 
-        <!-- WIDGET 1: CONTROL DEL PERIODO EN UNA SOLA FRANJA -->
+        <!-- WIDGET 1: CONTROL DEL PERIODO  -->
         <section class="tarjeta tarjeta-periodo">
             <div class="fila-periodo-compacta">
                 <div class="titulo-con-icono">
@@ -189,7 +190,7 @@ $dias_cierre = 11;
             </div>
         </section>
 
-        <!-- FILA DE 3 WIDGETS DE MÉTRICAS -->
+        <!-- WIDGETS DE MÉTRICAS -->
         <section class="fila-metricas">
             <div class="tarjeta metrica borde-azul">
                 <div class="metrica-top">
@@ -238,7 +239,7 @@ $dias_cierre = 11;
             </div>
         </section>
 
-        <!-- FILA DE 2 WIDGETS DE TAREAS -->
+        <!-- WIDGETS DE TAREAS -->
         <section class="fila-tareas">
             <div class="tarjeta tarjeta-tareas">
                 <div class="cabecera-tareas">
@@ -304,7 +305,7 @@ $dias_cierre = 11;
     </main>
 </div>
 
-<!-- MODAL DE CONFIRMACIÓN PARA CERRAR SESIÓN -->
+<!-- CONFIRMACIÓN PARA CERRAR SESIÓN -->
 <div class="fondo-modal" id="modal-salir" onclick="cerrarModalSiFuera(event)">
     <div class="caja-modal">
         <button type="button" class="cerrar-modal-x" onclick="cerrarModalSalir()" aria-label="Cerrar">

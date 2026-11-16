@@ -1,7 +1,7 @@
 <?php
 session_start();
 
-// Si confirmó "Cerrar Sesión" en el modal, destruye la sesión y vuelve a inicio_sesion.php
+// Si confirmó "Cerrar Sesión", destruye la sesión y vuelve a inicio_sesion.php
 if (isset($_GET['salir'])) {
     session_destroy();
     header("Location: inicio_sesion.php");
@@ -18,14 +18,15 @@ $rol = $_SESSION["rol"] ?? "Coordinador";
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestión de Docentes - CEDES Don Bosco</title>
     <link rel="stylesheet" href="principal.css?v=12">
-    <link rel="stylesheet" href="docentes.css?v=1">
+    <link rel="stylesheet" href="docentes.css?v=3">
 </head>
 <body>
 
 <div class="contenedor-general">
 
-    <!-- MENÚ LATERAL AZUL (COLAPSABLE) -->
+    <!-- MENÚ LATERAL AZUL-->
     <aside class="menu" id="sidebar-menu">
+        <script>if(localStorage.getItem('menu_colapsado')==='1')document.getElementById('sidebar-menu').classList.add('colapsado');</script>
         <div class="logo">
             <img src="logo_white.png" alt="CEDES Don Bosco" class="logo-blanco">
         </div>
@@ -107,7 +108,7 @@ $rol = $_SESSION["rol"] ?? "Coordinador";
     <!-- ÁREA DERECHA: GESTIÓN DE DOCENTES A CARGO -->
     <main class="contenido contenido-docentes">
 
-        <!-- RUTA DE NAVEGACIÓN (BREADCRUMB) -->
+        <!-- RUTA DE NAVEGACIÓN DINÁMICA -->
         <?php include 'breadcrumbs.php'; ?>
 
         <!-- TÍTULO PRINCIPAL -->
@@ -132,6 +133,10 @@ $rol = $_SESSION["rol"] ?? "Coordinador";
                     <option value="Música">Música</option>
                     <option value="Ciencias">Ciencias</option>
                     <option value="Informática">Informática</option>
+                    <option value="Estudios Sociales">Estudios Sociales</option>
+                    <option value="Inglés">Inglés</option>
+                    <option value="Cívica">Cívica</option>
+                    <option value="Educación Física">Educación Física</option>
                 </select>
 
                 <button type="button" class="btn-agregar-docente" onclick="abrirModalAgregar()">
@@ -165,7 +170,7 @@ $rol = $_SESSION["rol"] ?? "Coordinador";
     </main>
 </div>
 
-<!-- MODAL: AGREGAR NUEVO DOCENTE -->
+<!-- MODAL: AGREGAR NUEVO DOCENTE CON SELECTOR REAL DE ARCHIVO -->
 <div class="fondo-modal" id="modal-agregar" onclick="cerrarSiFuera(event, 'modal-agregar')">
     <div class="caja-modal caja-modal-form">
         <button type="button" class="cerrar-modal-x" onclick="cerrarModal('modal-agregar')" aria-label="Cerrar">
@@ -198,12 +203,29 @@ $rol = $_SESSION["rol"] ?? "Coordinador";
                     <option value="Música">Música</option>
                     <option value="Ciencias">Ciencias</option>
                     <option value="Informática">Informática</option>
+                    <option value="Estudios Sociales">Estudios Sociales</option>
+                    <option value="Inglés">Inglés</option>
+                    <option value="Cívica">Cívica</option>
+                    <option value="Educación Física">Educación Física</option>
                 </select>
             </div>
 
+            <!-- CAMPO DE SUBIR PLANEAMIENTO QUE ABRE EL EXPLORADOR DE ARCHIVOS -->
             <div class="campo-form">
-                <label for="nuevo-planeamiento">Nombre del archivo PDF (Planeamiento)</label>
-                <input type="text" id="nuevo-planeamiento" placeholder="Ej. Planeamiento_I_Trimestre.pdf" value="Planeamiento_2026.pdf" required>
+                <label>Subir planeamiento</label>
+                <input type="file" id="nuevo-planeamiento-archivo" accept=".pdf,.doc,.docx,application/pdf" style="display: none;" onchange="mostrarArchivoSeleccionado(this)">
+                
+                <div class="caja-subir-archivo" onclick="document.getElementById('nuevo-planeamiento-archivo').click()">
+                    <div class="btn-subir-visual">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="17 8 12 3 7 8"></polyline>
+                            <line x1="12" y1="3" x2="12" y2="15"></line>
+                        </svg>
+                        <span>Subir archivo</span>
+                    </div>
+                    <span class="nombre-archivo-elegido" id="texto-archivo-elegido">Ningún archivo seleccionado</span>
+                </div>
             </div>
 
             <div class="botones-modal">
@@ -214,7 +236,7 @@ $rol = $_SESSION["rol"] ?? "Coordinador";
     </div>
 </div>
 
-<!-- MODAL: VISTA PREVIA DE PLANEAMIENTO PDF -->
+<!--VISTA PREVIA DE PLANEAMIENTO PDF -->
 <div class="fondo-modal" id="modal-pdf" onclick="cerrarSiFuera(event, 'modal-pdf')">
     <div class="caja-modal caja-modal-pdf">
         <button type="button" class="cerrar-modal-x" onclick="cerrarModal('modal-pdf')" aria-label="Cerrar">
@@ -234,13 +256,13 @@ $rol = $_SESSION["rol"] ?? "Coordinador";
         <p id="nombre-archivo-pdf" class="archivo-pdf-badge">Planeamiento.pdf</p>
         <p class="detalle-pdf-texto">Documento entregado por el docente para revisión del periodo evaluativo 2026.</p>
 
-        <div class="botones-modal">
+        <div class="botones-modal" id="acciones-modal-pdf">
             <button type="button" class="btn-modal-cancelar" onclick="cerrarModal('modal-pdf')">Cerrar vista previa</button>
         </div>
     </div>
 </div>
 
-<!-- MODAL DE CONFIRMACIÓN PARA CERRAR SESIÓN -->
+<!-- CONFIRMACIÓN PARA CERRAR SESIÓN -->
 <div class="fondo-modal" id="modal-salir" onclick="cerrarSiFuera(event, 'modal-salir')">
     <div class="caja-modal">
         <button type="button" class="cerrar-modal-x" onclick="cerrarModal('modal-salir')" aria-label="Cerrar">
@@ -278,17 +300,23 @@ $rol = $_SESSION["rol"] ?? "Coordinador";
     ];
 
     let listaDocentes = [];
+    const archivosTemporales = {};
 
+    // Cada materia tiene su propio color
     function obtenerClaseMateria(materia) {
         const mapa = {
-            "Español": "pill-morado",
-            "Química": "pill-celeste",
-            "Matemáticas": "pill-naranja",
-            "Música": "pill-rosa",
-            "Ciencias": "pill-verde",
-            "Informática": "pill-azul"
+            "Español":           "pill-morado",
+            "Química":           "pill-celeste",
+            "Matemáticas":       "pill-naranja",
+            "Música":            "pill-rosa",
+            "Ciencias":          "pill-verde",
+            "Informática":       "pill-azul",
+            "Estudios Sociales": "pill-rojo",
+            "Inglés":            "pill-turquesa",
+            "Cívica":            "pill-indigo",
+            "Educación Física":  "pill-lima"
         };
-        return mapa[materia] || "pill-azul";
+        return mapa[materia] || "pill-gris";
     }
 
     function renderizarTabla() {
@@ -324,7 +352,7 @@ $rol = $_SESSION["rol"] ?? "Coordinador";
                     </span>
                 </td>
                 <td>
-                    <button type="button" class="btn-pdf-icono" onclick="verPlaneamiento('${doc.nombre}', '${doc.pdf}')" title="Ver ${doc.pdf}">
+                    <button type="button" class="btn-pdf-icono" onclick="verPlaneamiento('${doc.cedula}', '${doc.nombre}', '${doc.pdf}')" title="Ver ${doc.pdf}">
                         <svg viewBox="0 0 24 24" fill="currentColor">
                             <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 2l5 5h-5V4zM7.5 14h1.3c.8 0 1.4.6 1.4 1.4s-.6 1.4-1.4 1.4H8.5V18h-1v-4zm3.5 0h1.4c1 0 1.8.8 1.8 1.8v.4c0 1-.8 1.8-1.8 1.8H11v-4zm4.2 0h2.3v.9h-1.3v.7h1.1v.9h-1.1V18h-1v-4z"/>
                         </svg>
@@ -350,18 +378,36 @@ $rol = $_SESSION["rol"] ?? "Coordinador";
         localStorage.setItem('lista_docentes_cedes', JSON.stringify(listaDocentes));
     }
 
+    function mostrarArchivoSeleccionado(input) {
+        const texto = document.getElementById('texto-archivo-elegido');
+        if (input.files && input.files.length > 0) {
+            texto.textContent = input.files[0].name;
+            texto.classList.add('archivo-cargado');
+        } else {
+            texto.textContent = "Ningún archivo seleccionado";
+            texto.classList.remove('archivo-cargado');
+        }
+    }
+
     function guardarNuevoDocente(e) {
         e.preventDefault();
         const cedula = document.getElementById('nuevo-cedula').value.trim();
         const nombre = document.getElementById('nuevo-nombre').value.trim();
         const materia = document.getElementById('nuevo-materia').value;
-        const pdf = document.getElementById('nuevo-planeamiento').value.trim();
+        const inputArchivo = document.getElementById('nuevo-planeamiento-archivo');
+
+        let nombrePdf = "Planeamiento_2026.pdf";
+        if (inputArchivo.files && inputArchivo.files.length > 0) {
+            const archivo = inputArchivo.files[0];
+            nombrePdf = archivo.name;
+            archivosTemporales[cedula] = URL.createObjectURL(archivo);
+        }
 
         listaDocentes.push({
             cedula: cedula,
             nombre: nombre,
             materia: materia,
-            pdf: pdf,
+            pdf: nombrePdf,
             activo: true
         });
 
@@ -369,9 +415,16 @@ $rol = $_SESSION["rol"] ?? "Coordinador";
         renderizarTabla();
         cerrarModal('modal-agregar');
         e.target.reset();
+        document.getElementById('texto-archivo-elegido').textContent = "Ningún archivo seleccionado";
+        document.getElementById('texto-archivo-elegido').classList.remove('archivo-cargado');
     }
 
-    function verPlaneamiento(nombreDocente, archivoPdf) {
+    function verPlaneamiento(cedula, nombreDocente, archivoPdf) {
+        if (archivosTemporales[cedula]) {
+            window.open(archivosTemporales[cedula], '_blank');
+            return;
+        }
+
         document.getElementById('titulo-pdf-docente').textContent = "Planeamiento de " + nombreDocente;
         document.getElementById('nombre-archivo-pdf').textContent = archivoPdf;
         document.getElementById('modal-pdf').classList.add('visible');

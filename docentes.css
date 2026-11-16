@@ -3,7 +3,7 @@
     gap: 18px;
 }
 
-/* Migas de pan  */
+/* Migas de pan */
 .migas-pan {
     display: flex;
     align-items: center;
@@ -205,7 +205,7 @@
     font-style: italic;
 }
 
-/* Etiquetas de Materia */
+/* ================= ETIQUETAS (PILLS) ÚNICAS POR MATERIA ================= */
 .pill-materia {
     display: inline-flex;
     align-items: center;
@@ -223,34 +223,70 @@
     line-height: 1;
 }
 
+/* 1. Español -> Morado */
 .pill-morado {
     color: #7e22ce;
     background-color: #faf5ff;
 }
 
+/* 2. Química -> Celeste */
 .pill-celeste {
     color: #0284c7;
     background-color: #f0f9ff;
 }
 
+/* 3. Matemáticas -> Naranja / Ámbar */
 .pill-naranja {
     color: #d97706;
     background-color: #fffbeb;
 }
 
+/* 4. Música -> Rosa */
 .pill-rosa {
     color: #db2777;
     background-color: #fdf2f8;
 }
 
+/* 5. Ciencias -> Verde Esmeralda */
 .pill-verde {
     color: #16a34a;
     background-color: #f0fdf4;
 }
 
+/* 6. Informática -> Azul Cobalto */
 .pill-azul {
     color: #2563eb;
     background-color: #eff6ff;
+}
+
+/* 7. Estudios Sociales -> Rojo Terracota */
+.pill-rojo {
+    color: #dc2626;
+    background-color: #fef2f2;
+}
+
+/* 8. Inglés -> Turquesa */
+.pill-turquesa {
+    color: #0d9488;
+    background-color: #f0fdfa;
+}
+
+/* 9. Cívica -> Índigo */
+.pill-indigo {
+    color: #4f46e5;
+    background-color: #eef2ff;
+}
+
+/* 10. Educación Física -> Verde Lima */
+.pill-lima {
+    color: #65a30d;
+    background-color: #f7fee7;
+}
+
+/* Respaldo */
+.pill-gris {
+    color: #475569;
+    background-color: #f8fafc;
 }
 
 /* Botón icono PDF */
@@ -278,7 +314,7 @@
     height: 26px;
 }
 
-/* Switch de Estado */
+/* Interruptor (Toggle Switch) de Estado */
 .switch-estado {
     position: relative;
     display: inline-block;
@@ -370,6 +406,61 @@
     outline: none;
     border-color: #2563eb;
     background-color: #ffffff;
+}
+
+/* Selector interactivo "Subir archivo" */
+.caja-subir-archivo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 12px;
+    border: 1.5px dashed #94a3b8;
+    border-radius: 9px;
+    background-color: #f8fafc;
+    cursor: pointer;
+    transition: border-color 0.2s, background-color 0.2s;
+}
+
+.caja-subir-archivo:hover {
+    border-color: #2563eb;
+    background-color: #eff6ff;
+}
+
+.btn-subir-visual {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    background-color: #e2e8f0;
+    color: #0f172a;
+    padding: 7px 13px;
+    border-radius: 7px;
+    font-size: 13px;
+    font-weight: 600;
+    flex-shrink: 0;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.caja-subir-archivo:hover .btn-subir-visual {
+    background-color: #071342;
+    color: #ffffff;
+}
+
+.btn-subir-visual svg {
+    width: 15px;
+    height: 15px;
+}
+
+.nombre-archivo-elegido {
+    font-size: 13px;
+    color: #64748b;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.nombre-archivo-elegido.archivo-cargado {
+    color: #15803d;
+    font-weight: 600;
 }
 
 .btn-modal-guardar-azul {
