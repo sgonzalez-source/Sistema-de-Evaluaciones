@@ -1,7 +1,7 @@
 <?php
 session_start();
 
-// Si confirmó "Cerrar Sesión", destruye la sesión y vuelve a inicio_sesion.php
+// Si confirmó "Cerrar Sesión" en el modal, destruye la sesión y vuelve a inicio_sesion.php
 if (isset($_GET['salir'])) {
     session_destroy();
     header("Location: inicio_sesion.php");
@@ -17,16 +17,17 @@ $rol = $_SESSION["rol"] ?? "Coordinador";
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestión de Docentes - CEDES Don Bosco</title>
-    <link rel="stylesheet" href="principal.css?v=12">
+    <link rel="stylesheet" href="principal.css?v=13">
     <link rel="stylesheet" href="docentes.css?v=3">
 </head>
 <body>
 
 <div class="contenedor-general">
 
-    <!-- MENÚ LATERAL AZUL-->
+    <!-- MENÚ LATERAL AZUL (COLAPSABLE SIN PARPADEO) -->
     <aside class="menu" id="sidebar-menu">
         <script>if(localStorage.getItem('menu_colapsado')==='1')document.getElementById('sidebar-menu').classList.add('colapsado');</script>
+
         <div class="logo">
             <img src="logo_white.png" alt="CEDES Don Bosco" class="logo-blanco">
         </div>
@@ -58,14 +59,14 @@ $rol = $_SESSION["rol"] ?? "Coordinador";
                 <span class="texto-menu">Docentes</span>
             </a>
 
-            <a href="#" title="Rúbricas">
+            <a href="plantilla_evaluacion.php" title="Plantillas de evaluación">
                 <svg class="icono" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
                     <polyline points="14 2 14 8 20 8"></polyline>
                     <line x1="16" y1="13" x2="8" y2="13"></line>
                     <line x1="16" y1="17" x2="8" y2="17"></line>
                 </svg>
-                <span class="texto-menu">Rúbricas</span>
+                <span class="texto-menu">Plantillas de evaluación</span>
             </a>
 
             <a href="#" title="Evaluar">
@@ -210,7 +211,6 @@ $rol = $_SESSION["rol"] ?? "Coordinador";
                 </select>
             </div>
 
-            <!-- CAMPO DE SUBIR PLANEAMIENTO QUE ABRE EL EXPLORADOR DE ARCHIVOS -->
             <div class="campo-form">
                 <label>Subir planeamiento</label>
                 <input type="file" id="nuevo-planeamiento-archivo" accept=".pdf,.doc,.docx,application/pdf" style="display: none;" onchange="mostrarArchivoSeleccionado(this)">
@@ -236,7 +236,7 @@ $rol = $_SESSION["rol"] ?? "Coordinador";
     </div>
 </div>
 
-<!--VISTA PREVIA DE PLANEAMIENTO PDF -->
+<!-- MODAL: VISTA PREVIA DE PLANEAMIENTO PDF -->
 <div class="fondo-modal" id="modal-pdf" onclick="cerrarSiFuera(event, 'modal-pdf')">
     <div class="caja-modal caja-modal-pdf">
         <button type="button" class="cerrar-modal-x" onclick="cerrarModal('modal-pdf')" aria-label="Cerrar">
@@ -262,7 +262,7 @@ $rol = $_SESSION["rol"] ?? "Coordinador";
     </div>
 </div>
 
-<!-- CONFIRMACIÓN PARA CERRAR SESIÓN -->
+<!-- MODAL DE CONFIRMACIÓN PARA CERRAR SESIÓN -->
 <div class="fondo-modal" id="modal-salir" onclick="cerrarSiFuera(event, 'modal-salir')">
     <div class="caja-modal">
         <button type="button" class="cerrar-modal-x" onclick="cerrarModal('modal-salir')" aria-label="Cerrar">
@@ -291,7 +291,6 @@ $rol = $_SESSION["rol"] ?? "Coordinador";
 </div>
 
 <script>
-    // Datos iniciales de docentes
     const docentesIniciales = [
         { cedula: "100564782", nombre: "Lucía Rodríguez", materia: "Español", pdf: "Planeamiento_Espanol_Lucia.pdf", activo: false },
         { cedula: "203648647", nombre: "Mario López", materia: "Química", pdf: "Planeamiento_Quimica_Mario.pdf", activo: true },
@@ -302,7 +301,6 @@ $rol = $_SESSION["rol"] ?? "Coordinador";
     let listaDocentes = [];
     const archivosTemporales = {};
 
-    // Cada materia tiene su propio color
     function obtenerClaseMateria(materia) {
         const mapa = {
             "Español":           "pill-morado",
@@ -450,15 +448,12 @@ $rol = $_SESSION["rol"] ?? "Coordinador";
 
     function alternarMenu() {
         const menu = document.getElementById('sidebar-menu');
+        menu.classList.add('animar');
         menu.classList.toggle('colapsado');
         localStorage.setItem('menu_colapsado', menu.classList.contains('colapsado') ? '1' : '0');
     }
 
     window.onload = function() {
-        if (localStorage.getItem('menu_colapsado') === '1') {
-            document.getElementById('sidebar-menu').classList.add('colapsado');
-        }
-
         const guardados = localStorage.getItem('lista_docentes_cedes');
         if (guardados) {
             listaDocentes = JSON.parse(guardados);

@@ -8,7 +8,12 @@ if (isset($_GET['salir'])) {
     exit();
 }
 
-// Datos iniciales en variables PHP 
+// Reinicia el historial de migajas de pan al entrar al inicio
+$_SESSION['ruta_navegacion'] = [
+    ['titulo' => 'Inicio', 'url' => 'principal.php']
+];
+
+// Datos iniciales en variables PHP (sin base de datos)
 $nombre = $_SESSION["usuario"] ?? "Javier Mena";
 $primer_nombre = "Javier";
 $rol = $_SESSION["rol"] ?? "Coordinador";
@@ -28,20 +33,20 @@ $dias_cierre = 11;
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panel Principal - CEDES Don Bosco</title>
-    <link rel="stylesheet" href="principal.css?v=12">
+    <link rel="stylesheet" href="principal.css?v=13">
 </head>
 <body>
 
 <div class="contenedor-general">
 
-    <!-- MENÚ LATERAL AZUL -->
+    <!-- MENÚ LATERAL AZUL (COLAPSABLE SIN PARPADEO) -->
     <aside class="menu" id="sidebar-menu">
         <script>if(localStorage.getItem('menu_colapsado')==='1')document.getElementById('sidebar-menu').classList.add('colapsado');</script>
+
         <div class="logo">
             <img src="logo_white.png" alt="CEDES Don Bosco" class="logo-blanco">
         </div>
 
-        <!-- BOTÓN HAMBURGUESA -->
         <button type="button" class="btn-hamburguesa-menu" onclick="alternarMenu()" title="Expandir / Contraer menú" aria-label="Alternar menú lateral">
             <svg class="icono" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <line x1="3" y1="6" x2="21" y2="6"></line>
@@ -69,14 +74,14 @@ $dias_cierre = 11;
                 <span class="texto-menu">Docentes</span>
             </a>
 
-            <a href="#" title="Rúbricas">
+            <a href="plantilla_evaluacion.php" title="Plantillas de evaluación">
                 <svg class="icono" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
                     <polyline points="14 2 14 8 20 8"></polyline>
                     <line x1="16" y1="13" x2="8" y2="13"></line>
                     <line x1="16" y1="17" x2="8" y2="17"></line>
                 </svg>
-                <span class="texto-menu">Rúbricas</span>
+                <span class="texto-menu">Plantillas de evaluación</span>
             </a>
 
             <a href="#" title="Evaluar">
@@ -116,7 +121,7 @@ $dias_cierre = 11;
         </div>
     </aside>
 
-    <!-- CONTENIDO PRINCIPAL -->
+    <!-- ÁREA DERECHA: CONTENIDO PRINCIPAL COMPACTO -->
     <main class="contenido">
         
         <!-- ENCABEZADO DE BIENVENIDA -->
@@ -139,7 +144,7 @@ $dias_cierre = 11;
             </div>
         </header>
 
-        <!-- WIDGET 1: CONTROL DEL PERIODO  -->
+        <!-- WIDGET 1: CONTROL DEL PERIODO EN UNA SOLA FRANJA -->
         <section class="tarjeta tarjeta-periodo">
             <div class="fila-periodo-compacta">
                 <div class="titulo-con-icono">
@@ -190,7 +195,7 @@ $dias_cierre = 11;
             </div>
         </section>
 
-        <!-- WIDGETS DE MÉTRICAS -->
+        <!-- FILA DE 3 WIDGETS DE MÉTRICAS -->
         <section class="fila-metricas">
             <div class="tarjeta metrica borde-azul">
                 <div class="metrica-top">
@@ -239,7 +244,7 @@ $dias_cierre = 11;
             </div>
         </section>
 
-        <!-- WIDGETS DE TAREAS -->
+        <!-- FILA DE 2 WIDGETS DE TAREAS -->
         <section class="fila-tareas">
             <div class="tarjeta tarjeta-tareas">
                 <div class="cabecera-tareas">
@@ -305,7 +310,7 @@ $dias_cierre = 11;
     </main>
 </div>
 
-<!-- CONFIRMACIÓN PARA CERRAR SESIÓN -->
+<!-- MODAL DE CONFIRMACIÓN PARA CERRAR SESIÓN -->
 <div class="fondo-modal" id="modal-salir" onclick="cerrarModalSiFuera(event)">
     <div class="caja-modal">
         <button type="button" class="cerrar-modal-x" onclick="cerrarModalSalir()" aria-label="Cerrar">
@@ -334,9 +339,9 @@ $dias_cierre = 11;
 </div>
 
 <script>
-    // Contraer / Expandir panel lateral azul a modo barra de íconos
     function alternarMenu() {
         const menu = document.getElementById('sidebar-menu');
+        menu.classList.add('animar');
         menu.classList.toggle('colapsado');
         localStorage.setItem('menu_colapsado', menu.classList.contains('colapsado') ? '1' : '0');
     }
@@ -362,11 +367,6 @@ $dias_cierre = 11;
 
     window.onload = function() {
         iniciarBienvenida();
-
-        // Restaurar si el usuario había dejado el menú colapsado
-        if (localStorage.getItem('menu_colapsado') === '1') {
-            document.getElementById('sidebar-menu').classList.add('colapsado');
-        }
 
         const fechaGuardada = localStorage.getItem('fecha_iso');
         if (fechaGuardada) {
