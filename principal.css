@@ -15,7 +15,7 @@ body {
     min-height: 100vh;
 }
 
-/* ================= MENÚ LATERAL AZUL ================= */
+/* ================= MENÚ LATERAL AZUL (COLAPSABLE) ================= */
 .menu {
     width: 235px;
     height: 100vh;
@@ -29,6 +29,18 @@ body {
     border-top-right-radius: 16px;
     border-bottom-right-radius: 16px;
     flex-shrink: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    transition: width 0.28s ease, padding 0.28s ease, opacity 0.22s ease;
+}
+
+/* Estado oculto del panel lateral */
+.menu.oculto {
+    width: 0;
+    padding-left: 0;
+    padding-right: 0;
+    opacity: 0;
+    pointer-events: none;
 }
 
 .logo {
@@ -142,13 +154,15 @@ body {
 .contenido {
     flex: 1;
     padding: 18px 36px;
-    max-width: 1280px;
+    max-width: 1440px;
+    margin: 0 auto;
     display: flex;
     flex-direction: column;
     gap: 14px;
+    transition: all 0.28s ease;
 }
 
-/* --- BANNER DE BIENVENIDA COMPACTO --- */
+/* --- BANNER DE BIENVENIDA CON BOTÓN HAMBURGUESA --- */
 .banner-bienvenida {
     display: flex;
     justify-content: space-between;
@@ -170,6 +184,42 @@ body {
     bottom: 0;
     width: 5px;
     background: linear-gradient(180deg, #071342 0%, #2563eb 100%);
+}
+
+.bienvenida-izq-grupo {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+}
+
+.btn-hamburguesa {
+    width: 42px;
+    height: 42px;
+    border-radius: 11px;
+    border: 1px solid #e2e8f0;
+    background-color: #f8fafc;
+    color: #071342;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background 0.2s, border-color 0.2s, transform 0.15s;
+}
+
+.btn-hamburguesa:hover {
+    background-color: #eff6ff;
+    border-color: #bfdbfe;
+    color: #2563eb;
+}
+
+.btn-hamburguesa:active {
+    transform: scale(0.95);
+}
+
+.btn-hamburguesa svg {
+    width: 21px;
+    height: 21px;
 }
 
 .saludo-tiempo {

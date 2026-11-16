@@ -20,7 +20,7 @@ $fecha_limite_iso = "2026-11-27";
 
 $docentes_completados = 12;
 $porcentaje_completado = 75;
-$dias_cierre = 45;
+$dias_cierre = 11;
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -28,14 +28,14 @@ $dias_cierre = 45;
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panel Principal - CEDES Don Bosco</title>
-    <link rel="stylesheet" href="principal.css?v=10">
+    <link rel="stylesheet" href="principal.css?v=11">
 </head>
 <body>
 
 <div class="contenedor-general">
 
-    <!-- MENÚ LATERAL AZUL -->
-    <aside class="menu">
+    <!-- MENÚ LATERAL AZUL (COLAPSABLE) -->
+    <aside class="menu" id="sidebar-menu">
         <div class="logo">
             <img src="logo_white.png" alt="CEDES Don Bosco" class="logo-blanco">
         </div>
@@ -95,7 +95,6 @@ $dias_cierre = 45;
                 </div>
             </div>
 
-            <!-- Abre la ventana modal de confirmación -->
             <button type="button" class="salir" onclick="abrirModalSalir()">
                 <svg class="icono" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
@@ -110,12 +109,22 @@ $dias_cierre = 45;
     <!-- ÁREA DERECHA: CONTENIDO PRINCIPAL COMPACTO -->
     <main class="contenido">
         
-        <!-- ENCABEZADO DE BIENVENIDA -->
+        <!-- ENCABEZADO DE BIENVENIDA CON BOTÓN HAMBURGUESA -->
         <header class="banner-bienvenida">
-            <div class="bienvenida-izq">
-                <span class="saludo-tiempo" id="saludo-tiempo">Buenos días</span>
-                <h1>¡Hola, <span class="nombre-destacado"><?php echo $primer_nombre; ?></span>!</h1>
-                <p class="subtitulo">Te damos la bienvenida al sistema de evaluaciones docentes</p>
+            <div class="bienvenida-izq-grupo">
+                <button type="button" class="btn-hamburguesa" onclick="alternarMenu()" title="Mostrar / Ocultar menú" aria-label="Alternar menú lateral">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="3" y1="6" x2="21" y2="6"></line>
+                        <line x1="3" y1="12" x2="21" y2="12"></line>
+                        <line x1="3" y1="18" x2="21" y2="18"></line>
+                    </svg>
+                </button>
+
+                <div class="bienvenida-izq">
+                    <span class="saludo-tiempo" id="saludo-tiempo">Buenos días</span>
+                    <h1>¡Hola, <span class="nombre-destacado"><?php echo $primer_nombre; ?></span>!</h1>
+                    <p class="subtitulo">Te damos la bienvenida al sistema de evaluaciones docentes</p>
+                </div>
             </div>
 
             <div class="bienvenida-der">
@@ -325,6 +334,13 @@ $dias_cierre = 45;
 </div>
 
 <script>
+    // Esconder / Mostrar panel lateral azul con botón hamburguesa
+    function alternarMenu() {
+        const menu = document.getElementById('sidebar-menu');
+        menu.classList.toggle('oculto');
+        localStorage.setItem('menu_oculto', menu.classList.contains('oculto') ? '1' : '0');
+    }
+
     function iniciarBienvenida() {
         const ahora = new Date();
         const hora = ahora.getHours();
@@ -346,6 +362,11 @@ $dias_cierre = 45;
 
     window.onload = function() {
         iniciarBienvenida();
+
+        // Restaurar si el usuario había ocultado el menú lateral
+        if (localStorage.getItem('menu_oculto') === '1') {
+            document.getElementById('sidebar-menu').classList.add('oculto');
+        }
 
         const fechaGuardada = localStorage.getItem('fecha_iso');
         if (fechaGuardada) {
@@ -427,7 +448,6 @@ $dias_cierre = 45;
         }
     }
 
-    // Funciones de la ventana modal de Cerrar Sesión
     function abrirModalSalir() {
         document.getElementById('modal-salir').classList.add('visible');
     }
@@ -442,7 +462,6 @@ $dias_cierre = 45;
         }
     }
 
-    // Cerrar el modal también si presiona la tecla Escape
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
             cerrarModalSalir();
