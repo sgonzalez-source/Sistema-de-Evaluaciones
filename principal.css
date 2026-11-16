@@ -15,7 +15,7 @@ body {
     min-height: 100vh;
 }
 
-/* ================= MENÚ LATERAL AZUL (COLAPSABLE) ================= */
+/* ================= MENÚ LATERAL AZUL (EXPANDIDO Y COLAPSADO) ================= */
 .menu {
     width: 235px;
     height: 100vh;
@@ -30,24 +30,15 @@ body {
     border-bottom-right-radius: 16px;
     flex-shrink: 0;
     overflow: hidden;
-    white-space: nowrap;
-    transition: width 0.28s ease, padding 0.28s ease, opacity 0.22s ease;
-}
-
-/* Estado oculto del panel lateral */
-.menu.oculto {
-    width: 0;
-    padding-left: 0;
-    padding-right: 0;
-    opacity: 0;
-    pointer-events: none;
+    transition: width 0.25s ease, padding 0.25s ease;
 }
 
 .logo {
-    padding: 0 8px 18px 8px;
+    padding: 0 6px 16px 6px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    margin-bottom: 16px;
+    margin-bottom: 12px;
     text-align: center;
+    transition: padding 0.25s ease;
 }
 
 .logo-blanco {
@@ -55,6 +46,28 @@ body {
     height: auto;
     display: block;
     margin: 0 auto;
+    transition: width 0.25s ease;
+}
+
+/* Botón hamburguesa dentro del menú azul */
+.btn-hamburguesa-menu {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    width: 100%;
+    background: none;
+    border: none;
+    color: #cbd5e1;
+    padding: 10px 14px;
+    margin-bottom: 6px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+}
+
+.btn-hamburguesa-menu:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
 }
 
 .opciones {
@@ -73,6 +86,7 @@ body {
     padding: 10px 14px;
     border-radius: 10px;
     font-size: 14.5px;
+    white-space: nowrap;
     transition: background 0.2s, color 0.2s;
 }
 
@@ -100,6 +114,7 @@ body {
     align-items: center;
     gap: 10px;
     padding: 0 8px;
+    white-space: nowrap;
 }
 
 .avatar-iniciales {
@@ -142,12 +157,52 @@ body {
     font-size: 13.5px;
     cursor: pointer;
     text-align: left;
+    white-space: nowrap;
     transition: background 0.2s, color 0.2s;
 }
 
 .salir:hover {
     background-color: rgba(255, 255, 255, 0.08);
     color: #ffffff;
+}
+
+/* --- ESTADO COLAPSADO (COMO TU SEGUNDA IMAGEN) --- */
+.menu.colapsado {
+    width: 78px;
+    padding: 20px 10px;
+}
+
+.menu.colapsado .logo {
+    padding: 0 0 14px 0;
+}
+
+.menu.colapsado .logo-blanco {
+    width: 54px;
+}
+
+.menu.colapsado .btn-hamburguesa-menu {
+    justify-content: center;
+    padding: 10px 0;
+}
+
+.menu.colapsado .opciones a {
+    justify-content: center;
+    padding: 11px 0;
+}
+
+.menu.colapsado .texto-menu,
+.menu.colapsado .info-usuario {
+    display: none;
+}
+
+.menu.colapsado .usuario {
+    justify-content: center;
+    padding: 0;
+}
+
+.menu.colapsado .salir {
+    justify-content: center;
+    padding: 10px 0;
 }
 
 /* ================= CONTENIDO PRINCIPAL PROPORCIONADO ================= */
@@ -159,10 +214,10 @@ body {
     display: flex;
     flex-direction: column;
     gap: 14px;
-    transition: all 0.28s ease;
+    transition: all 0.25s ease;
 }
 
-/* --- BANNER DE BIENVENIDA CON BOTÓN HAMBURGUESA --- */
+/* --- BANNER DE BIENVENIDA --- */
 .banner-bienvenida {
     display: flex;
     justify-content: space-between;
@@ -184,42 +239,6 @@ body {
     bottom: 0;
     width: 5px;
     background: linear-gradient(180deg, #071342 0%, #2563eb 100%);
-}
-
-.bienvenida-izq-grupo {
-    display: flex;
-    align-items: center;
-    gap: 18px;
-}
-
-.btn-hamburguesa {
-    width: 42px;
-    height: 42px;
-    border-radius: 11px;
-    border: 1px solid #e2e8f0;
-    background-color: #f8fafc;
-    color: #071342;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    flex-shrink: 0;
-    transition: background 0.2s, border-color 0.2s, transform 0.15s;
-}
-
-.btn-hamburguesa:hover {
-    background-color: #eff6ff;
-    border-color: #bfdbfe;
-    color: #2563eb;
-}
-
-.btn-hamburguesa:active {
-    transform: scale(0.95);
-}
-
-.btn-hamburguesa svg {
-    width: 21px;
-    height: 21px;
 }
 
 .saludo-tiempo {

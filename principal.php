@@ -8,7 +8,7 @@ if (isset($_GET['salir'])) {
     exit();
 }
 
-// Datos iniciales en variables PHP (sin base de datos)
+// Datos iniciales en variables PHP 
 $nombre = $_SESSION["usuario"] ?? "Javier Mena";
 $primer_nombre = "Javier";
 $rol = $_SESSION["rol"] ?? "Coordinador";
@@ -28,80 +28,89 @@ $dias_cierre = 11;
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panel Principal - CEDES Don Bosco</title>
-    <link rel="stylesheet" href="principal.css?v=11">
+    <link rel="stylesheet" href="principal.css?v=12">
 </head>
 <body>
 
 <div class="contenedor-general">
 
-    <!-- MENÚ LATERAL AZUL (COLAPSABLE) -->
+    <!-- MENÚ LATERAL AZUL (EXPANDIBLE / COLAPSABLE TIPO ICON-RAIL) -->
     <aside class="menu" id="sidebar-menu">
         <div class="logo">
             <img src="logo_white.png" alt="CEDES Don Bosco" class="logo-blanco">
         </div>
 
+        <!-- BOTÓN HAMBURGUESA DENTRO DEL PANEL AZUL -->
+        <button type="button" class="btn-hamburguesa-menu" onclick="alternarMenu()" title="Expandir / Contraer menú" aria-label="Alternar menú lateral">
+            <svg class="icono" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="3" y1="6" x2="21" y2="6"></line>
+                <line x1="3" y1="12" x2="21" y2="12"></line>
+                <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
+        </button>
+
         <nav class="opciones">
-            <a href="principal.php">
+            <a href="principal.php" title="Home">
                 <svg class="icono" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
                     <polyline points="9 22 9 12 15 12 15 22"></polyline>
                 </svg>
-                <span>Home</span>
+                <span class="texto-menu">Home</span>
             </a>
 
-            <a href="#">
+            <a href="docentes.php" title="Docentes">
                 <svg class="icono" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
                     <circle cx="9" cy="7" r="4"></circle>
                     <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
                     <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
                 </svg>
-                <span>Docentes</span>
+                <span class="texto-menu">Docentes</span>
             </a>
 
-            <a href="#">
+            <a href="#" title="Rúbricas">
                 <svg class="icono" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
                     <polyline points="14 2 14 8 20 8"></polyline>
                     <line x1="16" y1="13" x2="8" y2="13"></line>
                     <line x1="16" y1="17" x2="8" y2="17"></line>
                 </svg>
-                <span>Rúbricas</span>
+                <span class="texto-menu">Rúbricas</span>
             </a>
 
-            <a href="#">
+            <a href="#" title="Evaluar">
                 <svg class="icono" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <polyline points="20 6 9 17 4 12"></polyline>
                 </svg>
-                <span>Evaluar</span>
+                <span class="texto-menu">Evaluar</span>
             </a>
 
-            <a href="#">
+            <a href="#" title="Estadística">
                 <svg class="icono" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <line x1="18" y1="20" x2="18" y2="10"></line>
                     <line x1="12" y1="20" x2="12" y2="4"></line>
                     <line x1="6" y1="20" x2="6" y2="14"></line>
                 </svg>
-                <span>Estadística</span>
+                <span class="texto-menu">Estadística</span>
             </a>
         </nav>
 
         <div class="pie-menu">
-            <div class="usuario">
+            <div class="usuario" title="<?php echo $nombre . ' - ' . $rol; ?>">
                 <div class="avatar-iniciales">JM</div>
-                <div>
+                <div class="info-usuario">
                     <strong><?php echo $nombre; ?></strong>
                     <p><?php echo $rol; ?></p>
                 </div>
             </div>
 
-            <button type="button" class="salir" onclick="abrirModalSalir()">
+            <button type="button" class="salir" onclick="abrirModalSalir()" title="Cerrar Sesión">
                 <svg class="icono" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
                     <polyline points="16 17 21 12 16 7"></polyline>
                     <line x1="21" y1="12" x2="9" y2="12"></line>
                 </svg>
-                <span>Cerrar Sesión</span>
+                <span class="texto-menu">Cerrar Sesión</span>
             </button>
         </div>
     </aside>
@@ -109,22 +118,12 @@ $dias_cierre = 11;
     <!-- ÁREA DERECHA: CONTENIDO PRINCIPAL COMPACTO -->
     <main class="contenido">
         
-        <!-- ENCABEZADO DE BIENVENIDA CON BOTÓN HAMBURGUESA -->
+        <!-- ENCABEZADO DE BIENVENIDA -->
         <header class="banner-bienvenida">
-            <div class="bienvenida-izq-grupo">
-                <button type="button" class="btn-hamburguesa" onclick="alternarMenu()" title="Mostrar / Ocultar menú" aria-label="Alternar menú lateral">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="3" y1="6" x2="21" y2="6"></line>
-                        <line x1="3" y1="12" x2="21" y2="12"></line>
-                        <line x1="3" y1="18" x2="21" y2="18"></line>
-                    </svg>
-                </button>
-
-                <div class="bienvenida-izq">
-                    <span class="saludo-tiempo" id="saludo-tiempo">Buenos días</span>
-                    <h1>¡Hola, <span class="nombre-destacado"><?php echo $primer_nombre; ?></span>!</h1>
-                    <p class="subtitulo">Te damos la bienvenida al sistema de evaluaciones docentes</p>
-                </div>
+            <div class="bienvenida-izq">
+                <span class="saludo-tiempo" id="saludo-tiempo">Buenos días</span>
+                <h1>¡Hola, <span class="nombre-destacado"><?php echo $primer_nombre; ?></span>!</h1>
+                <p class="subtitulo">Te damos la bienvenida al sistema de evaluaciones docentes</p>
             </div>
 
             <div class="bienvenida-der">
@@ -334,11 +333,11 @@ $dias_cierre = 11;
 </div>
 
 <script>
-    // Esconder / Mostrar panel lateral azul con botón hamburguesa
+    // Contraer / Expandir panel lateral azul a modo barra de íconos
     function alternarMenu() {
         const menu = document.getElementById('sidebar-menu');
-        menu.classList.toggle('oculto');
-        localStorage.setItem('menu_oculto', menu.classList.contains('oculto') ? '1' : '0');
+        menu.classList.toggle('colapsado');
+        localStorage.setItem('menu_colapsado', menu.classList.contains('colapsado') ? '1' : '0');
     }
 
     function iniciarBienvenida() {
@@ -363,9 +362,9 @@ $dias_cierre = 11;
     window.onload = function() {
         iniciarBienvenida();
 
-        // Restaurar si el usuario había ocultado el menú lateral
-        if (localStorage.getItem('menu_oculto') === '1') {
-            document.getElementById('sidebar-menu').classList.add('oculto');
+        // Restaurar si el usuario había dejado el menú colapsado
+        if (localStorage.getItem('menu_colapsado') === '1') {
+            document.getElementById('sidebar-menu').classList.add('colapsado');
         }
 
         const fechaGuardada = localStorage.getItem('fecha_iso');
