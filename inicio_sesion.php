@@ -1,7 +1,7 @@
 <?php
 session_start();
 
-// Credenciales temporales (sin base de datos)
+// Credenciales temporales
 $cedula_valida = "18965420";
 $contrasena_valida = "7894";
 
@@ -34,7 +34,7 @@ if (isset($_SESSION['usuario_id'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CEDES Don Bosco - Iniciar Sesión</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="login.css">
 </head>
 <body>
 
