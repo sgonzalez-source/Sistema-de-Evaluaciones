@@ -140,7 +140,7 @@ $titulo_miga = "Plantillas de evaluación";
             <div class="cabecera-editor">
                 <div>
                     <h1 class="titulo-pagina" id="titulo-editor-principal">Crear plantilla</h1>
-                    <p class="ayuda-edicion">Edita libremente cualquier campo, criterio, nivel o puntaje de la rúbrica institucional.</p>
+                    <p class="ayuda-edicion">Edita libremente cualquier campo, criterio o descripción de la rúbrica institucional.</p>
                 </div>
 
                 <div class="botones-superiores-editor">
@@ -201,11 +201,11 @@ $titulo_miga = "Plantillas de evaluación";
                     <tfoot>
                         <tr class="fila-total-salmon">
                             <td colspan="6" class="texto-total-label">Puntuación total obtenida</td>
-                            <td class="valor-total-num" id="total-puntos">32</td>
+                            <td class="valor-total-num" id="total-puntos"></td>
                         </tr>
                         <tr class="fila-interpretacion-amarilla">
                             <td colspan="6" class="texto-interp-label">Interpretación de la puntuación</td>
-                            <td class="valor-interp-texto" id="texto-interpretacion">Desempeño Excelente</td>
+                            <td class="valor-interp-texto" id="texto-interpretacion"></td>
                         </tr>
                     </tfoot>
                 </table>
@@ -278,6 +278,7 @@ $titulo_miga = "Plantillas de evaluación";
 </div>
 
 <script>
+    // Los 8 criterios institucionales precargados sin selección ni puntaje escrito
     const criteriosBase = [
         {
             criterio: "Observación de clase",
@@ -285,7 +286,7 @@ $titulo_miga = "Plantillas de evaluación";
             mb: "Las clases son generalmente participativas y promueven el aprendizaje.",
             b: "Las clases pueden ser un poco pasivas y no siempre promueven el aprendizaje.",
             m: "Las clases son generalmente pasivas y no promueven el aprendizaje.",
-            seleccion: "4"
+            seleccion: ""
         },
         {
             criterio: "Dominio de los contenidos",
@@ -293,7 +294,7 @@ $titulo_miga = "Plantillas de evaluación";
             mb: "Tiene un buen dominio del contenido y las estrategias de enseñanza.",
             b: "Tiene un dominio básico del contenido y las estrategias de enseñanza.",
             m: "Tiene un dominio limitado del contenido y las estrategias de enseñanza.",
-            seleccion: "4"
+            seleccion: ""
         },
         {
             criterio: "Planeación",
@@ -301,7 +302,7 @@ $titulo_miga = "Plantillas de evaluación";
             mb: "Los planes de clase son generalmente claros, concisos, están organizados y se alinean con los estándares de aprendizaje y las necesidades de la mayoría de los estudiantes.",
             b: "Los planes de clase pueden ser un poco confusos y desorganizados. No siempre se alinean con los estándares de aprendizaje o las necesidades de todos los estudiantes.",
             m: "Los planes de clase son confusos y desorganizados. No se alinean con los estándares de aprendizaje ni con las necesidades de los estudiantes.",
-            seleccion: "4"
+            seleccion: ""
         },
         {
             criterio: "Mediación pedagógica",
@@ -309,7 +310,7 @@ $titulo_miga = "Plantillas de evaluación";
             mb: "Utiliza algunas estrategias de enseñanza efectivas para involucrar a la mayoría de los estudiantes.",
             b: "Utiliza pocas estrategias de enseñanza efectivas para involucrar a los estudiantes.",
             m: "No utiliza estrategias de enseñanza efectivas para involucrar a los estudiantes.",
-            seleccion: "4"
+            seleccion: ""
         },
         {
             criterio: "Metacognición del contenido (retroalimentación)",
@@ -317,7 +318,7 @@ $titulo_miga = "Plantillas de evaluación";
             mb: "Brinda retroalimentación a los estudiantes, pero no siempre es clara u oportuna.",
             b: "La retroalimentación a los estudiantes es escasa o no es útil.",
             m: "No brinda retroalimentación a los estudiantes.",
-            seleccion: "4"
+            seleccion: ""
         },
         {
             criterio: "Orden y aseo del aula",
@@ -325,7 +326,7 @@ $titulo_miga = "Plantillas de evaluación";
             mb: "El aula está organizada y limpia. Los materiales didácticos están guardados y accesibles.",
             b: "El aula está organizada, pero puede estar un poco sucia. Los materiales didácticos están guardados, pero pueden no ser fácilmente accesibles.",
             m: "El aula está desorganizada y sucia. Los materiales didácticos no están guardados y no son accesibles.",
-            seleccion: "4"
+            seleccion: ""
         },
         {
             criterio: "Relación con los estudiantes",
@@ -333,7 +334,7 @@ $titulo_miga = "Plantillas de evaluación";
             mb: "Establece algunas relaciones de comunicación respetuosa con algunos estudiantes.",
             b: "Establece muy pocas relaciones de comunicación respetuosa con los estudiantes.",
             m: "No establece relaciones positivas con los estudiantes.",
-            seleccion: "4"
+            seleccion: ""
         },
         {
             criterio: "Ambiente en el aula",
@@ -341,7 +342,7 @@ $titulo_miga = "Plantillas de evaluación";
             mb: "Crea un ambiente de aula generalmente seguro y acogedor donde la mayoría de los estudiantes se sienten valorados y respetados.",
             b: "El ambiente de aula puede ser un poco tenso o no acogedor para algunos estudiantes.",
             m: "El ambiente de aula es tenso y no acogedor para la mayoría de los estudiantes.",
-            seleccion: "4"
+            seleccion: ""
         }
     ];
 
@@ -385,7 +386,6 @@ $titulo_miga = "Plantillas de evaluación";
     let listaPlantillas = [];
     let idPlantillaActual = null;
     let indiceAEliminar = null;
-    // Guarda el HTML original generado por breadcrumbs.php para conservar toda la ruta acumulada
     let htmlMigasBase = "";
 
     function abrirEditorPlantilla(id = null) {
@@ -397,16 +397,18 @@ $titulo_miga = "Plantillas de evaluación";
         const tituloEditor = id !== null ? "Editar plantilla" : "Crear plantilla";
         document.getElementById('titulo-editor-principal').textContent = tituloEditor;
 
-        // Conserva todas las migajas anteriores y agrega el paso actual al final
         const navMigas = document.getElementById('migas-pan-dinamicas');
+        if (!htmlMigasBase) {
+            htmlMigasBase = navMigas.innerHTML;
+        }
         const temp = document.createElement('div');
         temp.innerHTML = htmlMigasBase;
         const ultimoSpan = temp.querySelector('.miga-actual');
         if (ultimoSpan) {
             const enlaceVolver = document.createElement('a');
-            enlaceVolver.href = "javascript:void(0)";
+            enlaceVolver.href = "plantilla_evaluacion.php";
             enlaceVolver.textContent = ultimoSpan.textContent;
-            enlaceVolver.onclick = volverALista;
+            enlaceVolver.setAttribute('onclick', 'volverALista(); return false;');
             ultimoSpan.replaceWith(enlaceVolver);
         }
         navMigas.innerHTML = temp.innerHTML + ` <span>/</span> <span class="miga-actual">${tituloEditor}</span>`;
@@ -425,7 +427,15 @@ $titulo_miga = "Plantillas de evaluación";
                 document.getElementById('rubrica-titulo-banner').value = encontrada.datos.tituloBanner || "RÚBRICA DE OBSERVACIÓN DOCENTE COLEGIO TÉCNICO PROFESIONAL DON BOSCO";
 
                 const filas = (encontrada.datos.filas && encontrada.datos.filas.length > 0) ? encontrada.datos.filas : criteriosBase;
-                filas.forEach(f => agregarFilaCriterio(f));
+                // Al editar una plantilla, las celdas de Selección y Puntaje obtenido siempre inician en blanco
+                filas.forEach(f => agregarFilaCriterio({
+                    criterio: f.criterio,
+                    exc: f.exc,
+                    mb: f.mb,
+                    b: f.b,
+                    m: f.m,
+                    seleccion: ""
+                }));
                 recalcularTotales();
                 window.scrollTo({ top: 0, behavior: 'smooth' });
                 return;
@@ -448,7 +458,9 @@ $titulo_miga = "Plantillas de evaluación";
         idPlantillaActual = null;
         document.getElementById('vista-editor-plantilla').style.display = 'none';
         document.getElementById('vista-lista-plantillas').style.display = 'flex';
-        document.getElementById('migas-pan-dinamicas').innerHTML = htmlMigasBase;
+        if (htmlMigasBase) {
+            document.getElementById('migas-pan-dinamicas').innerHTML = htmlMigasBase;
+        }
 
         renderizarPlantillas();
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -532,10 +544,10 @@ $titulo_miga = "Plantillas de evaluación";
         cerrarModal('modal-eliminar');
     }
 
-    function agregarFilaCriterio(datos = { criterio: "Nuevo criterio", exc: "", mb: "", b: "", m: "", seleccion: "4" }) {
+    function agregarFilaCriterio(datos = { criterio: "Nuevo criterio", exc: "", mb: "", b: "", m: "", seleccion: "" }) {
         const tbody = document.getElementById('cuerpo-criterios');
         const tr = document.createElement('tr');
-        const ptsInicial = datos.seleccion || "4";
+        const ptsInicial = datos.seleccion || "";
 
         tr.innerHTML = `
             <td class="celda-criterio-azul">
@@ -548,6 +560,7 @@ $titulo_miga = "Plantillas de evaluación";
             <td class="celda-nivel"><textarea class="celda-input" placeholder="Descripción Insuficiente...">${datos.m}</textarea></td>
             <td class="celda-seleccion">
                 <select class="select-nivel-rubrica" onchange="actualizarPuntajeFila(this)">
+                    <option value="" ${ptsInicial === "" ? "selected" : ""}></option>
                     <option value="4" ${ptsInicial === "4" ? "selected" : ""}>Excelente</option>
                     <option value="3" ${ptsInicial === "3" ? "selected" : ""}>Muy Bueno</option>
                     <option value="2" ${ptsInicial === "2" ? "selected" : ""}>Bueno</option>
@@ -579,18 +592,32 @@ $titulo_miga = "Plantillas de evaluación";
     function recalcularTotales() {
         const inputs = document.querySelectorAll('.input-puntaje-celda');
         let suma = 0;
+        let hayAlgunValor = false;
         let maximoPosible = inputs.length * 4;
 
         inputs.forEach(inp => {
-            const val = parseFloat(inp.value);
-            if (!isNaN(val)) suma += val;
+            if (inp.value !== "") {
+                const val = parseFloat(inp.value);
+                if (!isNaN(val)) {
+                    suma += val;
+                    hayAlgunValor = true;
+                }
+            }
         });
 
-        document.getElementById('total-puntos').textContent = suma;
-
-        const porcentaje = maximoPosible > 0 ? (suma / maximoPosible) * 100 : 0;
+        const totalEl = document.getElementById('total-puntos');
         const celdaInterp = document.getElementById('texto-interpretacion');
 
+        // Si no hay puntajes escritos, tanto el total como la interpretación quedan en blanco
+        if (!hayAlgunValor) {
+            totalEl.textContent = "";
+            celdaInterp.textContent = "";
+            return;
+        }
+
+        totalEl.textContent = suma;
+
+        const porcentaje = maximoPosible > 0 ? (suma / maximoPosible) * 100 : 0;
         if (porcentaje >= 85) {
             celdaInterp.textContent = "Desempeño Excelente";
         } else if (porcentaje >= 70) {
@@ -616,8 +643,6 @@ $titulo_miga = "Plantillas de evaluación";
         filasDom.forEach(tr => {
             const crit = tr.querySelector('.input-criterio-nombre').value;
             const textos = tr.querySelectorAll('.celda-input');
-            const sel = tr.querySelector('.select-nivel-rubrica').value;
-            const pts = tr.querySelector('.input-puntaje-celda').value;
 
             filasDatos.push({
                 criterio: crit,
@@ -625,8 +650,8 @@ $titulo_miga = "Plantillas de evaluación";
                 mb: textos[1].value,
                 b: textos[2].value,
                 m: textos[3].value,
-                seleccion: sel,
-                pts: pts
+                seleccion: "",
+                pts: ""
             });
         });
 
