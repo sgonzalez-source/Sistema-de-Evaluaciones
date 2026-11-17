@@ -1,7 +1,6 @@
 <?php
 session_start();
 
-// Si confirmó "Cerrar Sesión" en el modal, destruye la sesión y vuelve a inicio_sesion.php
 if (isset($_GET['salir'])) {
     session_destroy();
     header("Location: inicio_sesion.php");
@@ -69,7 +68,7 @@ $rol = $_SESSION["rol"] ?? "Coordinador";
                 <span class="texto-menu">Plantillas de evaluación</span>
             </a>
 
-            <a href="#" title="Evaluar">
+            <a href="evaluar.php" title="Evaluar">
                 <svg class="icono" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <polyline points="20 6 9 17 4 12"></polyline>
                 </svg>
@@ -109,13 +108,10 @@ $rol = $_SESSION["rol"] ?? "Coordinador";
     <!-- ÁREA DERECHA: GESTIÓN DE DOCENTES A CARGO -->
     <main class="contenido contenido-docentes">
 
-        <!-- RUTA DE NAVEGACIÓN DINÁMICA -->
         <?php include 'breadcrumbs.php'; ?>
 
-        <!-- TÍTULO PRINCIPAL -->
         <h1 class="titulo-pagina">Gestión de Docentes a Cargo</h1>
 
-        <!-- BARRA DE BÚSQUEDA, FILTRO Y BOTÓN AGREGAR -->
         <div class="barra-herramientas">
             <div class="caja-busqueda">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -150,7 +146,6 @@ $rol = $_SESSION["rol"] ?? "Coordinador";
             </div>
         </div>
 
-        <!-- TABLA DE DOCENTES -->
         <div class="contenedor-tabla">
             <table class="tabla-docentes">
                 <thead>
@@ -162,16 +157,14 @@ $rol = $_SESSION["rol"] ?? "Coordinador";
                         <th>Estado</th>
                     </tr>
                 </thead>
-                <tbody id="cuerpo-tabla-docentes">
-                    <!-- Se llena dinámicamente desde JavaScript / localStorage -->
-                </tbody>
+                <tbody id="cuerpo-tabla-docentes"></tbody>
             </table>
         </div>
 
     </main>
 </div>
 
-<!-- MODAL: AGREGAR NUEVO DOCENTE CON SELECTOR REAL DE ARCHIVO -->
+<!-- MODAL: AGREGAR NUEVO DOCENTE CON GUARDADO REAL DE PDF -->
 <div class="fondo-modal" id="modal-agregar" onclick="cerrarSiFuera(event, 'modal-agregar')">
     <div class="caja-modal caja-modal-form">
         <button type="button" class="cerrar-modal-x" onclick="cerrarModal('modal-agregar')" aria-label="Cerrar">
@@ -212,8 +205,8 @@ $rol = $_SESSION["rol"] ?? "Coordinador";
             </div>
 
             <div class="campo-form">
-                <label>Subir planeamiento</label>
-                <input type="file" id="nuevo-planeamiento-archivo" accept=".pdf,.doc,.docx,application/pdf" style="display: none;" onchange="mostrarArchivoSeleccionado(this)">
+                <label>Subir planeamiento (PDF)</label>
+                <input type="file" id="nuevo-planeamiento-archivo" accept=".pdf,application/pdf" style="display: none;" onchange="mostrarArchivoSeleccionado(this)">
                 
                 <div class="caja-subir-archivo" onclick="document.getElementById('nuevo-planeamiento-archivo').click()">
                     <div class="btn-subir-visual">
@@ -292,10 +285,10 @@ $rol = $_SESSION["rol"] ?? "Coordinador";
 
 <script>
     const docentesIniciales = [
-        { cedula: "100564782", nombre: "Lucía Rodríguez", materia: "Español", pdf: "Planeamiento_Espanol_Lucia.pdf", activo: false },
-        { cedula: "203648647", nombre: "Mario López", materia: "Química", pdf: "Planeamiento_Quimica_Mario.pdf", activo: true },
-        { cedula: "187263944", nombre: "Randall Ocón", materia: "Matemáticas", pdf: "Planeamiento_Mate_Randall.pdf", activo: false },
-        { cedula: "166478230", nombre: "Sharon Mendes", materia: "Música", pdf: "Planeamiento_Musica_Sharon.pdf", activo: true }
+        { cedula: "100564782", nombre: "Lucía Rodríguez", materia: "Español", pdf: "Planeamiento_Espanol_Lucia.pdf", pdfData: "", activo: false },
+        { cedula: "203648647", nombre: "Mario López", materia: "Química", pdf: "Planeamiento_Quimica_Mario.pdf", pdfData: "", activo: true },
+        { cedula: "187263944", nombre: "Randall Ocón", materia: "Matemáticas", pdf: "Planeamiento_Mate_Randall.pdf", pdfData: "", activo: false },
+        { cedula: "166478230", nombre: "Sharon Mendes", materia: "Música", pdf: "Planeamiento_Musica_Sharon.pdf", pdfData: "", activo: true }
     ];
 
     let listaDocentes = [];
@@ -394,32 +387,53 @@ $rol = $_SESSION["rol"] ?? "Coordinador";
         const materia = document.getElementById('nuevo-materia').value;
         const inputArchivo = document.getElementById('nuevo-planeamiento-archivo');
 
-        let nombrePdf = "Planeamiento_2026.pdf";
+        const finalizarGuardado = (nombrePdf, archivoBase64) => {
+            listaDocentes.push({
+                cedula: cedula,
+                nombre: nombre,
+                materia: materia,
+                pdf: nombrePdf,
+                pdfData: archivoBase64 || "",
+                activo: true
+            });
+
+            try {
+                localStorage.setItem('lista_docentes_cedes', JSON.stringify(listaDocentes));
+            } catch (err) {
+                listaDocentes[listaDocentes.length - 1].pdfData = "";
+                localStorage.setItem('lista_docentes_cedes', JSON.stringify(listaDocentes));
+                alert("El docente se guardó, pero el PDF pesa demasiado para almacenarse en caché local.");
+            }
+
+            renderizarTabla();
+            cerrarModal('modal-agregar');
+            e.target.reset();
+            document.getElementById('texto-archivo-elegido').textContent = "Ningún archivo seleccionado";
+            document.getElementById('texto-archivo-elegido').classList.remove('archivo-cargado');
+        };
+
         if (inputArchivo.files && inputArchivo.files.length > 0) {
             const archivo = inputArchivo.files[0];
-            nombrePdf = archivo.name;
             archivosTemporales[cedula] = URL.createObjectURL(archivo);
+            const lector = new FileReader();
+            lector.onload = function(evento) {
+                finalizarGuardado(archivo.name, evento.target.result);
+            };
+            lector.readAsDataURL(archivo);
+        } else {
+            finalizarGuardado("Planeamiento_2026.pdf", "");
         }
-
-        listaDocentes.push({
-            cedula: cedula,
-            nombre: nombre,
-            materia: materia,
-            pdf: nombrePdf,
-            activo: true
-        });
-
-        localStorage.setItem('lista_docentes_cedes', JSON.stringify(listaDocentes));
-        renderizarTabla();
-        cerrarModal('modal-agregar');
-        e.target.reset();
-        document.getElementById('texto-archivo-elegido').textContent = "Ningún archivo seleccionado";
-        document.getElementById('texto-archivo-elegido').classList.remove('archivo-cargado');
     }
 
     function verPlaneamiento(cedula, nombreDocente, archivoPdf) {
+        const doc = listaDocentes.find(d => d.cedula === cedula);
         if (archivosTemporales[cedula]) {
             window.open(archivosTemporales[cedula], '_blank');
+            return;
+        }
+        if (doc && doc.pdfData && doc.pdfData.startsWith('data:')) {
+            const win = window.open();
+            win.document.write(`<iframe src="${doc.pdfData}" frameborder="0" style="border:0; top:0; left:0; bottom:0; right:0; width:100%; height:100%;" allowfullscreen></iframe>`);
             return;
         }
 
