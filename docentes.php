@@ -23,7 +23,7 @@ $rol = $_SESSION["rol"] ?? "Coordinador";
 
 <div class="contenedor-general">
 
-    <!-- MENÚ LATERAL AZUL (COLAPSABLE SIN PARPADEO) -->
+    <!-- MENÚ LATERAL AZUL -->
     <aside class="menu" id="sidebar-menu">
         <script>if(localStorage.getItem('menu_colapsado')==='1')document.getElementById('sidebar-menu').classList.add('colapsado');</script>
 
@@ -105,7 +105,7 @@ $rol = $_SESSION["rol"] ?? "Coordinador";
         </div>
     </aside>
 
-    <!-- ÁREA DERECHA: GESTIÓN DE DOCENTES A CARGO -->
+    <!-- GESTIÓN DE DOCENTES A CARGO -->
     <main class="contenido contenido-docentes">
 
         <?php include 'breadcrumbs.php'; ?>
@@ -164,14 +164,14 @@ $rol = $_SESSION["rol"] ?? "Coordinador";
     </main>
 </div>
 
-<!-- MODAL: AGREGAR NUEVO DOCENTE CON GUARDADO REAL DE PDF -->
+<!-- MODAL: AGREGAR NUEVO DOCENTE  -->
 <div class="fondo-modal" id="modal-agregar" onclick="cerrarSiFuera(event, 'modal-agregar')">
     <div class="caja-modal caja-modal-form">
         <button type="button" class="cerrar-modal-x" onclick="cerrarModal('modal-agregar')" aria-label="Cerrar">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <line x1="18" y1="6" x2="6" y2="18"></line>
                 <line x1="6" y1="6" x2="18" y2="18"></line>
-            </svg>
+            </svg>  
         </button>
 
         <h2>Agregar Nuevo Docente</h2>

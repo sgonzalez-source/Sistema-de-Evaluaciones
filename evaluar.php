@@ -111,9 +111,7 @@ $titulo_miga = "Evaluación";
 
         <?php include 'breadcrumbs.php'; ?>
 
-        <!-- =================================================================
-             VISTA 1: BUSCADOR Y SELECCIÓN DE DOCENTE A EVALUAR
-        ================================================================== -->
+        <!--  BUSCADOR Y SELECCIÓN DE DOCENTE A EVALUAR -->
         <section id="vista-seleccion-docente" class="seccion-vista">
             <div class="cabecera-buscador-eval">
                 <div>
@@ -133,9 +131,7 @@ $titulo_miga = "Evaluación";
             <div class="grid-docentes-eval" id="grid-docentes-eval"></div>
         </section>
 
-        <!-- =================================================================
-             VISTA 2: EVALUACIÓN Y REVISIÓN (PLANEAMIENTO REAL + RÚBRICA CLICKEABLE)
-        ================================================================== -->
+        <!--  EVALUACIÓN Y REVISIÓN  -->
         <section id="vista-panel-evaluacion" class="seccion-vista" style="display: none;">
             <div class="cabecera-panel-eval">
                 <div>
@@ -149,7 +145,7 @@ $titulo_miga = "Evaluación";
             <!-- CONTENEDOR DIVIDIDO -->
             <div class="grid-division-evaluacion">
 
-                <!-- PANEL IZQUIERDO: VISOR DE PLANEAMIENTO -->
+                <!--VISOR DE PLANEAMIENTO -->
                 <div class="panel-planeamiento">
                     <div class="barra-archivo-pdf">
                         <div class="info-archivo-pdf">
@@ -174,7 +170,7 @@ $titulo_miga = "Evaluación";
                     <div class="visor-documento-blanco" id="visor-documento-blanco"></div>
                 </div>
 
-                <!-- PANEL DERECHO: RÚBRICA VIGENTE -->
+                <!--RÚBRICA VIGENTE -->
                 <div class="panel-rubrica-eval">
                     <div class="hoja-rubrica-eval">
                         <table class="tabla-rubrica-eval">
