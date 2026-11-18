@@ -115,7 +115,6 @@ $titulo_miga = "Plantillas de evaluación";
         <section id="vista-lista-plantillas" class="seccion-vista">
             <header class="banner-seccion">
                 <div class="banner-izq">
-                    <span class="etiqueta-superior">Instrumentos Institucionales</span>
                     <h1>Plantillas de evaluación</h1>
                     <p class="subtitulo-banner">Configura, edita y activa las rúbricas oficiales de observación docente para cada periodo escolar.</p>
                 </div>
