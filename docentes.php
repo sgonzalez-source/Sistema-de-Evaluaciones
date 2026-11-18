@@ -18,27 +18,8 @@ $anio_escolar = "2026";
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestión de Docentes - CEDES Don Bosco</title>
-    <link rel="stylesheet" href="principal.css?v=40">
-    <link rel="stylesheet" href="docentes.css?v=10">
-    <style>
-        select#select-materia.select-filtro {
-            appearance: none !important;
-            -webkit-appearance: none !important;
-            -moz-appearance: none !important;
-            background-color: #ffffff !important;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23475569' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") !important;
-            background-repeat: no-repeat !important;
-            background-position: right 14px center !important;
-            background-size: 15px !important;
-            padding: 8px 42px 8px 16px !important;
-            min-width: 195px !important;
-            border: 1.2px solid #cbd5e1 !important;
-            border-radius: 9px !important;
-            font-size: 13.5px !important;
-            color: #1e293b !important;
-            cursor: pointer !important;
-        }
-    </style>
+    <link rel="stylesheet" href="principal.css?v=46">
+    <link rel="stylesheet" href="docentes.css?v=15">
 </head>
 <body>
 
@@ -126,15 +107,15 @@ $anio_escolar = "2026";
         </div>
     </aside>
 
-    <!-- GESTIÓN DE DOCENTES A CARGO -->
+    <!-- ÁREA DERECHA: GESTIÓN DE DOCENTES A CARGO -->
     <main class="contenido contenido-docentes">
 
         <?php include 'breadcrumbs.php'; ?>
 
-        <!-- WIDGET DE ENCABEZADO UNIFICADO Y COMPACTO -->
+        <!-- WIDGET DE ENCABEZADO SIN ETIQUETA SUPERIOR Y CON TÍTULO EN NEGRITA -->
         <header class="banner-seccion">
-            <div class="banner-izq"
-                <h1>Gestión de Docentes a Cargo</h1>
+            <div class="banner-izq">
+                <h1 class="titulo-docentes-bold">Gestión de Docentes a Cargo</h1>
                 <p class="subtitulo-banner">Administra la lista de docentes asignados, revisa sus planeamientos y controla su estado activo.</p>
             </div>
 

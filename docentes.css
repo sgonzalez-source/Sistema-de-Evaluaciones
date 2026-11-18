@@ -3,6 +3,15 @@
     gap: 14px;
 }
 
+.contenido-docentes .banner-izq h1,
+.titulo-docentes-bold {
+    font-size: 22px !important;
+    font-weight: 800 !important;
+    color: #071342 !important;
+    letter-spacing: -0.4px !important;
+    margin: 0 !important;
+}
+
 .barra-herramientas {
     display: flex;
     justify-content: space-between;
@@ -52,29 +61,30 @@
 }
 
 /* SELECT CON FLECHA PERSONALIZADA Y ESPACIADO CORRECTO */
-.select-filtro {
+select#select-materia.select-filtro {
     appearance: none !important;
     -webkit-appearance: none !important;
     -moz-appearance: none !important;
-    background-color: #ffffff;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='15' height='15' viewBox='0 0 24 24' fill='none' stroke='%23475569' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 12px center;
-    background-size: 14px;
-    border: 1.2px solid #cbd5e1;
-    border-radius: 9px;
-    padding: 8px 36px 8px 14px;
-    font-size: 13px;
-    font-weight: 500;
-    color: #1e293b;
-    cursor: pointer;
-    outline: none;
+    background-color: #ffffff !important;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23475569' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") !important;
+    background-repeat: no-repeat !important;
+    background-position: right 14px center !important;
+    background-size: 15px !important;
+    border: 1.2px solid #cbd5e1 !important;
+    border-radius: 9px !important;
+    padding: 8px 42px 8px 16px !important;
+    min-width: 195px !important;
+    font-size: 13.5px !important;
+    font-weight: 500 !important;
+    color: #1e293b !important;
+    cursor: pointer !important;
+    outline: none !important;
     transition: border-color 0.2s;
 }
 
-.select-filtro:hover,
-.select-filtro:focus {
-    border-color: #15803d;
+select#select-materia.select-filtro:hover,
+select#select-materia.select-filtro:focus {
+    border-color: #15803d !important;
 }
 
 /* BOTÓN + AGREGAR DOCENTE COMPACTO Y VERDE OSCURO */
