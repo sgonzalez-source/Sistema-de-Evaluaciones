@@ -9,6 +9,8 @@ if (isset($_GET['salir'])) {
 
 $nombre = $_SESSION["usuario"] ?? "Javier Mena";
 $rol = $_SESSION["rol"] ?? "Coordinador";
+$titulo_miga = "Gestión de Docentes";
+$anio_escolar = "2026";
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -16,8 +18,27 @@ $rol = $_SESSION["rol"] ?? "Coordinador";
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestión de Docentes - CEDES Don Bosco</title>
-    <link rel="stylesheet" href="principal.css?v=13">
-    <link rel="stylesheet" href="docentes.css?v=3">
+    <link rel="stylesheet" href="principal.css?v=40">
+    <link rel="stylesheet" href="docentes.css?v=10">
+    <style>
+        select#select-materia.select-filtro {
+            appearance: none !important;
+            -webkit-appearance: none !important;
+            -moz-appearance: none !important;
+            background-color: #ffffff !important;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23475569' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") !important;
+            background-repeat: no-repeat !important;
+            background-position: right 14px center !important;
+            background-size: 15px !important;
+            padding: 8px 42px 8px 16px !important;
+            min-width: 195px !important;
+            border: 1.2px solid #cbd5e1 !important;
+            border-radius: 9px !important;
+            font-size: 13.5px !important;
+            color: #1e293b !important;
+            cursor: pointer !important;
+        }
+    </style>
 </head>
 <body>
 
@@ -31,7 +52,7 @@ $rol = $_SESSION["rol"] ?? "Coordinador";
             <img src="logo_white.png" alt="CEDES Don Bosco" class="logo-blanco">
         </div>
 
-        <button type="button" class="btn-hamburguesa-menu" onclick="alternarMenu()" title="Expandir / Contraer menú" aria-label="Alternar menú lateral">
+        <button type="button" class="btn-hamburguesa-menu" onclick="alternarMenu()" title="Expandir / Contraer menú">
             <svg class="icono" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <line x1="3" y1="6" x2="21" y2="6"></line>
                 <line x1="3" y1="12" x2="21" y2="12"></line>
@@ -110,8 +131,25 @@ $rol = $_SESSION["rol"] ?? "Coordinador";
 
         <?php include 'breadcrumbs.php'; ?>
 
-        <h1 class="titulo-pagina">Gestión de Docentes a Cargo</h1>
+        <!-- WIDGET DE ENCABEZADO UNIFICADO Y COMPACTO -->
+        <header class="banner-seccion">
+            <div class="banner-izq"
+                <h1>Gestión de Docentes a Cargo</h1>
+                <p class="subtitulo-banner">Administra la lista de docentes asignados, revisa sus planeamientos y controla su estado activo.</p>
+            </div>
 
+            <div class="banner-der">
+                <div class="pildora-info">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M22 10v6M2 10l10-5 10 5-10 5z"></path>
+                        <path d="M6 12v5c3 3 9 3 12 0v-5"></path>
+                    </svg>
+                    <span>Año escolar <strong><?php echo $anio_escolar; ?></strong></span>
+                </div>
+            </div>
+        </header>
+
+        <!-- BARRA DE BÚSQUEDA Y BOTÓN + AGREGAR DOCENTE -->
         <div class="barra-herramientas">
             <div class="caja-busqueda">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -136,16 +174,18 @@ $rol = $_SESSION["rol"] ?? "Coordinador";
                     <option value="Educación Física">Educación Física</option>
                 </select>
 
+                <!-- SÍMBOLO + POR DELANTE Y COLOR VERDE OSCURO -->
                 <button type="button" class="btn-agregar-docente" onclick="abrirModalAgregar()">
-                    <span>Agregar docente</span>
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
                         <line x1="12" y1="5" x2="12" y2="19"></line>
                         <line x1="5" y1="12" x2="19" y2="12"></line>
                     </svg>
+                    <span>Agregar docente</span>
                 </button>
             </div>
         </div>
 
+        <!-- TABLA CON COLUMNA ACCIONES (EDITAR + SWITCH + ELIMINAR) -->
         <div class="contenedor-tabla">
             <table class="tabla-docentes">
                 <thead>
@@ -154,7 +194,7 @@ $rol = $_SESSION["rol"] ?? "Coordinador";
                         <th>Docente</th>
                         <th>Materia</th>
                         <th>Planeamiento</th>
-                        <th>Estado</th>
+                        <th class="col-acciones-header">Acciones</th>
                     </tr>
                 </thead>
                 <tbody id="cuerpo-tabla-docentes"></tbody>
@@ -164,20 +204,20 @@ $rol = $_SESSION["rol"] ?? "Coordinador";
     </main>
 </div>
 
-<!-- MODAL: AGREGAR NUEVO DOCENTE  -->
+<!-- MODAL: AGREGAR / EDITAR DOCENTE -->
 <div class="fondo-modal" id="modal-agregar" onclick="cerrarSiFuera(event, 'modal-agregar')">
     <div class="caja-modal caja-modal-form">
         <button type="button" class="cerrar-modal-x" onclick="cerrarModal('modal-agregar')" aria-label="Cerrar">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <line x1="18" y1="6" x2="6" y2="18"></line>
                 <line x1="6" y1="6" x2="18" y2="18"></line>
-            </svg>  
+            </svg>
         </button>
 
-        <h2>Agregar Nuevo Docente</h2>
-        <p class="subtexto-modal">Completa los datos para asignarlo a tu lista de docentes a cargo.</p>
+        <h2 id="titulo-modal-docente">Agregar Nuevo Docente</h2>
+        <p class="subtexto-modal" id="subtexto-modal-docente">Completa los datos para asignarlo a tu lista de docentes a cargo.</p>
 
-        <form onsubmit="guardarNuevoDocente(event)" class="form-modal-docente">
+        <form onsubmit="guardarDocente(event)" class="form-modal-docente">
             <div class="campo-form">
                 <label for="nuevo-cedula">Cédula</label>
                 <input type="text" id="nuevo-cedula" placeholder="Ej. 100564782" required>
@@ -223,9 +263,38 @@ $rol = $_SESSION["rol"] ?? "Coordinador";
 
             <div class="botones-modal">
                 <button type="button" class="btn-modal-cancelar" onclick="cerrarModal('modal-agregar')">Cancelar</button>
-                <button type="submit" class="btn-modal-guardar-azul">Guardar Docente</button>
+                <button type="submit" class="btn-modal-guardar-verde" id="btn-submit-docente">Guardar Docente</button>
             </div>
         </form>
+    </div>
+</div>
+
+<!-- MODAL: CONFIRMAR ELIMINAR DOCENTE -->
+<div class="fondo-modal" id="modal-eliminar-docente" onclick="cerrarSiFuera(event, 'modal-eliminar-docente')">
+    <div class="caja-modal">
+        <button type="button" class="cerrar-modal-x" onclick="cerrarModal('modal-eliminar-docente')" aria-label="Cerrar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+        </button>
+
+        <div class="icono-modal-rojo">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                <line x1="10" y1="11" x2="10" y2="17"></line>
+                <line x1="14" y1="11" x2="14" y2="17"></line>
+            </svg>
+        </div>
+
+        <h2>¿Deseas eliminar este docente?</h2>
+        <p id="texto-eliminar-docente">Esta acción eliminará al docente de tu lista de docentes a cargo.</p>
+
+        <div class="botones-modal">
+            <button type="button" class="btn-modal-cancelar" onclick="cerrarModal('modal-eliminar-docente')">Cancelar</button>
+            <button type="button" class="btn-modal-confirmar-btn" onclick="confirmarEliminarDocente()">Sí, eliminar</button>
+        </div>
     </div>
 </div>
 
@@ -241,7 +310,7 @@ $rol = $_SESSION["rol"] ?? "Coordinador";
 
         <div class="icono-pdf-modal">
             <svg viewBox="0 0 24 24" fill="currentColor">
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 2l5 5h-5V4zM8.5 14.5h1c.8 0 1.5.7 1.5 1.5s-.7 1.5-1.5 1.5H9v1.5H8v-4.5h.5zm3.5 0h1.5c1.1 0 2 .9 2 2v.5c0 1.1-.9 2-2 2H12v-4.5zm4.5 0H19v1h-1.5v.8h1.2v1h-1.2V19h-1v-4.5z"/>
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 2l5 5h-5V4zM8.5 14.5h1c.8 0 1.5.7 1.5 1.5s-.7 1.5-1.5 1.5H9v1.5H8v-4.5h.5zm3.5 0h1.5c1.1 0 2 .9 2 2v.5c0 1-.8 2-2 2H12v-4.5zm4.5 0H19v1h-1.5v.8h1.2v1h-1.2V19h-1v-4.5z"/>
             </svg>
         </div>
 
@@ -249,7 +318,7 @@ $rol = $_SESSION["rol"] ?? "Coordinador";
         <p id="nombre-archivo-pdf" class="archivo-pdf-badge">Planeamiento.pdf</p>
         <p class="detalle-pdf-texto">Documento entregado por el docente para revisión del periodo evaluativo 2026.</p>
 
-        <div class="botones-modal" id="acciones-modal-pdf">
+        <div class="botones-modal">
             <button type="button" class="btn-modal-cancelar" onclick="cerrarModal('modal-pdf')">Cerrar vista previa</button>
         </div>
     </div>
@@ -292,6 +361,8 @@ $rol = $_SESSION["rol"] ?? "Coordinador";
     ];
 
     let listaDocentes = [];
+    let indiceEditando = null;
+    let indiceEliminando = null;
     const archivosTemporales = {};
 
     function obtenerClaseMateria(materia) {
@@ -349,11 +420,28 @@ $rol = $_SESSION["rol"] ?? "Coordinador";
                         </svg>
                     </button>
                 </td>
-                <td>
-                    <label class="switch-estado" title="${doc.activo ? 'Evaluación activa' : 'Pendiente / Inactivo'}">
-                        <input type="checkbox" ${doc.activo ? 'checked' : ''} onchange="cambiarSwitch(${indiceReal}, this.checked)">
-                        <span class="slider-switch"></span>
-                    </label>
+                <td class="col-acciones">
+                    <div class="grupo-acciones-docente">
+                        <button type="button" class="btn-icono-tabla editar" onclick="abrirModalEditar(${indiceReal})" title="Editar docente">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
+                            </svg>
+                        </button>
+
+                        <label class="switch-estado" title="${doc.activo ? 'Docente activo' : 'Docente inactivo'}">
+                            <input type="checkbox" ${doc.activo ? 'checked' : ''} onchange="cambiarSwitch(${indiceReal}, this.checked)">
+                            <span class="slider-switch"></span>
+                        </label>
+
+                        <button type="button" class="btn-icono-tabla eliminar" onclick="pedirEliminarDocente(${indiceReal})" title="Eliminar docente">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="3 6 5 6 21 6"></polyline>
+                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                <line x1="10" y1="11" x2="10" y2="17"></line>
+                                <line x1="14" y1="11" x2="14" y2="17"></line>
+                            </svg>
+                        </button>
+                    </div>
                 </td>
             `;
             tbody.appendChild(fila);
@@ -380,7 +468,45 @@ $rol = $_SESSION["rol"] ?? "Coordinador";
         }
     }
 
-    function guardarNuevoDocente(e) {
+    function abrirModalAgregar() {
+        indiceEditando = null;
+        document.getElementById('titulo-modal-docente').textContent = "Agregar Nuevo Docente";
+        document.getElementById('subtexto-modal-docente').textContent = "Completa los datos para asignarlo a tu lista de docentes a cargo.";
+        document.getElementById('btn-submit-docente').textContent = "Guardar Docente";
+
+        document.getElementById('nuevo-cedula').value = "";
+        document.getElementById('nuevo-nombre').value = "";
+        document.getElementById('nuevo-materia').value = "Español";
+        document.getElementById('nuevo-planeamiento-archivo').value = "";
+        const texto = document.getElementById('texto-archivo-elegido');
+        texto.textContent = "Ningún archivo seleccionado";
+        texto.classList.remove('archivo-cargado');
+
+        document.getElementById('modal-agregar').classList.add('visible');
+    }
+
+    function abrirModalEditar(indice) {
+        indiceEditando = indice;
+        const doc = listaDocentes[indice];
+        if (!doc) return;
+
+        document.getElementById('titulo-modal-docente').textContent = "Editar Docente";
+        document.getElementById('subtexto-modal-docente').textContent = "Modifica la información del docente o actualiza su planeamiento PDF.";
+        document.getElementById('btn-submit-docente').textContent = "Guardar Cambios";
+
+        document.getElementById('nuevo-cedula').value = doc.cedula;
+        document.getElementById('nuevo-nombre').value = doc.nombre;
+        document.getElementById('nuevo-materia').value = doc.materia;
+        document.getElementById('nuevo-planeamiento-archivo').value = "";
+
+        const texto = document.getElementById('texto-archivo-elegido');
+        texto.textContent = doc.pdf || "Ningún archivo seleccionado";
+        if (doc.pdf) texto.classList.add('archivo-cargado');
+
+        document.getElementById('modal-agregar').classList.add('visible');
+    }
+
+    function guardarDocente(e) {
         e.preventDefault();
         const cedula = document.getElementById('nuevo-cedula').value.trim();
         const nombre = document.getElementById('nuevo-nombre').value.trim();
@@ -388,28 +514,38 @@ $rol = $_SESSION["rol"] ?? "Coordinador";
         const inputArchivo = document.getElementById('nuevo-planeamiento-archivo');
 
         const finalizarGuardado = (nombrePdf, archivoBase64) => {
-            listaDocentes.push({
-                cedula: cedula,
-                nombre: nombre,
-                materia: materia,
-                pdf: nombrePdf,
-                pdfData: archivoBase64 || "",
-                activo: true
-            });
+            if (indiceEditando !== null) {
+                const anterior = listaDocentes[indiceEditando];
+                listaDocentes[indiceEditando] = {
+                    ...anterior,
+                    cedula: cedula,
+                    nombre: nombre,
+                    materia: materia,
+                    pdf: nombrePdf || anterior.pdf,
+                    pdfData: archivoBase64 !== null ? archivoBase64 : anterior.pdfData
+                };
+            } else {
+                listaDocentes.push({
+                    cedula: cedula,
+                    nombre: nombre,
+                    materia: materia,
+                    pdf: nombrePdf || "Planeamiento_2026.pdf",
+                    pdfData: archivoBase64 || "",
+                    activo: true
+                });
+            }
 
             try {
                 localStorage.setItem('lista_docentes_cedes', JSON.stringify(listaDocentes));
             } catch (err) {
-                listaDocentes[listaDocentes.length - 1].pdfData = "";
+                const idx = indiceEditando !== null ? indiceEditando : listaDocentes.length - 1;
+                listaDocentes[idx].pdfData = "";
                 localStorage.setItem('lista_docentes_cedes', JSON.stringify(listaDocentes));
-                alert("El docente se guardó, pero el PDF pesa demasiado para almacenarse en caché local.");
             }
 
             renderizarTabla();
             cerrarModal('modal-agregar');
-            e.target.reset();
-            document.getElementById('texto-archivo-elegido').textContent = "Ningún archivo seleccionado";
-            document.getElementById('texto-archivo-elegido').classList.remove('archivo-cargado');
+            indiceEditando = null;
         };
 
         if (inputArchivo.files && inputArchivo.files.length > 0) {
@@ -421,8 +557,26 @@ $rol = $_SESSION["rol"] ?? "Coordinador";
             };
             lector.readAsDataURL(archivo);
         } else {
-            finalizarGuardado("Planeamiento_2026.pdf", "");
+            finalizarGuardado(indiceEditando !== null ? "" : "Planeamiento_2026.pdf", null);
         }
+    }
+
+    function pedirEliminarDocente(indice) {
+        indiceEliminando = indice;
+        const doc = listaDocentes[indice];
+        document.getElementById('texto-eliminar-docente').innerHTML =
+            `¿Estás seguro de eliminar a <strong>${doc.nombre}</strong> (Cédula: ${doc.cedula}) de tu lista?`;
+        document.getElementById('modal-eliminar-docente').classList.add('visible');
+    }
+
+    function confirmarEliminarDocente() {
+        if (indiceEliminando !== null) {
+            listaDocentes.splice(indiceEliminando, 1);
+            localStorage.setItem('lista_docentes_cedes', JSON.stringify(listaDocentes));
+            renderizarTabla();
+            indiceEliminando = null;
+        }
+        cerrarModal('modal-eliminar-docente');
     }
 
     function verPlaneamiento(cedula, nombreDocente, archivoPdf) {
@@ -433,17 +587,13 @@ $rol = $_SESSION["rol"] ?? "Coordinador";
         }
         if (doc && doc.pdfData && doc.pdfData.startsWith('data:')) {
             const win = window.open();
-            win.document.write(`<iframe src="${doc.pdfData}" frameborder="0" style="border:0; top:0; left:0; bottom:0; right:0; width:100%; height:100%;" allowfullscreen></iframe>`);
+            win.document.write(`<iframe src="${doc.pdfData}" frameborder="0" style="border:0; width:100%; height:100%;" allowfullscreen></iframe>`);
             return;
         }
 
         document.getElementById('titulo-pdf-docente').textContent = "Planeamiento de " + nombreDocente;
         document.getElementById('nombre-archivo-pdf').textContent = archivoPdf;
         document.getElementById('modal-pdf').classList.add('visible');
-    }
-
-    function abrirModalAgregar() {
-        document.getElementById('modal-agregar').classList.add('visible');
     }
 
     function abrirModalSalir() {
@@ -483,6 +633,7 @@ $rol = $_SESSION["rol"] ?? "Coordinador";
         if (e.key === 'Escape') {
             cerrarModal('modal-salir');
             cerrarModal('modal-agregar');
+            cerrarModal('modal-eliminar-docente');
             cerrarModal('modal-pdf');
         }
     });

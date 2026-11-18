@@ -1,3 +1,4 @@
+
 .contenido-evaluacion {
     padding: 22px 32px 36px 32px;
     gap: 14px;
@@ -210,7 +211,7 @@
     color: #64748b;
 }
 
-/*  PANTALLA DIVIDIDA */
+/* PANTALLA DIVIDIDA */
 .cabecera-panel-eval {
     display: flex;
     justify-content: space-between;
@@ -240,7 +241,6 @@
 .btn-cambiar-docente:hover {
     background-color: #f1f5f9;
 }
-
 
 .grid-division-evaluacion {
     display: grid;
@@ -395,7 +395,7 @@
     margin-top: 0;
 }
 
-/*  RÚBRICA */
+/* RÚBRICA */
 .panel-rubrica-eval {
     display: flex;
     flex-direction: column;
@@ -407,86 +407,44 @@
     border-radius: 12px;
     overflow-x: auto;
     background-color: #ffffff;
+    width: 100%;
 }
 
 .tabla-rubrica-eval {
     width: 100%;
-    min-width: 680px;
+    min-width: 980px;
     border-collapse: collapse;
     table-layout: fixed;
 }
 
-.tabla-rubrica-eval td,
-.tabla-rubrica-eval th {
-    border: 1px solid #64748b;
+.tabla-rubrica-eval th,
+.tabla-rubrica-eval td {
     box-sizing: border-box;
-    overflow: hidden;
+    min-width: 0;
+    max-width: 100%;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    word-break: normal;
 }
 
-.celda-meta-eval {
-    padding: 5px 10px;
-    font-size: 12px;
-    background-color: #f8fafc;
+/* ANCHOS DE COLUMNAS */
+.col-crit {
+    width: 16%;
 }
 
-.celda-meta-eval label {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    font-weight: 500;
+.col-nivel {
+    width: 16.5%;
 }
 
-.celda-meta-eval input {
-    border: none;
-    background: transparent;
-    outline: none;
-    font-size: 12px;
-    font-weight: 700;
-    color: #071342;
-    width: 100%;
+.col-sel {
+    width: 9%;
 }
 
-.celda-anio-eval,
-.celda-logo-eval {
-    text-align: center;
-    vertical-align: middle;
-    padding: 6px;
-    background-color: #f8fafc;
-    font-size: 13px;
+.col-pts {
+    width: 9%;
 }
 
-.logo-rubrica-eval {
-    width: 100px;
-    height: auto;
-    display: block;
-    margin: 0 auto;
-}
-
-.banner-amarillo-eval {
-    background-color: #fde68a;
-    text-align: center;
-    padding: 6px 8px;
-    font-size: 11.5px;
-    font-weight: 800;
-    color: #0f172a;
-}
-
-.encabezados-rubrica-eval th {
-    background-color: #93b5e1;
-    color: #0f172a;
-    font-size: 10.5px;
-    font-weight: 700;
-    padding: 7px 4px;
-    text-align: center;
-    overflow-wrap: break-word;
-}
-
-.col-crit  { width: 16%; }
-.col-nivel { width: 16.5%; }
-.col-sel   { width: 9%; }
-.col-pts   { width: 9%; }
-
-
+/* CELDAS DE CRITERIOS */
 .celda-crit-eval {
     background-color: #d9e6f7;
     padding: 7px 5px;
@@ -496,11 +454,13 @@
     color: #0f172a;
     text-align: center;
     line-height: 1.25;
+    white-space: normal;
     overflow-wrap: anywhere;
-    word-break: break-word;
+    word-break: normal;
     hyphens: auto;
 }
 
+/* CELDAS DE OPCIONES */
 .celda-opcion-eval {
     background-color: #ffffff;
     padding: 6px 5px;
@@ -509,8 +469,10 @@
     text-align: center;
     line-height: 1.28;
     cursor: pointer;
+    white-space: normal;
     overflow-wrap: anywhere;
-    word-break: break-word;
+    word-break: normal;
+    hyphens: auto;
     transition: background-color 0.15s, box-shadow 0.15s;
 }
 
@@ -545,6 +507,33 @@
     color: #7f1d1d;
     font-weight: 600;
     box-shadow: inset 0 0 0 2px #dc2626;
+}
+
+.logo-rubrica-eval {
+    width: 100px;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+}
+
+.banner-amarillo-eval {
+    background-color: #fde68a;
+    text-align: center;
+    padding: 6px 8px;
+    font-size: 11.5px;
+    font-weight: 800;
+    color: #0f172a;
+}
+
+.encabezados-rubrica-eval th {
+    background-color: #93b5e1;
+    color: #0f172a;
+    font-size: 10.5px;
+    font-weight: 700;
+    padding: 7px 4px;
+    text-align: center;
+    overflow-wrap: anywhere;
+    word-break: normal;
 }
 
 .celda-seleccion-auto {
@@ -672,7 +661,7 @@
     background-color: #11246e;
 }
 
-/* MODAL DE CONFIRMACIÓN Y DESGLOSE DE CORREO  */
+/* MODAL DE CONFIRMACIÓN Y DESGLOSE DE CORREO */
 .campo-correo-confirmar {
     display: flex;
     flex-direction: column;
@@ -789,11 +778,12 @@
     color: #1e3a8a !important;
 }
 
-
+/* RESPONSIVE */
 @media (max-width: 1320px) {
     .grid-division-evaluacion {
         grid-template-columns: 1fr;
     }
+
     .visor-documento-blanco {
         min-height: 360px;
     }

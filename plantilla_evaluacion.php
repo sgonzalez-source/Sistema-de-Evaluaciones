@@ -17,14 +17,14 @@ $titulo_miga = "Plantillas de evaluación";
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Plantillas de evaluación - CEDES Don Bosco</title>
-    <link rel="stylesheet" href="principal.css?v=13">
-    <link rel="stylesheet" href="plantilla_evaluacion.css?v=1">
+    <link rel="stylesheet" href="principal.css?v=20">
+    <link rel="stylesheet" href="plantilla_evaluacion.css?v=4">
 </head>
 <body>
 
 <div class="contenedor-general">
 
-    <!-- MENÚ LATERAL AZUL (COLAPSABLE SIN PARPADEO) -->
+    <!-- MENÚ LATERAL AZUL -->
     <aside class="menu" id="sidebar-menu">
         <script>if(localStorage.getItem('menu_colapsado')==='1')document.getElementById('sidebar-menu').classList.add('colapsado');</script>
 
@@ -106,50 +106,49 @@ $titulo_miga = "Plantillas de evaluación";
         </div>
     </aside>
 
-    <!-- ÁREA DERECHA: CONTENEDOR UNIFICADO DE PLANTILLAS Y EDITOR -->
+    <!-- ÁREA DERECHA -->
     <main class="contenido contenido-plantillas">
 
-        <!-- RUTA DE NAVEGACIÓN DINÁMICA ACUMULATIVA -->
         <?php include 'breadcrumbs.php'; ?>
 
-        <!-- =================================================================
-             VISTA 1: LISTADO DE PLANTILLAS DE EVALUACIÓN
-        ================================================================== -->
+        <!-- VISTA 1: LISTADO DE PLANTILLAS -->
         <section id="vista-lista-plantillas" class="seccion-vista">
-            <div class="cabecera-plantillas">
-                <h1 class="titulo-pagina">Plantillas de evaluación</h1>
+            <header class="banner-seccion">
+                <div class="banner-izq">
+                    <span class="etiqueta-superior">Instrumentos Institucionales</span>
+                    <h1>Plantillas de evaluación</h1>
+                    <p class="subtitulo-banner">Configura, edita y activa las rúbricas oficiales de observación docente para cada periodo escolar.</p>
+                </div>
 
-                <button type="button" class="btn-crear-plantilla" onclick="abrirEditorPlantilla(null)">
-                    <span>Crear plantilla</span>
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="12" y1="5" x2="12" y2="19"></line>
-                        <line x1="5" y1="12" x2="19" y2="12"></line>
-                    </svg>
-                </button>
-            </div>
+                <div class="banner-der">
+                    <button type="button" class="btn-crear-plantilla" onclick="abrirEditorPlantilla(null)">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                        <span>Crear plantilla</span>
+                    </button>
+                </div>
+            </header>
 
-            <div class="lista-plantillas" id="contenedor-plantillas">
-                <!-- Se renderiza desde JavaScript / localStorage -->
-            </div>
+            <div class="lista-plantillas" id="contenedor-plantillas"></div>
         </section>
 
-        <!-- =================================================================
-             VISTA 2: EDITOR COMPLETO DE RÚBRICA (CREAR / EDITAR PLANTILLA)
-        ================================================================== -->
+        <!-- VISTA 2: EDITOR COMPLETO DE RÚBRICA -->
         <section id="vista-editor-plantilla" class="seccion-vista" style="display: none;">
-            <div class="cabecera-editor">
-                <div>
-                    <h1 class="titulo-pagina" id="titulo-editor-principal">Crear plantilla</h1>
-                    <p class="ayuda-edicion">Edita libremente cualquier campo, criterio o descripción de la rúbrica institucional.</p>
+            <header class="banner-seccion">
+                <div class="banner-izq">
+                    <span class="etiqueta-superior">Editor de Rúbrica</span>
+                    <h1 id="titulo-editor-principal">Crear plantilla</h1>
+                    <p class="subtitulo-banner">Edita libremente cualquier campo, criterio o descripción de la rúbrica institucional.</p>
                 </div>
 
                 <div class="botones-superiores-editor">
                     <button type="button" class="btn-volver-lista" onclick="volverALista()">← Volver a plantillas</button>
                     <button type="button" class="btn-agregar-fila" onclick="agregarFilaCriterio()">+ Agregar criterio</button>
                 </div>
-            </div>
+            </header>
 
-            <!-- TABLA OFICIAL DE RÚBRICA INSTITUCIONAL -->
             <div class="hoja-rubrica">
                 <table class="tabla-rubrica-oficial">
                     <tbody>
@@ -278,7 +277,6 @@ $titulo_miga = "Plantillas de evaluación";
 </div>
 
 <script>
-    // Los 8 criterios institucionales precargados sin selección ni puntaje escrito
     const criteriosBase = [
         {
             criterio: "Observación de clase",
@@ -427,7 +425,6 @@ $titulo_miga = "Plantillas de evaluación";
                 document.getElementById('rubrica-titulo-banner').value = encontrada.datos.tituloBanner || "RÚBRICA DE OBSERVACIÓN DOCENTE COLEGIO TÉCNICO PROFESIONAL DON BOSCO";
 
                 const filas = (encontrada.datos.filas && encontrada.datos.filas.length > 0) ? encontrada.datos.filas : criteriosBase;
-                // Al editar una plantilla, las celdas de Selección y Puntaje obtenido siempre inician en blanco
                 filas.forEach(f => agregarFilaCriterio({
                     criterio: f.criterio,
                     exc: f.exc,
@@ -471,7 +468,7 @@ $titulo_miga = "Plantillas de evaluación";
         contenedor.innerHTML = "";
 
         if (listaPlantillas.length === 0) {
-            contenedor.innerHTML = `<div class="sin-plantillas">Aún no hay plantillas creadas. Haz clic en <strong>Crear plantilla +</strong> para empezar.</div>`;
+            contenedor.innerHTML = `<div class="sin-plantillas">Aún no hay plantillas creadas. Haz clic en <strong>+ Crear plantilla</strong> para empezar.</div>`;
             return;
         }
 
@@ -608,7 +605,6 @@ $titulo_miga = "Plantillas de evaluación";
         const totalEl = document.getElementById('total-puntos');
         const celdaInterp = document.getElementById('texto-interpretacion');
 
-        // Si no hay puntajes escritos, tanto el total como la interpretación quedan en blanco
         if (!hayAlgunValor) {
             totalEl.textContent = "";
             celdaInterp.textContent = "";

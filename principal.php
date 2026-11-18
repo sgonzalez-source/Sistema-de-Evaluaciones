@@ -1,45 +1,45 @@
 <?php
 session_start();
 
-// Si confirmó "Cerrar Sesión" en el modal, destruye la sesión y vuelve a inicio_sesion.php
 if (isset($_GET['salir'])) {
     session_destroy();
     header("Location: inicio_sesion.php");
     exit();
 }
 
-// Reinicia el historial de migajas de pan al entrar al inicio
-$_SESSION['ruta_navegacion'] = [
-    ['titulo' => 'Inicio', 'url' => 'principal.php']
-];
-
-// Datos iniciales en variables PHP (sin base de datos)
-$nombre = $_SESSION["usuario"] ?? "Javier Mena";
-$primer_nombre = "Javier";
+$nombre_completo = $_SESSION["usuario"] ?? "Javier Mena";
+$primer_nombre = explode(" ", trim($nombre_completo))[0];
 $rol = $_SESSION["rol"] ?? "Coordinador";
-$anio_escolar = "2026";
+$titulo_miga = "Inicio";
 
-$estado_periodo = "Activo";
-$fecha_limite_texto = "27 Noviembre 2026";
-$fecha_limite_iso = "2026-11-27";
+date_default_timezone_set('America/Costa_Rica');
+$hora = (int)date('G');
+$saludo = ($hora < 12) ? "BUENOS DÍAS" : (($hora < 18) ? "BUENAS TARDES" : "BUENAS NOCHES");
 
-$docentes_completados = 12;
-$porcentaje_completado = 75;
-$dias_cierre = 11;
+$dias_es = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
+$meses_es = ["", "enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
+$fecha_hoy_texto = $dias_es[(int)date('w')] . ", " . date('j') . " de " . $meses_es[(int)date('n')] . " de " . date('Y');
+
+// Cálculo automático del semestre según calendario escolar MEP (Costa Rica)
+$anio_escolar = date('Y');
+$mes_actual = (int)date('n');
+// I Periodo: Febrero (2) a Julio (7) | II Periodo: Agosto (8) a Diciembre (12)
+$semestre_mep = ($mes_actual >= 2 && $mes_actual <= 7) ? "I Periodo" : "II Periodo";
+$periodo_vigente_auto = $semestre_mep . " " . $anio_escolar;
 ?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel Principal - CEDES Don Bosco</title>
-    <link rel="stylesheet" href="principal.css?v=13">
+    <title>Inicio - CEDES Don Bosco</title>
+    <link rel="stylesheet" href="principal.css?v=46">
 </head>
 <body>
 
 <div class="contenedor-general">
 
-    <!-- MENÚ LATERAL AZUL (COLAPSABLE SIN PARPADEO) -->
+    <!-- MENÚ LATERAL AZUL -->
     <aside class="menu" id="sidebar-menu">
         <script>if(localStorage.getItem('menu_colapsado')==='1')document.getElementById('sidebar-menu').classList.add('colapsado');</script>
 
@@ -47,7 +47,7 @@ $dias_cierre = 11;
             <img src="logo_white.png" alt="CEDES Don Bosco" class="logo-blanco">
         </div>
 
-        <button type="button" class="btn-hamburguesa-menu" onclick="alternarMenu()" title="Expandir / Contraer menú" aria-label="Alternar menú lateral">
+        <button type="button" class="btn-hamburguesa-menu" onclick="alternarMenu()" title="Expandir / Contraer menú">
             <svg class="icono" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <line x1="3" y1="6" x2="21" y2="6"></line>
                 <line x1="3" y1="12" x2="21" y2="12"></line>
@@ -102,15 +102,15 @@ $dias_cierre = 11;
         </nav>
 
         <div class="pie-menu">
-            <div class="usuario" title="<?php echo $nombre . ' - ' . $rol; ?>">
+            <div class="usuario" title="<?php echo $nombre_completo . ' - ' . $rol; ?>">
                 <div class="avatar-iniciales">JM</div>
                 <div class="info-usuario">
-                    <strong><?php echo $nombre; ?></strong>
+                    <strong><?php echo $nombre_completo; ?></strong>
                     <p><?php echo $rol; ?></p>
                 </div>
             </div>
 
-            <button type="button" class="salir" onclick="abrirModalSalir()" title="Cerrar Sesión">
+            <button type="button" class="salir" onclick="abrirModal('modal-salir')" title="Cerrar Sesión">
                 <svg class="icono" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
                     <polyline points="16 17 21 12 16 7"></polyline>
@@ -121,199 +121,199 @@ $dias_cierre = 11;
         </div>
     </aside>
 
-    <!-- ÁREA DERECHA: CONTENIDO PRINCIPAL COMPACTO -->
-    <main class="contenido">
-        
-        <!-- ENCABEZADO DE BIENVENIDA -->
-        <header class="banner-bienvenida">
-            <div class="bienvenida-izq">
-                <span class="saludo-tiempo" id="saludo-tiempo">Buenos días</span>
-                <h1>¡Hola, <span class="nombre-destacado"><?php echo $primer_nombre; ?></span>!</h1>
-                <p class="subtitulo">Te damos la bienvenida al sistema de evaluaciones docentes</p>
-            </div>
+    <!-- ÁREA DERECHA -->
+    <main class="contenido contenido-inicio">
+        <div class="dashboard-wrapper">
 
-            <div class="bienvenida-der">
-                <div class="pildora-info">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M22 10v6M2 10l10-5 10 5-10 5z"></path>
-                        <path d="M6 12v5c3 3 9 3 12 0v-5"></path>
-                    </svg>
-                    <span>Año escolar <strong><?php echo $anio_escolar; ?></strong></span>
+            <!-- 1. TARJETA SUPERIOR DE BIENVENIDA -->
+            <header class="card-bienvenida-moderna">
+                <div class="bienvenida-izq">
+                    <span class="saludo-tag"><?php echo $saludo; ?></span>
+                    <h1>¡Hola, <span class="nombre-destacado"><?php echo htmlspecialchars($primer_nombre); ?></span>!</h1>
+                    <p>Te damos la bienvenida al sistema de evaluaciones docentes</p>
                 </div>
-                <div class="fecha-hoy" id="fecha-hoy"></div>
-            </div>
-        </header>
 
-        <!-- WIDGET 1: CONTROL DEL PERIODO EN UNA SOLA FRANJA -->
-        <section class="tarjeta tarjeta-periodo">
-            <div class="fila-periodo-compacta">
-                <div class="titulo-con-icono">
-                    <div class="icono-caja azul">
+                <div class="bienvenida-der">
+                    <div class="pill-anio-escolar">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                            <line x1="16" y1="2" x2="16" y2="6"></line>
-                            <line x1="8" y1="2" x2="8" y2="6"></line>
-                            <line x1="3" y1="10" x2="21" y2="10"></line>
+                            <path d="M22 10v6M2 10l10-5 10 5-10 5z"></path>
+                            <path d="M6 12v5c3 3 9 3 12 0v-5"></path>
                         </svg>
+                        <span>Año escolar <strong><?php echo $anio_escolar; ?></strong></span>
                     </div>
-                    <div>
-                        <h2>Control del Periodo</h2>
-                        <span class="texto-ayuda">Gestión de fechas de entrega</span>
+                    <span class="fecha-actual-sub"><?php echo $fecha_hoy_texto; ?></span>
+                </div>
+            </header>
+
+            <!-- 2. TARJETA: CONTROL DEL PERIODO (CALENDARIO MEP AUTOMÁTICO) -->
+            <section class="card-control-periodo-moderna">
+                <div class="top-control-periodo">
+                    <div class="titulo-con-icono">
+                        <div class="icono-calendario-institucional">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                <line x1="16" y1="2" x2="16" y2="6"></line>
+                                <line x1="8" y1="2" x2="8" y2="6"></line>
+                                <line x1="3" y1="10" x2="21" y2="10"></line>
+                            </svg>
+                        </div>
+                        <div class="titulo-subtitulo-periodo">
+                            <h2>Control del Periodo</h2>
+                            <p>Gestión de vigencia y cierre de recepción de planeamientos</p>
+                        </div>
                     </div>
+
+                    <button type="button" class="btn-modificar-periodo" onclick="abrirModal('modal-periodo')">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                        </svg>
+                        <span>Modificar fecha</span>
+                    </button>
                 </div>
 
-                <div class="datos-periodo-inline">
-                    <div class="columna-dato">
-                        <span class="etiqueta-mini">Estado actual</span>
-                        <span class="insignia-estado activo" id="texto-estado">
-                            <span class="punto-estado"></span>
-                            <?php echo $estado_periodo; ?>
+                <!-- FRANJA INTERNA DE 3 COLUMNAS -->
+                <div class="franja-datos-periodo">
+                    <div class="dato-periodo-col">
+                        <span class="sublabel-periodo">Periodo vigente (MEP)</span>
+                        <strong class="valor-periodo-destacado" id="nombre-periodo-vigente"><?php echo $periodo_vigente_auto; ?></strong>
+                    </div>
+
+                    <div class="separador-subcaja"></div>
+
+                    <div class="dato-periodo-col">
+                        <span class="sublabel-periodo">Estado actual</span>
+                        <span class="pill-estado-activo abierto" id="pill-estado-periodo">
+                            <span class="punto-verde"></span>
+                            <span id="badge-periodo">Activo</span>
                         </span>
                     </div>
 
-                    <div class="separador-vertical"></div>
+                    <div class="separador-subcaja"></div>
 
-                    <div class="columna-dato">
-                        <span class="etiqueta-mini">Fecha límite de entrega</span>
-                        <strong class="valor-fecha" id="texto-fecha"><?php echo $fecha_limite_texto; ?></strong>
-                        
-                        <div class="editor-fecha" id="editor-fecha" style="display: none;">
-                            <input type="date" id="input-fecha" value="<?php echo $fecha_limite_iso; ?>">
-                            <button type="button" class="boton-guardar" onclick="guardarFecha()">Guardar</button>
-                            <button type="button" class="boton-cancelar" onclick="cerrarEditorFecha()">Cancelar</button>
+                    <div class="dato-periodo-col">
+                        <span class="sublabel-periodo">Fecha límite de entrega</span>
+                        <strong class="valor-fecha-grande" id="fecha-limite-periodo">27 Noviembre <?php echo $anio_escolar; ?></strong>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 3. TRES TARJETAS DE MÉTRICAS CON BORDE SUPERIOR DE COLOR -->
+            <section class="grid-tres-metricas">
+                <div class="card-kpi borde-azul">
+                    <div class="kpi-top">
+                        <span>Evaluaciones completadas</span>
+                        <div class="kpi-icono azul">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="8.5" cy="7" r="4"></circle>
+                                <polyline points="17 11 19 13 23 9"></polyline>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="kpi-valor">
+                        <strong id="metrica-docentes-num">12</strong>
+                        <span>Docentes</span>
+                    </div>
+                </div>
+
+                <div class="card-kpi borde-verde">
+                    <div class="kpi-top">
+                        <span>Progreso general</span>
+                        <div class="kpi-icono verde">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="18" y1="20" x2="18" y2="10"></line>
+                                <line x1="12" y1="20" x2="12" y2="4"></line>
+                                <line x1="6" y1="20" x2="6" y2="14"></line>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="kpi-valor-barra">
+                        <strong id="metrica-porcentaje-texto">75%</strong>
+                        <div class="barra-kpi-track">
+                            <div class="barra-kpi-fill" id="metrica-barra-relleno" style="width: 75%;"></div>
                         </div>
                     </div>
                 </div>
 
-                <button type="button" class="boton-naranja" onclick="abrirEditorFecha()">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                    </svg>
-                    <span>Modificar fecha</span>
-                </button>
-            </div>
-        </section>
-
-        <!-- FILA DE 3 WIDGETS DE MÉTRICAS -->
-        <section class="fila-metricas">
-            <div class="tarjeta metrica borde-azul">
-                <div class="metrica-top">
-                    <span class="etiqueta-gris">Evaluaciones completadas</span>
-                    <div class="icono-mini azul">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                            <circle cx="9" cy="7" r="4"></circle>
-                            <polyline points="23 11 17 17 14 14"></polyline>
-                        </svg>
+                <div class="card-kpi borde-naranja">
+                    <div class="kpi-top">
+                        <span>Próximo Cierre</span>
+                        <div class="kpi-icono naranja">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <polyline points="12 6 12 12 16 14"></polyline>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="kpi-valor">
+                        <strong id="metrica-dias-num">9</strong>
+                        <span id="metrica-dias-sufijo">días</span>
                     </div>
                 </div>
-                <strong class="numero-grande"><?php echo $docentes_completados; ?> <span class="unidad">Docentes</span></strong>
-            </div>
+            </section>
 
-            <div class="tarjeta metrica borde-verde">
-                <div class="metrica-top">
-                    <span class="etiqueta-gris">Progreso general</span>
-                    <div class="icono-mini verde">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <line x1="18" y1="20" x2="18" y2="10"></line>
-                            <line x1="12" y1="20" x2="12" y2="4"></line>
-                            <line x1="6" y1="20" x2="6" y2="14"></line>
-                        </svg>
+            <!-- 4. TARJETAS INFERIORES INTERACTIVAS: TAREAS PENDIENTES Y REALIZADAS -->
+            <section class="grid-dos-tareas">
+                <div class="card-tareas-moderna">
+                    <div class="tareas-card-header">
+                        <h3>Tareas Pendientes</h3>
+                        <span class="tag-estado-tareas por-hacer">Por hacer</span>
                     </div>
+
+                    <form class="form-nueva-tarea" onsubmit="agregarNuevaTarea(event)">
+                        <input type="text" id="input-nueva-tarea" placeholder="+ Agregar nueva tarea..." maxlength="80">
+                        <button type="submit">Añadir</button>
+                    </form>
+
+                    <ul class="lista-tareas-interactiva" id="lista-tareas-pendientes"></ul>
                 </div>
-                <div class="fila-progreso">
-                    <strong class="numero-grande"><?php echo $porcentaje_completado; ?>%</strong>
-                    <div class="barra-fondo">
-                        <div class="barra-relleno" style="width: <?php echo $porcentaje_completado; ?>%;"></div>
+
+                <div class="card-tareas-moderna">
+                    <div class="tareas-card-header">
+                        <h3>Tareas realizadas</h3>
+                        <span class="tag-estado-tareas completadas">Completadas</span>
                     </div>
-                </div>
-            </div>
 
-            <div class="tarjeta metrica borde-naranja">
-                <div class="metrica-top">
-                    <span class="etiqueta-gris">Próximo Cierre</span>
-                    <div class="icono-mini naranja">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <circle cx="12" cy="12" r="10"></circle>
-                            <polyline points="12 6 12 12 16 14"></polyline>
-                        </svg>
-                    </div>
+                    <ul class="lista-tareas-interactiva" id="lista-tareas-realizadas"></ul>
                 </div>
-                <strong class="numero-grande" id="texto-dias"><?php echo $dias_cierre; ?> <span class="unidad">días</span></strong>
-            </div>
-        </section>
+            </section>
 
-        <!-- FILA DE 2 WIDGETS DE TAREAS -->
-        <section class="fila-tareas">
-            <div class="tarjeta tarjeta-tareas">
-                <div class="cabecera-tareas">
-                    <h3>Tareas Pendientes</h3>
-                    <span class="badge-titulo pendiente">Por hacer</span>
-                </div>
-                <ul class="lista-tareas" id="lista-pendientes">
-                    <li>
-                        <label class="item-check">
-                            <input type="checkbox" onchange="cambiarEstadoTarea(this)">
-                            <span>Evaluar 3 docentes</span>
-                        </label>
-                    </li>
-                    <li>
-                        <label class="item-check">
-                            <input type="checkbox" onchange="cambiarEstadoTarea(this)">
-                            <span>Revisar 5 planeamientos</span>
-                        </label>
-                    </li>
-                    <li>
-                        <label class="item-check">
-                            <input type="checkbox" onchange="cambiarEstadoTarea(this)">
-                            <span>Enviar 2 evaluaciones</span>
-                        </label>
-                    </li>
-                    <li>
-                        <label class="item-check">
-                            <input type="checkbox" onchange="cambiarEstadoTarea(this)">
-                            <span>Evaluar 1 docente</span>
-                        </label>
-                    </li>
-                </ul>
-            </div>
-
-            <div class="tarjeta tarjeta-tareas">
-                <div class="cabecera-tareas">
-                    <h3>Tareas realizadas</h3>
-                    <span class="badge-titulo listo">Completadas</span>
-                </div>
-                <ul class="lista-tareas" id="lista-realizadas">
-                    <li>
-                        <label class="item-check completada">
-                            <input type="checkbox" checked onchange="cambiarEstadoTarea(this)">
-                            <span>Evaluación para Manuel finalizada</span>
-                        </label>
-                    </li>
-                    <li>
-                        <label class="item-check completada">
-                            <input type="checkbox" checked onchange="cambiarEstadoTarea(this)">
-                            <span>Evaluación para Esther finalizada</span>
-                        </label>
-                    </li>
-                    <li>
-                        <label class="item-check completada">
-                            <input type="checkbox" checked onchange="cambiarEstadoTarea(this)">
-                            <span>Revisión de planeamientos finalizada</span>
-                        </label>
-                    </li>
-                </ul>
-            </div>
-        </section>
-
+        </div>
     </main>
 </div>
 
-<!-- MODAL DE CONFIRMACIÓN PARA CERRAR SESIÓN -->
-<div class="fondo-modal" id="modal-salir" onclick="cerrarModalSiFuera(event)">
+<!-- MODAL SIMPLIFICADO: SOLO MODIFICAR FECHA LÍMITE -->
+<div class="fondo-modal" id="modal-periodo" onclick="cerrarSiFuera(event, 'modal-periodo')">
+    <div class="caja-modal caja-modal-form">
+        <button type="button" class="cerrar-modal-x" onclick="cerrarModal('modal-periodo')" aria-label="Cerrar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+        </button>
+
+        <h2>Modificar Fecha Límite</h2>
+        <p class="subtexto-modal">Selecciona la nueva fecha límite de entrega para el <strong id="modal-nombre-semestre"><?php echo $periodo_vigente_auto; ?></strong>.</p>
+
+        <form onsubmit="guardarFechaLimite(event)" class="form-modal-periodo">
+            <div class="campo-form">
+                <label for="input-fecha-limite">Fecha límite de entrega:</label>
+                <input type="date" id="input-fecha-limite" value="<?php echo $anio_escolar; ?>-11-27" required>
+            </div>
+
+            <div class="botones-modal">
+                <button type="button" class="btn-modal-cancelar" onclick="cerrarModal('modal-periodo')">Cancelar</button>
+                <button type="submit" class="btn-modal-guardar-verde">Guardar fecha</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- MODAL: CERRAR SESIÓN -->
+<div class="fondo-modal" id="modal-salir" onclick="cerrarSiFuera(event, 'modal-salir')">
     <div class="caja-modal">
-        <button type="button" class="cerrar-modal-x" onclick="cerrarModalSalir()" aria-label="Cerrar">
+        <button type="button" class="cerrar-modal-x" onclick="cerrarModal('modal-salir')" aria-label="Cerrar">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <line x1="18" y1="6" x2="6" y2="18"></line>
                 <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -332,13 +332,164 @@ $dias_cierre = 11;
         <p>Estás a punto de salir del sistema de evaluaciones. Tendrás que volver a ingresar tus credenciales para acceder.</p>
 
         <div class="botones-modal">
-            <button type="button" class="btn-modal-cancelar" onclick="cerrarModalSalir()">Cancelar</button>
+            <button type="button" class="btn-modal-cancelar" onclick="cerrarModal('modal-salir')">Cancelar</button>
             <a href="principal.php?salir=1" class="btn-modal-confirmar">Cerrar Sesión</a>
         </div>
     </div>
 </div>
 
 <script>
+    const tareasIniciales = {
+        pendientes: [
+            { id: 1, texto: "Evaluar 3 docentes" },
+            { id: 2, texto: "Revisar 5 planeamientos" },
+            { id: 3, texto: "Enviar 2 evaluaciones" },
+            { id: 4, texto: "Evaluar 1 docente" }
+        ],
+        realizadas: [
+            { id: 101, texto: "Evaluación para Manuel finalizada" },
+            { id: 102, texto: "Evaluación para Esther finalizada" },
+            { id: 103, texto: "Revisión de planeamientos finalizada" }
+        ]
+    };
+
+    let estadoTareas = JSON.parse(JSON.stringify(tareasIniciales));
+
+    // Calcula el semestre vigente automáticamente según el calendario MEP de Costa Rica
+    function obtenerPeriodoMepActual() {
+        const hoy = new Date();
+        const anio = hoy.getFullYear();
+        const mes = hoy.getMonth() + 1; // 1 = Enero ... 12 = Diciembre
+        // I Periodo MEP: Febrero (2) a Julio (7) | II Periodo MEP: Agosto (8) a Diciembre (12)
+        const semestre = (mes >= 2 && mes <= 7) ? "I Periodo" : "II Periodo";
+        return `${semestre} ${anio}`;
+    }
+
+    function formatearFechaEsp(fechaIso) {
+        const meses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+        const [anio, mes, dia] = fechaIso.split("-").map(Number);
+        if (!anio || !mes || !dia) return fechaIso;
+        return `${dia} ${meses[mes - 1]} ${anio}`;
+    }
+
+    function guardarYRenderizarTareas() {
+        localStorage.setItem('tareas_dashboard_cedes_v3', JSON.stringify(estadoTareas));
+        renderizarTareas();
+    }
+
+    function renderizarTareas() {
+        const ulPend = document.getElementById('lista-tareas-pendientes');
+        const ulReal = document.getElementById('lista-tareas-realizadas');
+
+        if (estadoTareas.pendientes.length === 0) {
+            ulPend.innerHTML = `<li class="tarea-vacia">¡Excelente! No tienes tareas pendientes.</li>`;
+        } else {
+            ulPend.innerHTML = estadoTareas.pendientes.map((t, i) => `
+                <li class="item-tarea-pendiente" onclick="completarTarea(${i})" title="Clic para marcar como realizada">
+                    <span class="check-cuadro">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    </span>
+                    <span class="texto-tarea">${t.texto}</span>
+                    <span class="accion-hover-tag">Realizada →</span>
+                </li>
+            `).join("");
+        }
+
+        if (estadoTareas.realizadas.length === 0) {
+            ulReal.innerHTML = `<li class="tarea-vacia">Aún no hay tareas completadas.</li>`;
+        } else {
+            ulReal.innerHTML = estadoTareas.realizadas.map((t, i) => `
+                <li class="item-tarea-realizada" onclick="devolverAPendientes(${i})" title="Clic para devolver a tareas pendientes">
+                    <span class="check-circulo">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    </span>
+                    <span class="texto-tarea">${t.texto}</span>
+                    <span class="accion-hover-tag devolver">← Pendiente</span>
+                </li>
+            `).join("");
+        }
+    }
+
+    function completarTarea(index) {
+        const [tareaMovida] = estadoTareas.pendientes.splice(index, 1);
+        if (tareaMovida) {
+            estadoTareas.realizadas.unshift(tareaMovida);
+            guardarYRenderizarTareas();
+        }
+    }
+
+    function devolverAPendientes(index) {
+        const [tareaDevuelta] = estadoTareas.realizadas.splice(index, 1);
+        if (tareaDevuelta) {
+            estadoTareas.pendientes.push(tareaDevuelta);
+            guardarYRenderizarTareas();
+        }
+    }
+
+    function agregarNuevaTarea(e) {
+        e.preventDefault();
+        const input = document.getElementById('input-nueva-tarea');
+        const texto = input.value.trim();
+        if (!texto) return;
+
+        estadoTareas.pendientes.push({ id: Date.now(), texto: texto });
+        input.value = "";
+        guardarYRenderizarTareas();
+    }
+
+    function guardarFechaLimite(e) {
+        e.preventDefault();
+        const fechaIso = document.getElementById('input-fecha-limite').value;
+        if (!fechaIso) return;
+
+        localStorage.setItem('fecha_limite_mep_cedes', fechaIso);
+        aplicarFechaYCalendarioMep(fechaIso);
+        cerrarModal('modal-periodo');
+    }
+
+    function aplicarFechaYCalendarioMep(fechaIso) {
+        // 1. Semestre automático MEP
+        const periodoMep = obtenerPeriodoMepActual();
+        document.getElementById('nombre-periodo-vigente').textContent = periodoMep;
+        document.getElementById('modal-nombre-semestre').textContent = periodoMep;
+
+        // 2. Fecha formateada y cálculo de días restantes
+        document.getElementById('fecha-limite-periodo').textContent = formatearFechaEsp(fechaIso);
+        document.getElementById('input-fecha-limite').value = fechaIso;
+
+        const hoy = new Date();
+        hoy.setHours(0, 0, 0, 0);
+        const [anio, mes, dia] = fechaIso.split("-").map(Number);
+        const fechaLimite = new Date(anio, mes - 1, dia);
+
+        const diffMs = fechaLimite - hoy;
+        const diasRestantes = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+        const estaActivo = diasRestantes >= 0;
+
+        // 3. Estado automático (Activo si la fecha límite no ha pasado; Cerrado si ya venció)
+        const pill = document.getElementById('pill-estado-periodo');
+        const badge = document.getElementById('badge-periodo');
+        badge.textContent = estaActivo ? "Activo" : "Cerrado";
+        pill.className = 'pill-estado-activo ' + (estaActivo ? 'abierto' : 'cerrado');
+
+        // 4. Actualizar tarjeta de Próximo Cierre
+        const diasMostrar = Math.max(0, diasRestantes);
+        document.getElementById('metrica-dias-num').textContent = diasMostrar;
+        document.getElementById('metrica-dias-sufijo').textContent = (diasMostrar === 1) ? "día" : "días";
+    }
+
+    function abrirModal(id) {
+        document.getElementById(id).classList.add('visible');
+    }
+
+    function cerrarModal(id) {
+        document.getElementById(id).classList.remove('visible');
+    }
+
+    function cerrarSiFuera(e, id) {
+        if (e.target.id === id) cerrarModal(id);
+    }
+
     function alternarMenu() {
         const menu = document.getElementById('sidebar-menu');
         menu.classList.add('animar');
@@ -346,125 +497,26 @@ $dias_cierre = 11;
         localStorage.setItem('menu_colapsado', menu.classList.contains('colapsado') ? '1' : '0');
     }
 
-    function iniciarBienvenida() {
-        const ahora = new Date();
-        const hora = ahora.getHours();
-        let saludo = "Buenos días";
-
-        if (hora >= 12 && hora < 18) {
-            saludo = "Buenas tardes";
-        } else if (hora >= 18 || hora < 5) {
-            saludo = "Buenas noches";
-        }
-
-        document.getElementById('saludo-tiempo').textContent = saludo;
-
-        const opcionesFecha = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
-        let textoHoy = ahora.toLocaleDateString('es-ES', opcionesFecha);
-        textoHoy = textoHoy.charAt(0).toUpperCase() + textoHoy.slice(1);
-        document.getElementById('fecha-hoy').textContent = textoHoy;
-    }
-
     window.onload = function() {
-        iniciarBienvenida();
+        const anioActual = new Date().getFullYear();
+        const mesActual = new Date().getMonth() + 1;
+        // Fecha por defecto según el semestre MEP vigente (Julio para I Periodo, Noviembre para II Periodo)
+        const fechaDefecto = (mesActual >= 2 && mesActual <= 7) ? `${anioActual}-07-17` : `${anioActual}-11-27`;
+        const fechaGuardada = localStorage.getItem('fecha_limite_mep_cedes') || fechaDefecto;
 
-        const fechaGuardada = localStorage.getItem('fecha_iso');
-        if (fechaGuardada) {
-            document.getElementById('input-fecha').value = fechaGuardada;
-            guardarFecha(false);
-        }
+        aplicarFechaYCalendarioMep(fechaGuardada);
 
-        const pendientesGuardadas = localStorage.getItem('html_pendientes');
-        const realizadasGuardadas = localStorage.getItem('html_realizadas');
-        if (pendientesGuardadas && realizadasGuardadas) {
-            document.getElementById('lista-pendientes').innerHTML = pendientesGuardadas;
-            document.getElementById('lista-realizadas').innerHTML = realizadasGuardadas;
+        const tareasGuardadas = localStorage.getItem('tareas_dashboard_cedes_v3');
+        if (tareasGuardadas) {
+            estadoTareas = JSON.parse(tareasGuardadas);
         }
+        renderizarTareas();
     };
-
-    function cambiarEstadoTarea(checkbox) {
-        const fila = checkbox.closest('li');
-        const etiqueta = fila.querySelector('label');
-
-        if (checkbox.checked) {
-            checkbox.setAttribute('checked', 'checked');
-            etiqueta.classList.add('completada');
-            document.getElementById('lista-realizadas').appendChild(fila);
-        } else {
-            checkbox.removeAttribute('checked');
-            etiqueta.classList.remove('completada');
-            document.getElementById('lista-pendientes').appendChild(fila);
-        }
-
-        localStorage.setItem('html_pendientes', document.getElementById('lista-pendientes').innerHTML);
-        localStorage.setItem('html_realizadas', document.getElementById('lista-realizadas').innerHTML);
-    }
-
-    function abrirEditorFecha() {
-        document.getElementById('editor-fecha').style.display = 'flex';
-    }
-
-    function cerrarEditorFecha() {
-        document.getElementById('editor-fecha').style.display = 'none';
-    }
-
-    function guardarFecha(guardarEnMemoria = true) {
-        const valor = document.getElementById('input-fecha').value;
-        if (!valor) return;
-
-        const meses = [
-            "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
-            "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
-        ];
-
-        const partes = valor.split('-');
-        const anio = parseInt(partes[0]);
-        const mes = parseInt(partes[1]) - 1;
-        const dia = parseInt(partes[2]);
-
-        document.getElementById('texto-fecha').textContent = `${dia} ${meses[mes]} ${anio}`;
-
-        const hoy = new Date();
-        hoy.setHours(0, 0, 0, 0);
-        const fechaElegida = new Date(anio, mes, dia);
-        const diasRestantes = Math.ceil((fechaElegida - hoy) / (1000 * 60 * 60 * 24));
-
-        const insigniaEstado = document.getElementById('texto-estado');
-        const textoDias = document.getElementById('texto-dias');
-
-        if (diasRestantes >= 0) {
-            insigniaEstado.innerHTML = `<span class="punto-estado"></span> Activo`;
-            insigniaEstado.className = "insignia-estado activo";
-            textoDias.innerHTML = `${diasRestantes} <span class="unidad">días</span>`;
-        } else {
-            insigniaEstado.innerHTML = `<span class="punto-estado"></span> Cerrado`;
-            insigniaEstado.className = "insignia-estado cerrado";
-            textoDias.innerHTML = `0 <span class="unidad">días</span>`;
-        }
-
-        if (guardarEnMemoria) {
-            localStorage.setItem('fecha_iso', valor);
-            cerrarEditorFecha();
-        }
-    }
-
-    function abrirModalSalir() {
-        document.getElementById('modal-salir').classList.add('visible');
-    }
-
-    function cerrarModalSalir() {
-        document.getElementById('modal-salir').classList.remove('visible');
-    }
-
-    function cerrarModalSiFuera(evento) {
-        if (evento.target.id === 'modal-salir') {
-            cerrarModalSalir();
-        }
-    }
 
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
-            cerrarModalSalir();
+            cerrarModal('modal-salir');
+            cerrarModal('modal-periodo');
         }
     });
 </script>

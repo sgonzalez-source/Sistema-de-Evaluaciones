@@ -18,7 +18,24 @@ $titulo_miga = "Evaluación";
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Evaluación y revisión - CEDES Don Bosco</title>
     <link rel="stylesheet" href="principal.css?v=13">
-    <link rel="stylesheet" href="evaluar.css?v=3">
+    <link rel="stylesheet" href="evaluar.css?v=4">
+    <style>
+        .tabla-rubrica-eval {
+            table-layout: fixed !important;
+            width: 100% !important;
+        }
+        .tabla-rubrica-eval .col-crit {
+            width: 18% !important;
+        }
+        .tabla-rubrica-eval td.celda-crit-eval,
+        .tabla-rubrica-eval td.celda-opcion-eval {
+            white-space: normal !important;
+            overflow-wrap: anywhere !important;
+            word-break: break-all !important;
+            padding: 6px 4px !important;
+            font-size: 9.8px !important;
+        }
+    </style>
 </head>
 <body>
 
@@ -106,7 +123,7 @@ $titulo_miga = "Evaluación";
         </div>
     </aside>
 
-    <!-- ÁREA DERECHA: MÓDULO DE EVALUACIÓN Y REVISIÓN -->
+    <!-- MÓDULO DE EVALUACIÓN Y REVISIÓN -->
     <main class="contenido contenido-evaluacion">
 
         <?php include 'breadcrumbs.php'; ?>

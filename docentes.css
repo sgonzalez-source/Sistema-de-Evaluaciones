@@ -1,71 +1,37 @@
 .contenido-docentes {
-    padding: 26px 46px;
-    gap: 18px;
+    padding: 20px 30px 30px 30px;
+    gap: 14px;
 }
 
-/* Migas de pan */
-.migas-pan {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 13px;
-    color: #64748b;
-}
-
-.migas-pan a {
-    color: #64748b;
-    text-decoration: none;
-    transition: color 0.2s;
-}
-
-.migas-pan a:hover {
-    color: #071342;
-}
-
-.migas-pan .miga-actual {
-    color: #0f172a;
-    font-weight: 700;
-}
-
-/* Título principal */
-.titulo-pagina {
-    font-size: 32px;
-    font-weight: 800;
-    color: #071342;
-    letter-spacing: -0.6px;
-    margin-bottom: 4px;
-}
-
-/* Barra superior de búsqueda y botones */
 .barra-herramientas {
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
-    gap: 20px;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
 }
 
 .caja-busqueda {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 9px;
     background-color: #ffffff;
-    border: 1.5px solid #cbd5e1;
-    border-radius: 10px;
-    padding: 10px 16px;
+    border: 1.2px solid #cbd5e1;
+    border-radius: 9px;
+    padding: 8px 14px;
     width: 100%;
-    max-width: 580px;
-    transition: border-color 0.2s, box-shadow 0.2s;
+    max-width: 340px;
 }
 
 .caja-busqueda:focus-within {
-    border-color: #2563eb;
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+    border-color: #15803d;
+    box-shadow: 0 0 0 3px rgba(21, 128, 61, 0.1);
 }
 
 .caja-busqueda svg {
-    width: 18px;
-    height: 18px;
-    color: #475569;
+    width: 16px;
+    height: 16px;
+    color: #64748b;
     flex-shrink: 0;
 }
 
@@ -73,252 +39,214 @@
     border: none;
     outline: none;
     width: 100%;
-    font-size: 14.5px;
+    font-size: 13.5px;
     color: #0f172a;
     background: transparent;
 }
 
 .acciones-derecha {
     display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    gap: 12px;
-    min-width: 215px;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
 }
 
+/* SELECT CON FLECHA PERSONALIZADA Y ESPACIADO CORRECTO */
 .select-filtro {
-    appearance: none;
-    background-color: #f8fafc;
-    border: 1.5px solid #cbd5e1;
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    background-color: #ffffff;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='15' height='15' viewBox='0 0 24 24' fill='none' stroke='%23475569' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 14px;
+    border: 1.2px solid #cbd5e1;
     border-radius: 9px;
-    padding: 10px 36px 10px 16px;
-    font-size: 14px;
+    padding: 8px 36px 8px 14px;
+    font-size: 13px;
     font-weight: 500;
     color: #1e293b;
     cursor: pointer;
-    text-align: center;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23475569' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 12px center;
+    outline: none;
     transition: border-color 0.2s;
 }
 
 .select-filtro:hover,
 .select-filtro:focus {
-    border-color: #071342;
-    outline: none;
+    border-color: #15803d;
 }
 
+/* BOTÓN + AGREGAR DOCENTE COMPACTO Y VERDE OSCURO */
 .btn-agregar-docente {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    background-color: #071342;
+    background-color: #15803d;
     color: #ffffff;
     border: none;
     border-radius: 9px;
-    padding: 11px 18px;
-    font-size: 14px;
+    padding: 8px 15px;
+    font-size: 13px;
     font-weight: 600;
     cursor: pointer;
-    box-shadow: 0 3px 8px rgba(7, 19, 66, 0.2);
-    transition: background 0.2s, transform 0.15s;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    box-shadow: 0 2px 5px rgba(21, 128, 61, 0.22);
+    transition: background 0.2s;
 }
 
 .btn-agregar-docente:hover {
-    background-color: #11246e;
-}
-
-.btn-agregar-docente:active {
-    transform: scale(0.98);
+    background-color: #166534;
 }
 
 .btn-agregar-docente svg {
-    width: 17px;
-    height: 17px;
+    width: 15px;
+    height: 15px;
 }
 
-/* ================= TABLA DE DOCENTES ================= */
+/* ================= TABLA DE DOCENTES COMPACTA ================= */
 .contenedor-tabla {
-    background-color: #f8fafc;
-    border: 1px solid #94a3b8;
+    background-color: #ffffff;
+    border: 1.2px solid #cbd5e1;
     border-radius: 12px;
     overflow: hidden;
-    margin-top: 4px;
+    box-shadow: 0 2px 6px rgba(15, 23, 42, 0.03);
 }
 
 .tabla-docentes {
     width: 100%;
     border-collapse: collapse;
-    text-align: center;
+    text-align: left;
 }
 
-.tabla-docentes thead th {
-    background-color: #cce3fd;
-    color: #0f172a;
-    font-size: 15.5px;
+.tabla-docentes thead {
+    background-color: #bdd6f2;
+}
+
+.tabla-docentes th {
+    padding: 11px 18px;
+    font-size: 13.5px;
     font-weight: 700;
-    padding: 15px 16px;
-    border-right: 1px solid #94a3b8;
-    border-bottom: 1px solid #94a3b8;
+    color: #071342;
 }
 
-.tabla-docentes thead th:last-child {
-    border-right: none;
+.col-acciones-header {
+    text-align: center !important;
 }
 
-.tabla-docentes tbody td {
-    padding: 18px 16px;
-    font-size: 15px;
+.tabla-docentes td {
+    padding: 12px 18px;
+    font-size: 13.5px;
     color: #1e293b;
-    border-right: 1px solid #94a3b8;
-    border-bottom: 1px solid #94a3b8;
-    background-color: #f1f5f9;
+    border-top: 1px solid #e2e8f0;
     vertical-align: middle;
 }
 
-.tabla-docentes tbody tr:hover td {
-    background-color: #e8eff7;
-}
-
-.tabla-docentes tbody tr:last-child td {
-    border-bottom: none;
-}
-
-.tabla-docentes tbody td:last-child {
-    border-right: none;
-}
-
 .col-cedula {
-    font-variant-numeric: tabular-nums;
-    font-weight: 500;
+    font-weight: 600;
+    color: #475569;
 }
 
 .col-nombre {
-    font-weight: 500;
+    font-weight: 700;
+    color: #0f172a;
 }
 
-.sin-resultados {
-    padding: 28px !important;
-    color: #64748b !important;
-    font-style: italic;
-}
-
-/* ================= ETIQUETAS (PILLS) ÚNICAS POR MATERIA ================= */
+/* Pastillas de materias */
 .pill-materia {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    padding: 4px 13px;
+    padding: 3px 11px;
     border-radius: 99px;
-    font-size: 13px;
-    font-weight: 600;
-    border: 1.5px solid currentColor;
-    background-color: #ffffff;
+    font-size: 12px;
+    font-weight: 700;
 }
 
-.icono-pill {
-    font-size: 11px;
-    line-height: 1;
-}
+.pill-morado   { background: #f3e8ff; color: #7e22ce; }
+.pill-celeste  { background: #e0f2fe; color: #0369a1; }
+.pill-naranja  { background: #ffedd5; color: #c2410c; }
+.pill-rosa     { background: #fce7f3; color: #be185d; }
+.pill-verde    { background: #dcfce7; color: #15803d; }
+.pill-azul     { background: #dbeafe; color: #1d4ed8; }
+.pill-rojo     { background: #fee2e2; color: #b91c1c; }
+.pill-turquesa { background: #ccfbf1; color: #0f766e; }
+.pill-indigo   { background: #e0e7ff; color: #4338ca; }
+.pill-lima     { background: #ecfccb; color: #4d7c0f; }
+.pill-gris     { background: #f1f5f9; color: #475569; }
 
-/* 1. Español -> Morado */
-.pill-morado {
-    color: #7e22ce;
-    background-color: #faf5ff;
-}
-
-/* 2. Química -> Celeste */
-.pill-celeste {
-    color: #0284c7;
-    background-color: #f0f9ff;
-}
-
-/* 3. Matemáticas -> Naranja / Ámbar */
-.pill-naranja {
-    color: #d97706;
-    background-color: #fffbeb;
-}
-
-/* 4. Música -> Rosa */
-.pill-rosa {
-    color: #db2777;
-    background-color: #fdf2f8;
-}
-
-/* 5. Ciencias -> Verde Esmeralda */
-.pill-verde {
-    color: #16a34a;
-    background-color: #f0fdf4;
-}
-
-/* 6. Informática -> Azul Cobalto */
-.pill-azul {
-    color: #2563eb;
-    background-color: #eff6ff;
-}
-
-/* 7. Estudios Sociales -> Rojo Terracota */
-.pill-rojo {
-    color: #dc2626;
-    background-color: #fef2f2;
-}
-
-/* 8. Inglés -> Turquesa */
-.pill-turquesa {
-    color: #0d9488;
-    background-color: #f0fdfa;
-}
-
-/* 9. Cívica -> Índigo */
-.pill-indigo {
-    color: #4f46e5;
-    background-color: #eef2ff;
-}
-
-/* 10. Educación Física -> Verde Lima */
-.pill-lima {
-    color: #65a30d;
-    background-color: #f7fee7;
-}
-
-/* Respaldo */
-.pill-gris {
-    color: #475569;
-    background-color: #f8fafc;
-}
-
-/* Botón icono PDF */
 .btn-pdf-icono {
     background: none;
     border: none;
-    color: #0f172a;
+    color: #dc2626;
     cursor: pointer;
-    padding: 5px;
-    border-radius: 8px;
+    padding: 3px;
+    border-radius: 6px;
     display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    transition: transform 0.15s, color 0.2s, background 0.2s;
+    transition: transform 0.15s;
 }
 
 .btn-pdf-icono:hover {
-    color: #dc2626;
-    background-color: #fee2e2;
-    transform: scale(1.08);
+    transform: scale(1.1);
 }
 
 .btn-pdf-icono svg {
-    width: 26px;
-    height: 26px;
+    width: 22px;
+    height: 22px;
 }
 
-/* Interruptor (Toggle Switch) de Estado */
+/* COLUMNA ACCIONES */
+.col-acciones {
+    text-align: center;
+}
+
+.grupo-acciones-docente {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.btn-icono-tabla {
+    background: none;
+    border: none;
+    width: 30px;
+    height: 30px;
+    border-radius: 7px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.15s;
+}
+
+.btn-icono-tabla svg {
+    width: 17px;
+    height: 17px;
+}
+
+.btn-icono-tabla.editar {
+    color: #071342;
+}
+
+.btn-icono-tabla.editar:hover {
+    background-color: #f1f5f9;
+    transform: scale(1.08);
+}
+
+.btn-icono-tabla.eliminar {
+    color: #dc2626;
+}
+
+.btn-icono-tabla.eliminar:hover {
+    background-color: #fef2f2;
+    transform: scale(1.08);
+}
+
+/* Switch de estado */
 .switch-estado {
     position: relative;
     display: inline-block;
-    width: 42px;
+    width: 40px;
     height: 22px;
 }
 
@@ -332,7 +260,7 @@
     position: absolute;
     cursor: pointer;
     inset: 0;
-    background-color: #cbd5e1;
+    background-color: #94a3b8;
     border-radius: 99px;
     transition: background-color 0.25s;
 }
@@ -347,102 +275,44 @@
     background-color: #ffffff;
     border-radius: 50%;
     transition: transform 0.25s;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 }
 
 .switch-estado input:checked + .slider-switch {
-    background-color: #2563eb;
+    background-color: #071342;
 }
 
 .switch-estado input:checked + .slider-switch::before {
-    transform: translateX(20px);
+    transform: translateX(18px);
 }
 
-/* ================= MODALES EXTRA DE DOCENTES ================= */
-.caja-modal-form {
-    max-width: 460px;
-    text-align: left;
-}
-
-.caja-modal-form h2 {
-    text-align: center;
-}
-
-.subtexto-modal {
-    text-align: center;
-    margin-bottom: 18px !important;
-}
-
-.form-modal-docente {
-    display: flex;
-    flex-direction: column;
-    gap: 13px;
-}
-
-.campo-form {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-}
-
-.campo-form label {
-    font-size: 13px;
-    font-weight: 600;
-    color: #1e293b;
-}
-
-.campo-form input,
-.campo-form select {
-    padding: 10px 12px;
-    border: 1.5px solid #cbd5e1;
-    border-radius: 9px;
-    font-size: 14px;
-    color: #0f172a;
-    background-color: #f8fafc;
-}
-
-.campo-form input:focus,
-.campo-form select:focus {
-    outline: none;
-    border-color: #2563eb;
-    background-color: #ffffff;
-}
-
-/* Selector interactivo "Subir archivo" */
+/* Subir archivo PDF en modal */
 .caja-subir-archivo {
+    border: 1.5px dashed #94a3b8;
+    border-radius: 10px;
+    padding: 10px 14px;
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 8px 12px;
-    border: 1.5px dashed #94a3b8;
-    border-radius: 9px;
-    background-color: #f8fafc;
+    justify-content: space-between;
+    gap: 10px;
     cursor: pointer;
-    transition: border-color 0.2s, background-color 0.2s;
+    background-color: #f8fafc;
 }
 
 .caja-subir-archivo:hover {
-    border-color: #2563eb;
-    background-color: #eff6ff;
+    border-color: #15803d;
+    background-color: #f0fdf4;
 }
 
 .btn-subir-visual {
     display: inline-flex;
     align-items: center;
     gap: 7px;
-    background-color: #e2e8f0;
-    color: #0f172a;
-    padding: 7px 13px;
+    background-color: #dcfce7;
+    color: #15803d;
+    padding: 6px 12px;
     border-radius: 7px;
-    font-size: 13px;
-    font-weight: 600;
-    flex-shrink: 0;
-    transition: background-color 0.2s, color 0.2s;
-}
-
-.caja-subir-archivo:hover .btn-subir-visual {
-    background-color: #071342;
-    color: #ffffff;
+    font-size: 12.5px;
+    font-weight: 700;
 }
 
 .btn-subir-visual svg {
@@ -451,42 +321,30 @@
 }
 
 .nombre-archivo-elegido {
-    font-size: 13px;
+    font-size: 12.5px;
     color: #64748b;
-    white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .nombre-archivo-elegido.archivo-cargado {
-    color: #15803d;
+    color: #0f172a;
     font-weight: 600;
 }
 
-.btn-modal-guardar-azul {
-    flex: 1;
-    background-color: #071342;
-    color: #ffffff;
-    border: none;
-    padding: 12px 20px;
-    border-radius: 10px;
-    font-size: 14.5px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background 0.2s;
-}
-
-.btn-modal-guardar-azul:hover {
-    background-color: #11246e;
+.sin-resultados {
+    text-align: center;
+    padding: 24px !important;
+    color: #64748b !important;
 }
 
 .icono-pdf-modal {
-    width: 64px;
-    height: 64px;
-    margin: 0 auto 14px auto;
-    border-radius: 16px;
+    width: 56px;
+    height: 56px;
+    margin: 0 auto 12px auto;
+    border-radius: 50%;
     background-color: #fef2f2;
-    border: 1.5px solid #fecaca;
     color: #dc2626;
     display: flex;
     align-items: center;
@@ -494,23 +352,16 @@
 }
 
 .icono-pdf-modal svg {
-    width: 34px;
-    height: 34px;
+    width: 28px;
+    height: 28px;
 }
 
 .archivo-pdf-badge {
     display: inline-block;
-    background-color: #eff6ff;
-    color: #1d4ed8;
-    border: 1px solid #bfdbfe;
-    padding: 6px 14px;
-    border-radius: 8px;
-    font-weight: 600;
-    font-size: 13.5px !important;
+    background-color: #f1f5f9;
+    padding: 5px 14px;
+    border-radius: 99px;
+    font-weight: 700;
+    color: #071342 !important;
     margin-bottom: 10px !important;
-}
-
-.detalle-pdf-texto {
-    font-size: 13.5px !important;
-    color: #64748b !important;
 }
