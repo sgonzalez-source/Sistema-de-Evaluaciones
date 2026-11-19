@@ -3,6 +3,7 @@
     gap: 14px;
 }
 
+/* TÍTULO EN NEGRITA Y COLOR AZUL MARINO INSTITUCIONAL */
 .contenido-docentes .banner-izq h1,
 .titulo-docentes-bold {
     font-size: 22px !important;
@@ -184,6 +185,12 @@ select#select-materia.select-filtro:focus {
 .pill-lima     { background: #ecfccb; color: #4d7c0f; }
 .pill-gris     { background: #f1f5f9; color: #475569; }
 
+/* CENTRAR COLUMNA PLANEAMIENTO E ÍCONO PDF */
+.tabla-docentes th:nth-child(4),
+.tabla-docentes td:nth-child(4) {
+    text-align: center !important;
+}
+
 .btn-pdf-icono {
     background: none;
     border: none;
@@ -192,6 +199,8 @@ select#select-materia.select-filtro:focus {
     padding: 3px;
     border-radius: 6px;
     display: inline-flex;
+    align-items: center;
+    justify-content: center;
     transition: transform 0.15s;
 }
 

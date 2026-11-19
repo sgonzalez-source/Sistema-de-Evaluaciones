@@ -18,8 +18,15 @@ $anio_escolar = "2026";
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestión de Docentes - CEDES Don Bosco</title>
-    <link rel="stylesheet" href="principal.css?v=46">
-    <link rel="stylesheet" href="docentes.css?v=15">
+    <link rel="stylesheet" href="principal.css?v=55">
+    <link rel="stylesheet" href="docentes.css?v=16">
+    <style>
+        /* Centra el encabezado "Planeamiento" y el ícono rojo de PDF */
+        .tabla-docentes th:nth-child(4),
+        .tabla-docentes td:nth-child(4) {
+            text-align: center !important;
+        }
+    </style>
 </head>
 <body>
 

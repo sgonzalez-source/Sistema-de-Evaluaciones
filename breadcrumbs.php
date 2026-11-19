@@ -1,5 +1,5 @@
 <?php
-// breadcrumbs.php - Acumula el recorrido real de navegación paso a paso
+
 
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
@@ -9,14 +9,18 @@ $mapa_paginas = [
     'principal.php'            => 'Inicio',
     'docentes.php'             => 'Gestión de Docentes',
     'plantilla_evaluacion.php' => 'Plantillas de evaluación',
-    'evaluar.php'              => 'Evaluar',
+    'evaluar.php'              => 'Evaluación',
     'estadistica.php'          => 'Estadística'
 ];
 
 $archivo_actual = basename($_SERVER['PHP_SELF']);
 $titulo_actual  = $titulo_miga ?? ($mapa_paginas[$archivo_actual] ?? ucfirst(str_replace('.php', '', $archivo_actual)));
 
-// Si el usuario hace clic directamente en una migaja anterior (?miga_idx=X), recorta hasta ese punto
+// Detecta si el usuario viene directamente desde Home (principal.php)
+$pagina_anterior = $_SERVER['HTTP_REFERER'] ?? '';
+$viene_de_inicio = (strpos($pagina_anterior, 'principal.php') !== false);
+
+// 1. Si hace clic directamente en una migaja anterior (?miga_idx=X), recorta hasta ese punto
 if (isset($_GET['miga_idx']) && isset($_SESSION['ruta_navegacion'])) {
     $idx_clic = (int) $_GET['miga_idx'];
     if (isset($_SESSION['ruta_navegacion'][$idx_clic])) {
@@ -24,21 +28,31 @@ if (isset($_GET['miga_idx']) && isset($_SESSION['ruta_navegacion'])) {
     }
 }
 
-// Si entra a Inicio (principal.php), reinicia el rastro desde Inicio
+// 2. Si está en Inicio o viene directamente desde Inicio (principal.php), reinicia el rastro
 if ($archivo_actual === 'principal.php') {
     $_SESSION['ruta_navegacion'] = [
         ['titulo' => 'Inicio', 'url' => 'principal.php']
     ];
 } else {
-    if (!isset($_SESSION['ruta_navegacion']) || empty($_SESSION['ruta_navegacion'])) {
+    if ($viene_de_inicio || !isset($_SESSION['ruta_navegacion']) || empty($_SESSION['ruta_navegacion'])) {
         $_SESSION['ruta_navegacion'] = [
             ['titulo' => 'Inicio', 'url' => 'principal.php']
         ];
     }
 
-    // Solo agrega el nuevo paso si es diferente al último paso registrado (evita duplicados al recargar F5)
-    $ultimo_paso = end($_SESSION['ruta_navegacion']);
-    if ($ultimo_paso['url'] !== $archivo_actual) {
+    // Evita duplicar la misma sección si ya existe en el rastro
+    $indice_existente = false;
+    foreach ($_SESSION['ruta_navegacion'] as $idx => $paso) {
+        if ($paso['url'] === $archivo_actual) {
+            $indice_existente = $idx;
+            break;
+        }
+    }
+
+    if ($indice_existente !== false) {
+        $_SESSION['ruta_navegacion'] = array_slice($_SESSION['ruta_navegacion'], 0, $indice_existente + 1);
+        $_SESSION['ruta_navegacion'][$indice_existente]['titulo'] = $titulo_actual;
+    } else {
         $_SESSION['ruta_navegacion'][] = [
             'titulo' => $titulo_actual,
             'url'    => $archivo_actual
@@ -62,4 +76,4 @@ if ($archivo_actual === 'principal.php') {
             <span class="miga-actual"><?php echo htmlspecialchars($paso['titulo']); ?></span>
         <?php endif; ?>
     <?php endforeach; ?>
-</nav>  
+</nav>
