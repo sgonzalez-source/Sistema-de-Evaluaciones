@@ -15,7 +15,7 @@ body {
     min-height: 100vh;
 }
 
-/* ================= MENÚ LATERAL AZUL ================= */
+/*  MENÚ LATERAL AZUL */
 .menu {
     width: 245px;
     background-color: #071342;
@@ -160,7 +160,7 @@ body {
     background-color: rgba(239, 68, 68, 0.15);
 }
 
-/* ================= CONTENEDOR PRINCIPAL COMPACTO ================= */
+/*  CONTENEDOR PRINCIPAL */
 .contenido {
     flex: 1;
     padding: 20px 30px 30px 30px;
@@ -201,7 +201,7 @@ body {
     font-weight: 700;
 }
 
-/* ================= 1. TARJETA DE BIENVENIDA (COMPACTA) ================= */
+/*  TARJETA DE BIENVENIDA */
 .card-bienvenida-moderna {
     background-color: #ffffff;
     border: 1px solid #e2e8f0;
@@ -276,7 +276,7 @@ body {
     color: #64748b;
 }
 
-/* ================= 2. CONTROL DEL PERIODO RENOVADO ================= */
+/*  CONTROL DEL PERIODO */
 .card-control-periodo-moderna {
     background-color: #ffffff;
     border: 1px solid #e2e8f0;
@@ -362,7 +362,7 @@ body {
     height: 14px;
 }
 
-/* Franja interna sin borde doble, con 3 columnas equilibradas */
+/* Franja interna de 3 columnas */
 .franja-datos-periodo {
     background-color: #f8fafc;
     border-radius: 10px;
@@ -378,6 +378,10 @@ body {
     flex-direction: column;
     gap: 5px;
     flex: 1;
+}
+
+.col-fecha-entrega {
+    flex: 1.45;
 }
 
 .sublabel-periodo {
@@ -428,6 +432,70 @@ body {
     font-size: 15px;
     font-weight: 800;
     color: #0f172a;
+}
+
+/* Editor en línea al tocar "Modificar fecha"  */
+.editor-fecha-inline {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.caja-input-fecha-inline input[type="date"] {
+    background-color: #ffffff;
+    border: 1.3px solid #cbd5e1;
+    border-radius: 10px;
+    padding: 6px 12px;
+    font-size: 13.5px;
+    font-weight: 600;
+    color: #1e293b;
+    outline: none;
+    cursor: pointer;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.caja-input-fecha-inline input[type="date"]:focus {
+    border-color: #15803d;
+    box-shadow: 0 0 0 3px rgba(21, 128, 61, 0.12);
+}
+
+.acciones-fecha-inline {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-cancelar-fecha-inline {
+    background-color: #fee2e2;
+    color: #b91c1c;
+    border: 1px solid #fecaca;
+    border-radius: 9px;
+    padding: 6px 13px;
+    font-size: 12.5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.btn-cancelar-fecha-inline:hover {
+    background-color: #fecaca;
+}
+
+.btn-guardar-fecha-inline {
+    background-color: #15803d;
+    color: #ffffff;
+    border: none;
+    border-radius: 9px;
+    padding: 7px 14px;
+    font-size: 12.5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.btn-guardar-fecha-inline:hover {
+    background-color: #166534;
 }
 
 /* ================= 3. TRES TARJETAS DE MÉTRICAS CON BORDE SUPERIOR ================= */
@@ -521,7 +589,7 @@ body {
     transition: width 0.3s ease;
 }
 
-/* ================= 4. TAREAS PENDIENTES Y REALIZADAS (COMPACTAS) ================= */
+/*  TAREAS PENDIENTES Y REALIZADAS */
 .grid-dos-tareas {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -715,7 +783,7 @@ body {
     border: 1px dashed #cbd5e1;
 }
 
-/* ================= ENCABEZADO COMPACTO PARA TODAS LAS SECCIONES ================= */
+/* ENCABEZADO COMPACTO  */
 .banner-seccion {
     background-color: #ffffff;
     border: 1px solid #cbd5e1;
@@ -779,7 +847,7 @@ body {
     color: #15803d;
 }
 
-/* ================= MODALES GLOBALES ================= */
+/*  MODALES */
 .fondo-modal {
     position: fixed;
     inset: 0;
@@ -869,7 +937,6 @@ body {
     height: 30px;
 }
 
-.form-modal-periodo,
 .form-modal-docente {
     display: flex;
     flex-direction: column;

@@ -23,7 +23,6 @@ $fecha_hoy_texto = $dias_es[(int)date('w')] . ", " . date('j') . " de " . $meses
 // Cálculo automático del semestre según calendario escolar MEP (Costa Rica)
 $anio_escolar = date('Y');
 $mes_actual = (int)date('n');
-// I Periodo: Febrero (2) a Julio (7) | II Periodo: Agosto (8) a Diciembre (12)
 $semestre_mep = ($mes_actual >= 2 && $mes_actual <= 7) ? "I Periodo" : "II Periodo";
 $periodo_vigente_auto = $semestre_mep . " " . $anio_escolar;
 ?>
@@ -33,7 +32,7 @@ $periodo_vigente_auto = $semestre_mep . " " . $anio_escolar;
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Inicio - CEDES Don Bosco</title>
-    <link rel="stylesheet" href="principal.css?v=46">
+    <link rel="stylesheet" href="principal.css?v=55">
 </head>
 <body>
 
@@ -145,7 +144,7 @@ $periodo_vigente_auto = $semestre_mep . " " . $anio_escolar;
                 </div>
             </header>
 
-            <!-- 2. TARJETA: CONTROL DEL PERIODO (CALENDARIO MEP AUTOMÁTICO) -->
+            <!-- 2. TARJETA: CONTROL DEL PERIODO CON EDICIÓN EN LÍNEA AL TOCAR EL BOTÓN -->
             <section class="card-control-periodo-moderna">
                 <div class="top-control-periodo">
                     <div class="titulo-con-icono">
@@ -163,7 +162,7 @@ $periodo_vigente_auto = $semestre_mep . " " . $anio_escolar;
                         </div>
                     </div>
 
-                    <button type="button" class="btn-modificar-periodo" onclick="abrirModal('modal-periodo')">
+                    <button type="button" class="btn-modificar-periodo" id="btn-activar-edicion-fecha" onclick="activarEdicionFecha()">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
                             <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
@@ -191,9 +190,25 @@ $periodo_vigente_auto = $semestre_mep . " " . $anio_escolar;
 
                     <div class="separador-subcaja"></div>
 
-                    <div class="dato-periodo-col">
+                    <!-- COLUMNA DE FECHA: MODO LECTURA Y MODO EDICIÓN EN LÍNEA -->
+                    <div class="dato-periodo-col col-fecha-entrega">
                         <span class="sublabel-periodo">Fecha límite de entrega</span>
-                        <strong class="valor-fecha-grande" id="fecha-limite-periodo">27 Noviembre <?php echo $anio_escolar; ?></strong>
+
+                        <!-- Vista normal -->
+                        <div id="vista-fecha-lectura">
+                            <strong class="valor-fecha-grande" id="fecha-limite-periodo">27 Noviembre <?php echo $anio_escolar; ?></strong>
+                        </div>
+
+                        <!-- Vista edición (solo aparece al tocar "Modificar fecha") -->
+                        <div id="vista-fecha-edicion" class="editor-fecha-inline" style="display: none;">
+                            <div class="caja-input-fecha-inline">
+                                <input type="date" id="input-fecha-limite-inline" value="<?php echo $anio_escolar; ?>-11-27">
+                            </div>
+                            <div class="acciones-fecha-inline">
+                                <button type="button" class="btn-cancelar-fecha-inline" onclick="cancelarEdicionFecha()">Cancelar</button>
+                                <button type="button" class="btn-guardar-fecha-inline" onclick="guardarFechaInline()">Guardar fecha</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -283,33 +298,6 @@ $periodo_vigente_auto = $semestre_mep . " " . $anio_escolar;
     </main>
 </div>
 
-<!-- MODAL SIMPLIFICADO: SOLO MODIFICAR FECHA LÍMITE -->
-<div class="fondo-modal" id="modal-periodo" onclick="cerrarSiFuera(event, 'modal-periodo')">
-    <div class="caja-modal caja-modal-form">
-        <button type="button" class="cerrar-modal-x" onclick="cerrarModal('modal-periodo')" aria-label="Cerrar">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="18" y1="6" x2="6" y2="18"></line>
-                <line x1="6" y1="6" x2="18" y2="18"></line>
-            </svg>
-        </button>
-
-        <h2>Modificar Fecha Límite</h2>
-        <p class="subtexto-modal">Selecciona la nueva fecha límite de entrega para el <strong id="modal-nombre-semestre"><?php echo $periodo_vigente_auto; ?></strong>.</p>
-
-        <form onsubmit="guardarFechaLimite(event)" class="form-modal-periodo">
-            <div class="campo-form">
-                <label for="input-fecha-limite">Fecha límite de entrega:</label>
-                <input type="date" id="input-fecha-limite" value="<?php echo $anio_escolar; ?>-11-27" required>
-            </div>
-
-            <div class="botones-modal">
-                <button type="button" class="btn-modal-cancelar" onclick="cerrarModal('modal-periodo')">Cancelar</button>
-                <button type="submit" class="btn-modal-guardar-verde">Guardar fecha</button>
-            </div>
-        </form>
-    </div>
-</div>
-
 <!-- MODAL: CERRAR SESIÓN -->
 <div class="fondo-modal" id="modal-salir" onclick="cerrarSiFuera(event, 'modal-salir')">
     <div class="caja-modal">
@@ -354,13 +342,12 @@ $periodo_vigente_auto = $semestre_mep . " " . $anio_escolar;
     };
 
     let estadoTareas = JSON.parse(JSON.stringify(tareasIniciales));
+    let fechaGuardadaActual = "";
 
-    // Calcula el semestre vigente automáticamente según el calendario MEP de Costa Rica
     function obtenerPeriodoMepActual() {
         const hoy = new Date();
         const anio = hoy.getFullYear();
-        const mes = hoy.getMonth() + 1; // 1 = Enero ... 12 = Diciembre
-        // I Periodo MEP: Febrero (2) a Julio (7) | II Periodo MEP: Agosto (8) a Diciembre (12)
+        const mes = hoy.getMonth() + 1;
         const semestre = (mes >= 2 && mes <= 7) ? "I Periodo" : "II Periodo";
         return `${semestre} ${anio}`;
     }
@@ -370,6 +357,62 @@ $periodo_vigente_auto = $semestre_mep . " " . $anio_escolar;
         const [anio, mes, dia] = fechaIso.split("-").map(Number);
         if (!anio || !mes || !dia) return fechaIso;
         return `${dia} ${meses[mes - 1]} ${anio}`;
+    }
+
+    function activarEdicionFecha() {
+        document.getElementById('vista-fecha-lectura').style.display = 'none';
+        document.getElementById('vista-fecha-edicion').style.display = 'flex';
+        document.getElementById('btn-activar-edicion-fecha').style.visibility = 'hidden';
+        const input = document.getElementById('input-fecha-limite-inline');
+        input.value = fechaGuardadaActual;
+        input.focus();
+    }
+
+    function cancelarEdicionFecha() {
+        document.getElementById('input-fecha-limite-inline').value = fechaGuardadaActual;
+        document.getElementById('vista-fecha-edicion').style.display = 'none';
+        document.getElementById('vista-fecha-lectura').style.display = 'block';
+        document.getElementById('btn-activar-edicion-fecha').style.visibility = 'visible';
+    }
+
+    function guardarFechaInline() {
+        const nuevaFecha = document.getElementById('input-fecha-limite-inline').value;
+        if (!nuevaFecha) return;
+
+        fechaGuardadaActual = nuevaFecha;
+        localStorage.setItem('fecha_limite_mep_cedes', nuevaFecha);
+        aplicarFechaYCalendarioMep(nuevaFecha);
+
+        document.getElementById('vista-fecha-edicion').style.display = 'none';
+        document.getElementById('vista-fecha-lectura').style.display = 'block';
+        document.getElementById('btn-activar-edicion-fecha').style.visibility = 'visible';
+    }
+
+    function aplicarFechaYCalendarioMep(fechaIso) {
+        fechaGuardadaActual = fechaIso;
+        const periodoMep = obtenerPeriodoMepActual();
+        document.getElementById('nombre-periodo-vigente').textContent = periodoMep;
+
+        document.getElementById('fecha-limite-periodo').textContent = formatearFechaEsp(fechaIso);
+        document.getElementById('input-fecha-limite-inline').value = fechaIso;
+
+        const hoy = new Date();
+        hoy.setHours(0, 0, 0, 0);
+        const [anio, mes, dia] = fechaIso.split("-").map(Number);
+        const fechaLimite = new Date(anio, mes - 1, dia);
+
+        const diffMs = fechaLimite - hoy;
+        const diasRestantes = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+        const estaActivo = diasRestantes >= 0;
+
+        const pill = document.getElementById('pill-estado-periodo');
+        const badge = document.getElementById('badge-periodo');
+        badge.textContent = estaActivo ? "Activo" : "Cerrado";
+        pill.className = 'pill-estado-activo ' + (estaActivo ? 'abierto' : 'cerrado');
+
+        const diasMostrar = Math.max(0, diasRestantes);
+        document.getElementById('metrica-dias-num').textContent = diasMostrar;
+        document.getElementById('metrica-dias-sufijo').textContent = (diasMostrar === 1) ? "día" : "días";
     }
 
     function guardarYRenderizarTareas() {
@@ -437,47 +480,6 @@ $periodo_vigente_auto = $semestre_mep . " " . $anio_escolar;
         guardarYRenderizarTareas();
     }
 
-    function guardarFechaLimite(e) {
-        e.preventDefault();
-        const fechaIso = document.getElementById('input-fecha-limite').value;
-        if (!fechaIso) return;
-
-        localStorage.setItem('fecha_limite_mep_cedes', fechaIso);
-        aplicarFechaYCalendarioMep(fechaIso);
-        cerrarModal('modal-periodo');
-    }
-
-    function aplicarFechaYCalendarioMep(fechaIso) {
-        // 1. Semestre automático MEP
-        const periodoMep = obtenerPeriodoMepActual();
-        document.getElementById('nombre-periodo-vigente').textContent = periodoMep;
-        document.getElementById('modal-nombre-semestre').textContent = periodoMep;
-
-        // 2. Fecha formateada y cálculo de días restantes
-        document.getElementById('fecha-limite-periodo').textContent = formatearFechaEsp(fechaIso);
-        document.getElementById('input-fecha-limite').value = fechaIso;
-
-        const hoy = new Date();
-        hoy.setHours(0, 0, 0, 0);
-        const [anio, mes, dia] = fechaIso.split("-").map(Number);
-        const fechaLimite = new Date(anio, mes - 1, dia);
-
-        const diffMs = fechaLimite - hoy;
-        const diasRestantes = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
-        const estaActivo = diasRestantes >= 0;
-
-        // 3. Estado automático (Activo si la fecha límite no ha pasado; Cerrado si ya venció)
-        const pill = document.getElementById('pill-estado-periodo');
-        const badge = document.getElementById('badge-periodo');
-        badge.textContent = estaActivo ? "Activo" : "Cerrado";
-        pill.className = 'pill-estado-activo ' + (estaActivo ? 'abierto' : 'cerrado');
-
-        // 4. Actualizar tarjeta de Próximo Cierre
-        const diasMostrar = Math.max(0, diasRestantes);
-        document.getElementById('metrica-dias-num').textContent = diasMostrar;
-        document.getElementById('metrica-dias-sufijo').textContent = (diasMostrar === 1) ? "día" : "días";
-    }
-
     function abrirModal(id) {
         document.getElementById(id).classList.add('visible');
     }
@@ -500,7 +502,6 @@ $periodo_vigente_auto = $semestre_mep . " " . $anio_escolar;
     window.onload = function() {
         const anioActual = new Date().getFullYear();
         const mesActual = new Date().getMonth() + 1;
-        // Fecha por defecto según el semestre MEP vigente (Julio para I Periodo, Noviembre para II Periodo)
         const fechaDefecto = (mesActual >= 2 && mesActual <= 7) ? `${anioActual}-07-17` : `${anioActual}-11-27`;
         const fechaGuardada = localStorage.getItem('fecha_limite_mep_cedes') || fechaDefecto;
 
@@ -516,7 +517,7 @@ $periodo_vigente_auto = $semestre_mep . " " . $anio_escolar;
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
             cerrarModal('modal-salir');
-            cerrarModal('modal-periodo');
+            cancelarEdicionFecha();
         }
     });
 </script>
