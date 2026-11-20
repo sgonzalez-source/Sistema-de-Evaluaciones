@@ -227,8 +227,8 @@ $periodo_vigente_auto = $semestre_mep . " " . $anio_escolar;
                         </div>
                     </div>
                     <div class="kpi-valor">
-                        <strong id="metrica-docentes-num">12</strong>
-                        <span>Docentes</span>
+                        <strong id="metrica-docentes-num">0</strong>
+                        <span id="metrica-docentes-sufijo">Docentes</span>
                     </div>
                 </div>
 
@@ -244,9 +244,9 @@ $periodo_vigente_auto = $semestre_mep . " " . $anio_escolar;
                         </div>
                     </div>
                     <div class="kpi-valor-barra">
-                        <strong id="metrica-porcentaje-texto">75%</strong>
+                        <strong id="metrica-porcentaje-texto">0%</strong>
                         <div class="barra-kpi-track">
-                            <div class="barra-kpi-fill" id="metrica-barra-relleno" style="width: 75%;"></div>
+                            <div class="barra-kpi-fill" id="metrica-barra-relleno" style="width: 0%;"></div>
                         </div>
                     </div>
                 </div>
@@ -382,6 +382,7 @@ $periodo_vigente_auto = $semestre_mep . " " . $anio_escolar;
         fechaGuardadaActual = nuevaFecha;
         localStorage.setItem('fecha_limite_mep_cedes', nuevaFecha);
         aplicarFechaYCalendarioMep(nuevaFecha);
+        actualizarMetricasDinamicas();
 
         document.getElementById('vista-fecha-edicion').style.display = 'none';
         document.getElementById('vista-fecha-lectura').style.display = 'block';
@@ -413,6 +414,49 @@ $periodo_vigente_auto = $semestre_mep . " " . $anio_escolar;
         const diasMostrar = Math.max(0, diasRestantes);
         document.getElementById('metrica-dias-num').textContent = diasMostrar;
         document.getElementById('metrica-dias-sufijo').textContent = (diasMostrar === 1) ? "día" : "días";
+    }
+
+    // ACTUALIZA "EVALUACIONES COMPLETADAS" Y "PROGRESO GENERAL" EN TIEMPO REAL
+    function actualizarMetricasDinamicas() {
+        const docentes = JSON.parse(localStorage.getItem('lista_docentes_cedes') || '[]');
+        const evaluaciones = JSON.parse(localStorage.getItem('evaluaciones_docentes_cedes') || '{}');
+        const plantillas = JSON.parse(localStorage.getItem('plantillas_rubrica_cedes_v2') || '[]');
+
+        // 1. Cantidad de docentes revisados/evaluados
+        const cedulasValidas = new Set(docentes.map(d => d.cedula));
+        const docentesRevisados = Object.keys(evaluaciones).filter(ced =>
+            docentes.length === 0 || cedulasValidas.has(ced)
+        ).length;
+
+        const elNumDoc = document.getElementById('metrica-docentes-num');
+        const elSufDoc = document.getElementById('metrica-docentes-sufijo');
+        if (elNumDoc) elNumDoc.textContent = docentesRevisados;
+        if (elSufDoc) elSufDoc.textContent = (docentesRevisados === 1) ? "Docente" : "Docentes";
+
+        // 2. Progreso general: porcentaje global de todo lo que realiza el coordinador
+        // (Evaluaciones revisadas + Tareas realizadas + Gestión de plantillas y control del periodo)
+        const totalDocentes = docentes.length > 0 ? docentes.length : 4;
+        const avanceEvaluaciones = Math.min(docentesRevisados / totalDocentes, 1);
+
+        const cantPendientes = estadoTareas.pendientes.length;
+        const cantRealizadas = estadoTareas.realizadas.length;
+        const totalTareas = cantPendientes + cantRealizadas;
+        const avanceTareas = totalTareas > 0 ? (cantRealizadas / totalTareas) : 0;
+
+        const tienePlantillaActiva = plantillas.some(p => p.activa) ? 1 : 0.5;
+        const tieneFechaConfigurada = localStorage.getItem('fecha_limite_mep_cedes') ? 1 : 0.5;
+        const avanceGestion = (tienePlantillaActiva + tieneFechaConfigurada) / 2;
+
+        const porcentajeFinal = Math.round(
+            (avanceEvaluaciones * 50) +
+            (avanceTareas * 35) +
+            (avanceGestion * 15)
+        );
+
+        const elPorcentaje = document.getElementById('metrica-porcentaje-texto');
+        const elBarra = document.getElementById('metrica-barra-relleno');
+        if (elPorcentaje) elPorcentaje.textContent = `${porcentajeFinal}%`;
+        if (elBarra) elBarra.style.width = `${porcentajeFinal}%`;
     }
 
     function guardarYRenderizarTareas() {
@@ -451,6 +495,8 @@ $periodo_vigente_auto = $semestre_mep . " " . $anio_escolar;
                 </li>
             `).join("");
         }
+
+        actualizarMetricasDinamicas();
     }
 
     function completarTarea(index) {
@@ -513,6 +559,9 @@ $periodo_vigente_auto = $semestre_mep . " " . $anio_escolar;
         }
         renderizarTareas();
     };
+
+    window.addEventListener('focus', actualizarMetricasDinamicas);
+    window.addEventListener('storage', actualizarMetricasDinamicas);
 
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
