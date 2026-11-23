@@ -22,7 +22,7 @@ $periodo_mep_auto = ($mes_actual >= 2 && $mes_actual <= 7) ? "I Periodo" : "II P
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Evaluar Docente - CEDES Don Bosco</title>
-    <link rel="stylesheet" href="principal.css?v=60">
+    <link rel="stylesheet" href="principal.css?v=57">
     <link rel="stylesheet" href="evaluar.css?v=35">
 </head>
 <body>
@@ -81,7 +81,7 @@ $periodo_mep_auto = ($mes_actual >= 2 && $mes_actual <= 7) ? "I Periodo" : "II P
                 <span class="texto-menu">Evaluar</span>
             </a>
 
-            <a href="#" title="Estadística">
+            <a href="estadisticas.php" title="Estadística">
                 <svg class="icono" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <line x1="18" y1="20" x2="18" y2="10"></line>
                     <line x1="12" y1="20" x2="12" y2="4"></line>
@@ -92,13 +92,13 @@ $periodo_mep_auto = ($mes_actual >= 2 && $mes_actual <= 7) ? "I Periodo" : "II P
         </nav>
 
         <div class="pie-menu">
-            <div class="usuario" title="<?php echo $nombre . ' - ' . $rol; ?>">
-                <div class="avatar-iniciales">JM</div>
+            <a href="perfil.php" class="usuario" style="text-decoration: none; color: inherit; cursor: pointer;" title="Ver perfil de usuario">
+                <div class="avatar-iniciales" id="menu-avatar-iniciales">JM</div>
                 <div class="info-usuario">
-                    <strong><?php echo $nombre; ?></strong>
+                    <strong id="menu-nombre-usuario"><?php echo $nombre; ?></strong>
                     <p><?php echo $rol; ?></p>
                 </div>
-            </div>
+            </a>
 
             <button type="button" class="salir" onclick="abrirModal('modal-salir')" title="Cerrar Sesión">
                 <svg class="icono" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -116,7 +116,6 @@ $periodo_mep_auto = ($mes_actual >= 2 && $mes_actual <= 7) ? "I Periodo" : "II P
 
         <?php include 'breadcrumbs.php'; ?>
 
-        <!-- ================= VISTA 1: LISTA DE TARJETAS DE DOCENTES ================= -->
         <div id="vista-lista-docentes" class="vista-bloque">
             <header class="banner-seccion">
                 <div class="banner-izq">
@@ -164,7 +163,6 @@ $periodo_mep_auto = ($mes_actual >= 2 && $mes_actual <= 7) ? "I Periodo" : "II P
             <div class="grid-docentes-evaluar" id="grid-docentes-evaluar"></div>
         </div>
 
-        <!-- ================= VISTA 2: PANTALLA DIVIDIDA 50/50 (PDF + RÚBRICA CLIQUEABLE) ================= -->
         <div id="vista-pantalla-dividida" class="vista-bloque" style="display: none;">
             <header class="banner-seccion">
                 <div class="banner-izq">
@@ -188,7 +186,6 @@ $periodo_mep_auto = ($mes_actual >= 2 && $mes_actual <= 7) ? "I Periodo" : "II P
                 </div>
             </header>
 
-            <!-- DOS PANELES CON EXACTAMENTE EL MISMO ANCHO (50% / 50%) -->
             <section class="split-screen-evaluacion">
 
                 <!-- MITAD IZQUIERDA: VISOR DE PLANEAMIENTO PDF REAL -->
@@ -244,7 +241,6 @@ $periodo_mep_auto = ($mes_actual >= 2 && $mes_actual <= 7) ? "I Periodo" : "II P
                                         Año: <strong><?php echo $anio_escolar; ?></strong>
                                     </th>
                                     <th rowspan="2" class="celda-logo-rubrica">
-                                        <!-- LOGO EN NEGRO DE CEDES DON BOSCO (SIN LETRAS EXTRA) -->
                                         <img src="logo_black.png" onerror="this.src='logo_white.png'; this.style.filter='invert(1)';" alt="CEDES Don Bosco" class="logo-negro-rubrica">
                                     </th>
                                 </tr>
@@ -321,7 +317,6 @@ $periodo_mep_auto = ($mes_actual >= 2 && $mes_actual <= 7) ? "I Periodo" : "II P
                                 </tr>
                             </tbody>
                             <tfoot>
-                                <!-- FILAS FINALES COMO EN LA IMAGEN 4 (SIN FRANJA VERDE) -->
                                 <tr class="fila-total-rubrica">
                                     <td colspan="6" class="celda-label-total">Puntuación total obtenida</td>
                                     <td class="celda-valor-total" id="celda-puntuacion-total">0 / 20 pts</td>
@@ -337,7 +332,6 @@ $periodo_mep_auto = ($mes_actual >= 2 && $mes_actual <= 7) ? "I Periodo" : "II P
 
             </section>
 
-            <!-- RECOMENDACIONES Y BOTONES (BOTÓN FINALIZAR EN VERDE) -->
             <section class="bloque-recomendaciones">
                 <label for="textarea-recomendaciones">Recomendaciones</label>
                 <textarea id="textarea-recomendaciones" rows="3" placeholder="Escribe observaciones o comentarios para el docente..."></textarea>
@@ -417,6 +411,29 @@ $periodo_mep_auto = ($mes_actual >= 2 && $mes_actual <= 7) ? "I Periodo" : "II P
     let evaluacionesGuardadas = {};
     let docenteEvaluando = null;
     let seleccionesActuales = [null, null, null, null, null];
+
+    function sincronizarPerfilMenu() {
+        const perfilGuardado = JSON.parse(localStorage.getItem('perfil_coordinador_cedes') || 'null');
+        if (!perfilGuardado) return;
+
+        const elNombreMenu = document.getElementById('menu-nombre-usuario');
+        const elAvatarMenu = document.getElementById('menu-avatar-iniciales');
+
+        if (perfilGuardado.nombre) {
+            const partes = perfilGuardado.nombre.trim().split(/\s+/);
+            if (elNombreMenu) elNombreMenu.textContent = perfilGuardado.nombre;
+
+            if (elAvatarMenu) {
+                if (perfilGuardado.foto && perfilGuardado.foto.startsWith('data:image')) {
+                    elAvatarMenu.innerHTML = `<img src="${perfilGuardado.foto}" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%; display: block;">`;
+                } else {
+                    elAvatarMenu.textContent = partes.length > 1
+                        ? (partes[0][0] + partes[partes.length - 1][0]).toUpperCase()
+                        : partes[0].substring(0, 2).toUpperCase();
+                }
+            }
+        }
+    }
 
     function renderizarDocentesEvaluar() {
         const contenedor = document.getElementById('grid-docentes-evaluar');
@@ -532,9 +549,9 @@ $periodo_mep_auto = ($mes_actual >= 2 && $mes_actual <= 7) ? "I Periodo" : "II P
     }
 
     function obtenerClaseColorPorPuntos(puntos) {
-        if (puntos >= 3) return 'activa-verde';     // Excelente (4) y Muy Bueno (3) -> Verde
-        if (puntos === 2) return 'activa-amarillo'; // Bueno (2) -> Amarillo
-        return 'activa-rojo';                       // Insuficiente (1) -> Rojo
+        if (puntos >= 3) return 'activa-verde';
+        if (puntos === 2) return 'activa-amarillo';
+        return 'activa-rojo';
     }
 
     function seleccionarCeldaRubrica(celda) {
@@ -543,17 +560,14 @@ $periodo_mep_auto = ($mes_actual >= 2 && $mes_actual <= 7) ? "I Periodo" : "II P
         const nivel = celda.dataset.nivel;
         const puntos = Number(celda.dataset.puntos);
 
-        // Limpiar estados previos en esa fila
         fila.querySelectorAll('.celda-opcion').forEach(c => {
             c.classList.remove('activa-verde', 'activa-amarillo', 'activa-rojo');
         });
 
-        // Aplicar color según nivel (Verde, Amarillo o Rojo)
         const claseColor = obtenerClaseColorPorPuntos(puntos);
         celda.classList.add(claseColor);
         seleccionesActuales[idxCriterio] = { nivel, puntos };
 
-        // Llenar automáticamente Selección y Puntaje obtenido
         document.getElementById(`sel-crit-${idxCriterio}`).textContent = nivel;
         document.getElementById(`pts-crit-${idxCriterio}`).textContent = `${puntos} ${puntos === 1 ? 'pt' : 'pts'}`;
 
@@ -641,6 +655,8 @@ $periodo_mep_auto = ($mes_actual >= 2 && $mes_actual <= 7) ? "I Periodo" : "II P
     }
 
     window.onload = function() {
+        sincronizarPerfilMenu();
+
         const docentesStorage = localStorage.getItem('lista_docentes_cedes');
         listaDocentes = docentesStorage ? JSON.parse(docentesStorage) : docentesBase;
 
@@ -651,6 +667,9 @@ $periodo_mep_auto = ($mes_actual >= 2 && $mes_actual <= 7) ? "I Periodo" : "II P
 
         renderizarDocentesEvaluar();
     };
+
+    window.addEventListener('focus', sincronizarPerfilMenu);
+    window.addEventListener('storage', sincronizarPerfilMenu);
 
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {

@@ -20,7 +20,6 @@ $dias_es = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "S�
 $meses_es = ["", "enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
 $fecha_hoy_texto = $dias_es[(int)date('w')] . ", " . date('j') . " de " . $meses_es[(int)date('n')] . " de " . date('Y');
 
-// Cálculo automático del semestre según calendario escolar MEP (Costa Rica)
 $anio_escolar = date('Y');
 $mes_actual = (int)date('n');
 $semestre_mep = ($mes_actual >= 2 && $mes_actual <= 7) ? "I Periodo" : "II Periodo";
@@ -32,7 +31,7 @@ $periodo_vigente_auto = $semestre_mep . " " . $anio_escolar;
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Inicio - CEDES Don Bosco</title>
-    <link rel="stylesheet" href="principal.css?v=55">
+    <link rel="stylesheet" href="principal.css?v=57">
 </head>
 <body>
 
@@ -90,7 +89,7 @@ $periodo_vigente_auto = $semestre_mep . " " . $anio_escolar;
                 <span class="texto-menu">Evaluar</span>
             </a>
 
-            <a href="#" title="Estadística">
+            <a href="estadisticas.php" title="Estadística">
                 <svg class="icono" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <line x1="18" y1="20" x2="18" y2="10"></line>
                     <line x1="12" y1="20" x2="12" y2="4"></line>
@@ -101,13 +100,13 @@ $periodo_vigente_auto = $semestre_mep . " " . $anio_escolar;
         </nav>
 
         <div class="pie-menu">
-            <div class="usuario" title="<?php echo $nombre_completo . ' - ' . $rol; ?>">
-                <div class="avatar-iniciales">JM</div>
+            <a href="perfil.php" class="usuario" style="text-decoration: none; color: inherit; cursor: pointer;" title="Ver perfil de usuario">
+                <div class="avatar-iniciales" id="menu-avatar-iniciales">JM</div>
                 <div class="info-usuario">
-                    <strong><?php echo $nombre_completo; ?></strong>
+                    <strong id="menu-nombre-usuario"><?php echo $nombre_completo; ?></strong>
                     <p><?php echo $rol; ?></p>
                 </div>
-            </div>
+            </a>
 
             <button type="button" class="salir" onclick="abrirModal('modal-salir')" title="Cerrar Sesión">
                 <svg class="icono" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -124,11 +123,10 @@ $periodo_vigente_auto = $semestre_mep . " " . $anio_escolar;
     <main class="contenido contenido-inicio">
         <div class="dashboard-wrapper">
 
-            <!-- 1. TARJETA SUPERIOR DE BIENVENIDA -->
             <header class="card-bienvenida-moderna">
                 <div class="bienvenida-izq">
                     <span class="saludo-tag"><?php echo $saludo; ?></span>
-                    <h1>¡Hola, <span class="nombre-destacado"><?php echo htmlspecialchars($primer_nombre); ?></span>!</h1>
+                    <h1>¡Hola, <span class="nombre-destacado" id="saludo-primer-nombre"><?php echo htmlspecialchars($primer_nombre); ?></span>!</h1>
                     <p>Te damos la bienvenida al sistema de evaluaciones docentes</p>
                 </div>
 
@@ -144,7 +142,6 @@ $periodo_vigente_auto = $semestre_mep . " " . $anio_escolar;
                 </div>
             </header>
 
-            <!-- 2. TARJETA: CONTROL DEL PERIODO CON EDICIÓN EN LÍNEA AL TOCAR EL BOTÓN -->
             <section class="card-control-periodo-moderna">
                 <div class="top-control-periodo">
                     <div class="titulo-con-icono">
@@ -171,7 +168,6 @@ $periodo_vigente_auto = $semestre_mep . " " . $anio_escolar;
                     </button>
                 </div>
 
-                <!-- FRANJA INTERNA DE 3 COLUMNAS -->
                 <div class="franja-datos-periodo">
                     <div class="dato-periodo-col">
                         <span class="sublabel-periodo">Periodo vigente (MEP)</span>
@@ -190,16 +186,13 @@ $periodo_vigente_auto = $semestre_mep . " " . $anio_escolar;
 
                     <div class="separador-subcaja"></div>
 
-                    <!-- COLUMNA DE FECHA: MODO LECTURA Y MODO EDICIÓN EN LÍNEA -->
                     <div class="dato-periodo-col col-fecha-entrega">
                         <span class="sublabel-periodo">Fecha límite de entrega</span>
 
-                        <!-- Vista normal -->
                         <div id="vista-fecha-lectura">
                             <strong class="valor-fecha-grande" id="fecha-limite-periodo">27 Noviembre <?php echo $anio_escolar; ?></strong>
                         </div>
 
-                        <!-- Vista edición (solo aparece al tocar "Modificar fecha") -->
                         <div id="vista-fecha-edicion" class="editor-fecha-inline" style="display: none;">
                             <div class="caja-input-fecha-inline">
                                 <input type="date" id="input-fecha-limite-inline" value="<?php echo $anio_escolar; ?>-11-27">
@@ -213,7 +206,6 @@ $periodo_vigente_auto = $semestre_mep . " " . $anio_escolar;
                 </div>
             </section>
 
-            <!-- 3. TRES TARJETAS DE MÉTRICAS CON BORDE SUPERIOR DE COLOR -->
             <section class="grid-tres-metricas">
                 <div class="card-kpi borde-azul">
                     <div class="kpi-top">
@@ -268,7 +260,6 @@ $periodo_vigente_auto = $semestre_mep . " " . $anio_escolar;
                 </div>
             </section>
 
-            <!-- 4. TARJETAS INFERIORES INTERACTIVAS: TAREAS PENDIENTES Y REALIZADAS -->
             <section class="grid-dos-tareas">
                 <div class="card-tareas-moderna">
                     <div class="tareas-card-header">
@@ -344,6 +335,31 @@ $periodo_vigente_auto = $semestre_mep . " " . $anio_escolar;
     let estadoTareas = JSON.parse(JSON.stringify(tareasIniciales));
     let fechaGuardadaActual = "";
 
+    function sincronizarPerfilMenu() {
+        const perfilGuardado = JSON.parse(localStorage.getItem('perfil_coordinador_cedes') || 'null');
+        if (!perfilGuardado) return;
+
+        const elNombreMenu = document.getElementById('menu-nombre-usuario');
+        const elAvatarMenu = document.getElementById('menu-avatar-iniciales');
+        const elSaludoNombre = document.getElementById('saludo-primer-nombre');
+
+        if (perfilGuardado.nombre) {
+            const partes = perfilGuardado.nombre.trim().split(/\s+/);
+            if (elNombreMenu) elNombreMenu.textContent = perfilGuardado.nombre;
+            if (elSaludoNombre && partes[0]) elSaludoNombre.textContent = partes[0];
+
+            if (elAvatarMenu) {
+                if (perfilGuardado.foto && perfilGuardado.foto.startsWith('data:image')) {
+                    elAvatarMenu.innerHTML = `<img src="${perfilGuardado.foto}" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%; display: block;">`;
+                } else {
+                    elAvatarMenu.textContent = partes.length > 1
+                        ? (partes[0][0] + partes[partes.length - 1][0]).toUpperCase()
+                        : partes[0].substring(0, 2).toUpperCase();
+                }
+            }
+        }
+    }
+
     function obtenerPeriodoMepActual() {
         const hoy = new Date();
         const anio = hoy.getFullYear();
@@ -416,13 +432,11 @@ $periodo_vigente_auto = $semestre_mep . " " . $anio_escolar;
         document.getElementById('metrica-dias-sufijo').textContent = (diasMostrar === 1) ? "día" : "días";
     }
 
-    // ACTUALIZA "EVALUACIONES COMPLETADAS" Y "PROGRESO GENERAL" EN TIEMPO REAL
     function actualizarMetricasDinamicas() {
         const docentes = JSON.parse(localStorage.getItem('lista_docentes_cedes') || '[]');
         const evaluaciones = JSON.parse(localStorage.getItem('evaluaciones_docentes_cedes') || '{}');
         const plantillas = JSON.parse(localStorage.getItem('plantillas_rubrica_cedes_v2') || '[]');
 
-        // 1. Cantidad de docentes revisados/evaluados
         const cedulasValidas = new Set(docentes.map(d => d.cedula));
         const docentesRevisados = Object.keys(evaluaciones).filter(ced =>
             docentes.length === 0 || cedulasValidas.has(ced)
@@ -433,8 +447,6 @@ $periodo_vigente_auto = $semestre_mep . " " . $anio_escolar;
         if (elNumDoc) elNumDoc.textContent = docentesRevisados;
         if (elSufDoc) elSufDoc.textContent = (docentesRevisados === 1) ? "Docente" : "Docentes";
 
-        // 2. Progreso general: porcentaje global de todo lo que realiza el coordinador
-        // (Evaluaciones revisadas + Tareas realizadas + Gestión de plantillas y control del periodo)
         const totalDocentes = docentes.length > 0 ? docentes.length : 4;
         const avanceEvaluaciones = Math.min(docentesRevisados / totalDocentes, 1);
 
@@ -546,6 +558,8 @@ $periodo_vigente_auto = $semestre_mep . " " . $anio_escolar;
     }
 
     window.onload = function() {
+        sincronizarPerfilMenu();
+
         const anioActual = new Date().getFullYear();
         const mesActual = new Date().getMonth() + 1;
         const fechaDefecto = (mesActual >= 2 && mesActual <= 7) ? `${anioActual}-07-17` : `${anioActual}-11-27`;
@@ -560,8 +574,14 @@ $periodo_vigente_auto = $semestre_mep . " " . $anio_escolar;
         renderizarTareas();
     };
 
-    window.addEventListener('focus', actualizarMetricasDinamicas);
-    window.addEventListener('storage', actualizarMetricasDinamicas);
+    window.addEventListener('focus', function() {
+        sincronizarPerfilMenu();
+        actualizarMetricasDinamicas();
+    });
+    window.addEventListener('storage', function() {
+        sincronizarPerfilMenu();
+        actualizarMetricasDinamicas();
+    });
 
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {

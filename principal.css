@@ -1046,3 +1046,26 @@ body {
         display: none;
     }
 }
+
+.avatar-iniciales {
+    width: 38px !important;
+    height: 38px !important;
+    min-width: 38px !important;
+    min-height: 38px !important;
+    border-radius: 50% !important;
+    overflow: hidden !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex-shrink: 0 !important;
+}
+
+.avatar-iniciales img {
+    width: 100% !important;
+    height: 100% !important;
+    max-width: 38px !important;
+    max-height: 38px !important;
+    object-fit: cover !important;
+    border-radius: 50% !important;
+    display: block !important;
+}

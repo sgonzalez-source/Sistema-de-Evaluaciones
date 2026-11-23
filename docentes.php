@@ -18,10 +18,9 @@ $anio_escolar = "2026";
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestión de Docentes - CEDES Don Bosco</title>
-    <link rel="stylesheet" href="principal.css?v=55">
+    <link rel="stylesheet" href="principal.css?v=57">
     <link rel="stylesheet" href="docentes.css?v=16">
     <style>
-        /* Centra el encabezado "Planeamiento" y el ícono rojo de PDF */
         .tabla-docentes th:nth-child(4),
         .tabla-docentes td:nth-child(4) {
             text-align: center !important;
@@ -84,7 +83,7 @@ $anio_escolar = "2026";
                 <span class="texto-menu">Evaluar</span>
             </a>
 
-            <a href="#" title="Estadística">
+            <a href="estadisticas.php" title="Estadística">
                 <svg class="icono" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <line x1="18" y1="20" x2="18" y2="10"></line>
                     <line x1="12" y1="20" x2="12" y2="4"></line>
@@ -95,13 +94,13 @@ $anio_escolar = "2026";
         </nav>
 
         <div class="pie-menu">
-            <div class="usuario" title="<?php echo $nombre . ' - ' . $rol; ?>">
-                <div class="avatar-iniciales">JM</div>
+            <a href="perfil.php" class="usuario" style="text-decoration: none; color: inherit; cursor: pointer;" title="Ver perfil de usuario">
+                <div class="avatar-iniciales" id="menu-avatar-iniciales">JM</div>
                 <div class="info-usuario">
-                    <strong><?php echo $nombre; ?></strong>
+                    <strong id="menu-nombre-usuario"><?php echo $nombre; ?></strong>
                     <p><?php echo $rol; ?></p>
                 </div>
-            </div>
+            </a>
 
             <button type="button" class="salir" onclick="abrirModalSalir()" title="Cerrar Sesión">
                 <svg class="icono" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -114,12 +113,11 @@ $anio_escolar = "2026";
         </div>
     </aside>
 
-    <!-- ÁREA DERECHA: GESTIÓN DE DOCENTES A CARGO -->
+    <!-- ÁREA DERECHA -->
     <main class="contenido contenido-docentes">
 
         <?php include 'breadcrumbs.php'; ?>
 
-        <!-- WIDGET DE ENCABEZADO SIN ETIQUETA SUPERIOR Y CON TÍTULO EN NEGRITA -->
         <header class="banner-seccion">
             <div class="banner-izq">
                 <h1 class="titulo-docentes-bold">Gestión de Docentes a Cargo</h1>
@@ -137,7 +135,6 @@ $anio_escolar = "2026";
             </div>
         </header>
 
-        <!-- BARRA DE BÚSQUEDA Y BOTÓN + AGREGAR DOCENTE -->
         <div class="barra-herramientas">
             <div class="caja-busqueda">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -162,7 +159,6 @@ $anio_escolar = "2026";
                     <option value="Educación Física">Educación Física</option>
                 </select>
 
-                <!-- SÍMBOLO + POR DELANTE Y COLOR VERDE OSCURO -->
                 <button type="button" class="btn-agregar-docente" onclick="abrirModalAgregar()">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
                         <line x1="12" y1="5" x2="12" y2="19"></line>
@@ -173,7 +169,6 @@ $anio_escolar = "2026";
             </div>
         </div>
 
-        <!-- TABLA CON COLUMNA ACCIONES (EDITAR + SWITCH + ELIMINAR) -->
         <div class="contenedor-tabla">
             <table class="tabla-docentes">
                 <thead>
@@ -312,7 +307,7 @@ $anio_escolar = "2026";
     </div>
 </div>
 
-<!-- MODAL DE CONFIRMACIÓN PARA CERRAR SESIÓN -->
+<!-- MODAL: CERRAR SESIÓN -->
 <div class="fondo-modal" id="modal-salir" onclick="cerrarSiFuera(event, 'modal-salir')">
     <div class="caja-modal">
         <button type="button" class="cerrar-modal-x" onclick="cerrarModal('modal-salir')" aria-label="Cerrar">
@@ -352,6 +347,29 @@ $anio_escolar = "2026";
     let indiceEditando = null;
     let indiceEliminando = null;
     const archivosTemporales = {};
+
+    function sincronizarPerfilMenu() {
+        const perfilGuardado = JSON.parse(localStorage.getItem('perfil_coordinador_cedes') || 'null');
+        if (!perfilGuardado) return;
+
+        const elNombreMenu = document.getElementById('menu-nombre-usuario');
+        const elAvatarMenu = document.getElementById('menu-avatar-iniciales');
+
+        if (perfilGuardado.nombre) {
+            const partes = perfilGuardado.nombre.trim().split(/\s+/);
+            if (elNombreMenu) elNombreMenu.textContent = perfilGuardado.nombre;
+
+            if (elAvatarMenu) {
+                if (perfilGuardado.foto && perfilGuardado.foto.startsWith('data:image')) {
+                    elAvatarMenu.innerHTML = `<img src="${perfilGuardado.foto}" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%; display: block;">`;
+                } else {
+                    elAvatarMenu.textContent = partes.length > 1
+                        ? (partes[0][0] + partes[partes.length - 1][0]).toUpperCase()
+                        : partes[0].substring(0, 2).toUpperCase();
+                }
+            }
+        }
+    }
 
     function obtenerClaseMateria(materia) {
         const mapa = {
@@ -606,6 +624,8 @@ $anio_escolar = "2026";
     }
 
     window.onload = function() {
+        sincronizarPerfilMenu();
+
         const guardados = localStorage.getItem('lista_docentes_cedes');
         if (guardados) {
             listaDocentes = JSON.parse(guardados);
@@ -616,6 +636,9 @@ $anio_escolar = "2026";
 
         renderizarTabla();
     };
+
+    window.addEventListener('focus', sincronizarPerfilMenu);
+    window.addEventListener('storage', sincronizarPerfilMenu);
 
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {

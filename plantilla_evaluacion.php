@@ -22,7 +22,7 @@ $periodo_mep_auto = ($mes_actual >= 2 && $mes_actual <= 7) ? "I Periodo" : "II P
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Plantillas de Evaluación - CEDES Don Bosco</title>
-    <link rel="stylesheet" href="principal.css?v=60">
+    <link rel="stylesheet" href="principal.css?v=57">
     <link rel="stylesheet" href="plantilla_evaluacion.css?v=30">
 </head>
 <body>
@@ -81,7 +81,7 @@ $periodo_mep_auto = ($mes_actual >= 2 && $mes_actual <= 7) ? "I Periodo" : "II P
                 <span class="texto-menu">Evaluar</span>
             </a>
 
-            <a href="#" title="Estadística">
+            <a href="estadisticas.php" title="Estadística">
                 <svg class="icono" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <line x1="18" y1="20" x2="18" y2="10"></line>
                     <line x1="12" y1="20" x2="12" y2="4"></line>
@@ -92,13 +92,13 @@ $periodo_mep_auto = ($mes_actual >= 2 && $mes_actual <= 7) ? "I Periodo" : "II P
         </nav>
 
         <div class="pie-menu">
-            <div class="usuario" title="<?php echo $nombre . ' - ' . $rol; ?>">
-                <div class="avatar-iniciales">JM</div>
+            <a href="perfil.php" class="usuario" style="text-decoration: none; color: inherit; cursor: pointer;" title="Ver perfil de usuario">
+                <div class="avatar-iniciales" id="menu-avatar-iniciales">JM</div>
                 <div class="info-usuario">
-                    <strong><?php echo $nombre; ?></strong>
+                    <strong id="menu-nombre-usuario"><?php echo $nombre; ?></strong>
                     <p><?php echo $rol; ?></p>
                 </div>
-            </div>
+            </a>
 
             <button type="button" class="salir" onclick="abrirModal('modal-salir')" title="Cerrar Sesión">
                 <svg class="icono" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -116,7 +116,6 @@ $periodo_mep_auto = ($mes_actual >= 2 && $mes_actual <= 7) ? "I Periodo" : "II P
 
         <?php include 'breadcrumbs.php'; ?>
 
-        <!-- ================= VISTA 1: LISTA DE BLOQUES DE PLANTILLAS ================= -->
         <div id="vista-lista-plantillas" class="vista-bloque">
             <header class="banner-seccion">
                 <div class="banner-izq">
@@ -135,7 +134,6 @@ $periodo_mep_auto = ($mes_actual >= 2 && $mes_actual <= 7) ? "I Periodo" : "II P
             <div class="lista-bloques-plantillas" id="lista-bloques-plantillas"></div>
         </div>
 
-        <!-- ================= VISTA 2: EDITOR DE RÚBRICA (TODO EDITABLE DE FORMA UNIFORME) ================= -->
         <div id="vista-editor-plantilla" class="vista-bloque" style="display: none;">
             <header class="banner-seccion">
                 <div class="banner-izq">
@@ -154,7 +152,6 @@ $periodo_mep_auto = ($mes_actual >= 2 && $mes_actual <= 7) ? "I Periodo" : "II P
                 </div>
             </header>
 
-            <!-- DATOS GENERALES DE LA TARJETA EN LA LISTA -->
             <div class="barra-datos-tarjeta-plantilla">
                 <div class="campo-inline-tarjeta">
                     <label for="input-nombre-tarjeta">Nombre en lista:</label>
@@ -166,11 +163,9 @@ $periodo_mep_auto = ($mes_actual >= 2 && $mes_actual <= 7) ? "I Periodo" : "II P
                 </div>
             </div>
 
-            <!-- TABLA DE RÚBRICA CON ENCABEZADOS UNIFORMES Y EDITABLES AL TOCAR -->
             <div class="contenedor-tabla-rubrica-editor">
                 <table class="tabla-rubrica-editable">
                     <thead>
-                        <!-- Fila 1 Encabezado institucional editable -->
                         <tr class="fila-meta-editor">
                             <th colspan="2" class="celda-meta-ed">
                                 <div class="inline-meta-ed">
@@ -195,7 +190,6 @@ $periodo_mep_auto = ($mes_actual >= 2 && $mes_actual <= 7) ? "I Periodo" : "II P
                             </th>
                         </tr>
 
-                        <!-- Fila 2 Encabezado institucional editable -->
                         <tr class="fila-meta-editor">
                             <th colspan="2" class="celda-meta-ed">
                                 <div class="inline-meta-ed">
@@ -211,14 +205,12 @@ $periodo_mep_auto = ($mes_actual >= 2 && $mes_actual <= 7) ? "I Periodo" : "II P
                             </th>
                         </tr>
 
-                        <!-- Franja amarilla título institucional editable -->
                         <tr class="fila-amarilla-editor">
                             <th colspan="7">
                                 <input type="text" id="ed-titulo-rubrica" value="RÚBRICA DE OBSERVACIÓN DOCENTE COLEGIO TÉCNICO PROFESIONAL DON BOSCO">
                             </th>
                         </tr>
 
-                        <!-- FILA AZUL UNIFORME: TOCA DIRECTAMENTE SOBRE CUALQUIERA PARA EDITAR -->
                         <tr class="fila-columnas-editor">
                             <th class="th-criterio-ed">
                                 <input type="text" id="ed-col-criterio" class="input-encabezado-nivel" value="Criterio" title="Haz clic para editar">
@@ -244,7 +236,6 @@ $periodo_mep_auto = ($mes_actual >= 2 && $mes_actual <= 7) ? "I Periodo" : "II P
                 </table>
             </div>
 
-            <!-- BOTONES INFERIORES DEL EDITOR -->
             <div class="barra-acciones-editor">
                 <button type="button" class="btn-cancelar-editor" onclick="volverAListaPlantillas()">Cancelar</button>
                 <button type="button" class="btn-guardar-plantilla-verde" onclick="guardarPlantillaCompleta()">Guardar plantilla</button>
@@ -448,6 +439,29 @@ $periodo_mep_auto = ($mes_actual >= 2 && $mes_actual <= 7) ? "I Periodo" : "II P
     let listaPlantillas = [];
     let idEditando = null;
     let idEliminando = null;
+
+    function sincronizarPerfilMenu() {
+        const perfilGuardado = JSON.parse(localStorage.getItem('perfil_coordinador_cedes') || 'null');
+        if (!perfilGuardado) return;
+
+        const elNombreMenu = document.getElementById('menu-nombre-usuario');
+        const elAvatarMenu = document.getElementById('menu-avatar-iniciales');
+
+        if (perfilGuardado.nombre) {
+            const partes = perfilGuardado.nombre.trim().split(/\s+/);
+            if (elNombreMenu) elNombreMenu.textContent = perfilGuardado.nombre;
+
+            if (elAvatarMenu) {
+                if (perfilGuardado.foto && perfilGuardado.foto.startsWith('data:image')) {
+                    elAvatarMenu.innerHTML = `<img src="${perfilGuardado.foto}" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%; display: block;">`;
+                } else {
+                    elAvatarMenu.textContent = partes.length > 1
+                        ? (partes[0][0] + partes[partes.length - 1][0]).toUpperCase()
+                        : partes[0].substring(0, 2).toUpperCase();
+                }
+            }
+        }
+    }
 
     function guardarStorage() {
         localStorage.setItem('plantillas_rubrica_cedes_v2', JSON.stringify(listaPlantillas));
@@ -736,6 +750,8 @@ $periodo_mep_auto = ($mes_actual >= 2 && $mes_actual <= 7) ? "I Periodo" : "II P
     }
 
     window.onload = function() {
+        sincronizarPerfilMenu();
+
         const guardadas = localStorage.getItem('plantillas_rubrica_cedes_v2');
         if (guardadas) {
             listaPlantillas = JSON.parse(guardadas);
@@ -745,6 +761,9 @@ $periodo_mep_auto = ($mes_actual >= 2 && $mes_actual <= 7) ? "I Periodo" : "II P
         }
         renderizarListaBloques();
     };
+
+    window.addEventListener('focus', sincronizarPerfilMenu);
+    window.addEventListener('storage', sincronizarPerfilMenu);
 
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
