@@ -23,6 +23,9 @@ body {
     display: flex;
     flex-direction: column;
     padding: 20px 14px;
+    margin: 12px 0 12px 12px;
+    border-radius: 18px;
+    box-shadow: 0 8px 24px rgba(7, 19, 66, 0.16);
     transition: width 0.25s ease;
     flex-shrink: 0;
 }
@@ -36,35 +39,75 @@ body {
     display: none;
 }
 
+/* CABECERA DEL SIDEBAR: LOGO + BOTÓN HAMBURGUESA ALINEADOS */
+.cabecera-menu {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 4px 4px 16px 4px;
+    margin-bottom: 6px;
+    gap: 10px;
+}
+
 .logo {
     display: flex;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: center;
-    padding: 6px 0 18px 0;
+    padding: 0;
+    margin: 0;
+    flex: 1;
+    min-width: 0;
 }
 
 .logo-blanco {
-    width: 145px;
+    width: 140px;
     max-width: 100%;
+    max-height: 40px;
+    object-fit: contain;
     height: auto;
+    display: block;
 }
 
 .btn-hamburguesa-menu {
     background: rgba(255, 255, 255, 0.08);
     border: none;
-    color: #ffffff;
-    width: 40px;
-    height: 40px;
+    outline: none;
+    color: rgba(255, 255, 255, 0.9);
+    width: 34px;
+    height: 34px;
+    min-width: 34px;
     border-radius: 10px;
-    display: flex;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    margin-bottom: 18px;
+    margin: 0;
+    flex-shrink: 0;
+    transition: background 0.2s, color 0.2s, transform 0.15s;
 }
 
 .btn-hamburguesa-menu:hover {
-    background: rgba(255, 255, 255, 0.16);
+    background: rgba(255, 255, 255, 0.18);
+    color: #ffffff;
+}
+
+.btn-hamburguesa-menu:focus {
+    outline: none;
+}
+
+.btn-hamburguesa-menu .icono {
+    width: 18px;
+    height: 18px;
+}
+
+.menu.colapsado .cabecera-menu {
+    justify-content: center;
+    padding: 4px 0 16px 0;
+}
+
+.menu.colapsado .cabecera-menu .logo {
+    display: none;
 }
 
 .opciones {
@@ -114,18 +157,31 @@ body {
 }
 
 .avatar-iniciales {
-    width: 38px;
-    height: 38px;
-    border-radius: 50%;
+    width: 38px !important;
+    height: 38px !important;
+    min-width: 38px !important;
+    min-height: 38px !important;
+    border-radius: 50% !important;
     background-color: #1e3a8a;
     border: 1.5px solid #93c5fd;
     color: #ffffff;
     font-size: 13.5px;
     font-weight: 700;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
+    overflow: hidden !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex-shrink: 0 !important;
+}
+
+.avatar-iniciales img {
+    width: 100% !important;
+    height: 100% !important;
+    max-width: 38px !important;
+    max-height: 38px !important;
+    object-fit: cover !important;
+    border-radius: 50% !important;
+    display: block !important;
 }
 
 .info-usuario strong {
@@ -1045,27 +1101,4 @@ body {
     .separador-subcaja {
         display: none;
     }
-}
-
-.avatar-iniciales {
-    width: 38px !important;
-    height: 38px !important;
-    min-width: 38px !important;
-    min-height: 38px !important;
-    border-radius: 50% !important;
-    overflow: hidden !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    flex-shrink: 0 !important;
-}
-
-.avatar-iniciales img {
-    width: 100% !important;
-    height: 100% !important;
-    max-width: 38px !important;
-    max-height: 38px !important;
-    object-fit: cover !important;
-    border-radius: 50% !important;
-    display: block !important;
 }

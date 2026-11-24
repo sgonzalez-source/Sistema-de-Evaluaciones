@@ -189,7 +189,7 @@
 }
 
 .btn-aplicar-rubrica {
-    background-color: #071342;
+    background-color: #15803d;
     color: #ffffff;
     border: none;
     border-radius: 8px;
@@ -197,12 +197,14 @@
     font-size: 12.5px;
     font-weight: 600;
     cursor: pointer;
-    transition: background 0.2s;
+    box-shadow: 0 2px 6px rgba(21, 128, 61, 0.25);
+    transition: background 0.2s, transform 0.15s;
     flex-shrink: 0;
 }
 
 .btn-aplicar-rubrica:hover {
-    background-color: #11246e;
+    background-color: #166534;
+    transform: translateY(-1px);
 }
 
 .vacio-evaluar {
@@ -646,7 +648,7 @@
     background-color: #f1f5f9;
 }
 
-/* BOTÓN FINALIZAR EVALUACIÓN EN VERDE INSTITUCIONAL */
+/* BOTÓN FINALIZAR EVALUACIÓN  */
 .btn-finalizar-verde {
     background-color: #15803d;
     color: #ffffff;

@@ -19,7 +19,7 @@ $anio_escolar = "2026";
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestión de Docentes - CEDES Don Bosco</title>
     <link rel="stylesheet" href="principal.css?v=57">
-    <link rel="stylesheet" href="docentes.css?v=16">
+    <link rel="stylesheet" href="docentes.css?v=17">
     <style>
         .tabla-docentes th:nth-child(4),
         .tabla-docentes td:nth-child(4) {
@@ -428,16 +428,16 @@ $anio_escolar = "2026";
                 </td>
                 <td class="col-acciones">
                     <div class="grupo-acciones-docente">
+                        <label class="switch-estado" title="${doc.activo ? 'Docente activo' : 'Docente inactivo'}">
+                            <input type="checkbox" ${doc.activo ? 'checked' : ''} onchange="cambiarSwitch(${indiceReal}, this.checked)">
+                            <span class="slider-switch"></span>
+                        </label>
+
                         <button type="button" class="btn-icono-tabla editar" onclick="abrirModalEditar(${indiceReal})" title="Editar docente">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
                             </svg>
                         </button>
-
-                        <label class="switch-estado" title="${doc.activo ? 'Docente activo' : 'Docente inactivo'}">
-                            <input type="checkbox" ${doc.activo ? 'checked' : ''} onchange="cambiarSwitch(${indiceReal}, this.checked)">
-                            <span class="slider-switch"></span>
-                        </label>
 
                         <button type="button" class="btn-icono-tabla eliminar" onclick="pedirEliminarDocente(${indiceReal})" title="Eliminar docente">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
