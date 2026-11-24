@@ -22,7 +22,7 @@ $periodo_mep_auto = ($mes_actual >= 2 && $mes_actual <= 7) ? "I Periodo" : "II P
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Evaluar Docente - CEDES Don Bosco</title>
-    <link rel="stylesheet" href="principal.css?v=57">
+    <link rel="stylesheet" href="principal.css?v=58">
     <link rel="stylesheet" href="evaluar.css?v=35">
 </head>
 <body>
@@ -33,17 +33,19 @@ $periodo_mep_auto = ($mes_actual >= 2 && $mes_actual <= 7) ? "I Periodo" : "II P
     <aside class="menu" id="sidebar-menu">
         <script>if(localStorage.getItem('menu_colapsado')==='1')document.getElementById('sidebar-menu').classList.add('colapsado');</script>
 
-        <div class="logo">
-            <img src="logo_white.png" alt="CEDES Don Bosco" class="logo-blanco">
-        </div>
+        <div class="cabecera-menu">
+            <div class="logo">
+                <img src="logo_white.png" alt="CEDES Don Bosco" class="logo-blanco">
+            </div>
 
-        <button type="button" class="btn-hamburguesa-menu" onclick="alternarMenu()" title="Expandir / Contraer menú">
-            <svg class="icono" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="3" y1="6" x2="21" y2="6"></line>
-                <line x1="3" y1="12" x2="21" y2="12"></line>
-                <line x1="3" y1="18" x2="21" y2="18"></line>
-            </svg>
-        </button>
+            <button type="button" class="btn-hamburguesa-menu" onclick="alternarMenu()" title="Expandir / Contraer menú">
+                <svg class="icono" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="3" y1="6" x2="21" y2="6"></line>
+                    <line x1="3" y1="12" x2="21" y2="12"></line>
+                    <line x1="3" y1="18" x2="21" y2="18"></line>
+                </svg>
+            </button>
+        </div>
 
         <nav class="opciones">
             <a href="principal.php" title="Home">
