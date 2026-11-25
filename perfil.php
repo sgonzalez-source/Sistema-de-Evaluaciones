@@ -8,7 +8,8 @@ if (isset($_GET['salir'])) {
 }
 
 $nombre = $_SESSION["usuario"] ?? "Javier Mena";
-$rol = $_SESSION["rol"] ?? "Coordinador";
+$rol = $_SESSION["rol"] ?? "Coordinador Académico";
+$cedula_sesion = $_SESSION["cedula"] ?? "1-0945-0612";
 $titulo_miga = "Perfil de usuario";
 
 date_default_timezone_set('America/Costa_Rica');
@@ -19,17 +20,18 @@ $anio_escolar = date('Y');
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Perfil de Usuario - CEDES Don Bosco</title>
+    <title>Información Personal - CEDES Don Bosco</title>
     <link rel="stylesheet" href="principal.css?v=58">
-    <link rel="stylesheet" href="perfil.css?v=2">
+    <link rel="stylesheet" href="perfil.css?v=5">
 </head>
 <body>
 
 <div class="contenedor-general">
 
-    <!-- MENÚ LATERAL AZUL -->
+    <!-- SIDEBAR COORDINADOR -->
     <aside class="menu" id="sidebar-menu">
         <script>if(localStorage.getItem('menu_colapsado')==='1')document.getElementById('sidebar-menu').classList.add('colapsado');</script>
+        <script>if(window.innerWidth<=768&&localStorage.getItem('menu_colapsado')===null)document.getElementById('sidebar-menu').classList.add('colapsado');</script>
 
         <div class="cabecera-menu">
             <div class="logo">
@@ -46,22 +48,22 @@ $anio_escolar = date('Y');
         </div>
 
         <nav class="opciones">
-            <a href="principal.php" title="Home">
+            <a href="principal.php" title="Inicio">
                 <svg class="icono" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
                     <polyline points="9 22 9 12 15 12 15 22"></polyline>
                 </svg>
-                <span class="texto-menu">Home</span>
+                <span class="texto-menu">Inicio</span>
             </a>
 
-            <a href="docentes.php" title="Docentes">
+            <a href="docentes.php" title="Gestión de Docentes">
                 <svg class="icono" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
                     <circle cx="9" cy="7" r="4"></circle>
-                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                    <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
                     <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
                 </svg>
-                <span class="texto-menu">Docentes</span>
+                <span class="texto-menu">Gestión de Docentes</span>
             </a>
 
             <a href="plantilla_evaluacion.php" title="Plantillas de evaluación">
@@ -74,11 +76,12 @@ $anio_escolar = date('Y');
                 <span class="texto-menu">Plantillas de evaluación</span>
             </a>
 
-            <a href="evaluar.php" title="Evaluar">
+            <a href="evaluar.php" title="Evaluación">
                 <svg class="icono" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="20 6 9 17 4 12"></polyline>
+                    <path d="M9 11l3 3L22 4"></path>
+                    <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
                 </svg>
-                <span class="texto-menu">Evaluar</span>
+                <span class="texto-menu">Evaluación</span>
             </a>
 
             <a href="estadisticas.php" title="Estadística">
@@ -92,7 +95,7 @@ $anio_escolar = date('Y');
         </nav>
 
         <div class="pie-menu">
-            <a href="perfil.php" class="usuario enlace-perfil-menu" title="Ver perfil de usuario">
+            <a href="perfil.php" class="usuario enlace-perfil-menu activo-perfil" title="Ver información personal">
                 <div class="avatar-iniciales" id="menu-avatar-iniciales">JM</div>
                 <div class="info-usuario">
                     <strong id="menu-nombre-usuario"><?php echo htmlspecialchars($nombre); ?></strong>
@@ -111,110 +114,106 @@ $anio_escolar = date('Y');
         </div>
     </aside>
 
-    <!-- ÁREA DERECHA: INFORMACIÓN PERSONAL -->
+    <!-- ÁREA DERECHA: INFORMACIÓN PERSONAL DEL COORDINADOR -->
     <main class="contenido contenido-perfil">
+        <div class="perfil-wrapper">
 
-        <?php include 'breadcrumbs.php'; ?>
+            <?php if (file_exists('breadcrumbs.php')) include 'breadcrumbs.php'; ?>
 
-        <header class="banner-seccion">
-            <div class="banner-izq">
-                <h1 class="titulo-seccion-bold">Información Personal</h1>
-                <p class="subtitulo-banner">Consulta y actualiza tus datos personales, fotografía de perfil y credenciales de acceso.</p>
-            </div>
-
-            <div class="banner-der">
-                <div class="pildora-info">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M22 10v6M2 10l10-5 10 5-10 5z"></path>
-                        <path d="M6 12v5c3 3 9 3 12 0v-5"></path>
-                    </svg>
-                    <span>Año escolar <strong><?php echo $anio_escolar; ?></strong></span>
+            <header class="banner-perfil-superior">
+                <div class="banner-perfil-izq">
+                    <h1>Información Personal</h1>
+                    <p>Consulta y actualiza tus datos personales, fotografía de perfil y credenciales de acceso.</p>
                 </div>
-            </div>
-        </header>
 
-        <section class="tarjeta-perfil-usuario">
-            <div class="barra-titulo-datos">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                    <circle cx="12" cy="7" r="4"></circle>
-                </svg>
-                <span>Datos personales</span>
-            </div>
-
-            <div class="cuerpo-perfil-grid">
-                <form class="form-datos-personales" onsubmit="guardarCambiosPerfil(event)">
-                    <div class="campo-perfil">
-                        <label for="perfil-nombre">Nombre</label>
-                        <input type="text" id="perfil-nombre" value="<?php echo htmlspecialchars($nombre); ?>" readonly required>
-                    </div>
-
-                    <div class="campo-perfil">
-                        <label for="perfil-cedula">Número de cédula</label>
-                        <input type="text" id="perfil-cedula" value="1-0945-0612" readonly required>
-                    </div>
-
-                    <div class="campo-perfil">
-                        <label for="perfil-correo">Correo electrónico</label>
-                        <input type="email" id="perfil-correo" value="jmena@cedesdonbosco.ed.cr" readonly required>
-                    </div>
-
-                    <div class="campo-perfil">
-                        <label for="perfil-departamento">Departamento</label>
-                        <input type="text" id="perfil-departamento" value="Coordinación Académica" readonly required>
-                    </div>
-
-                    <div class="acciones-perfil" id="acciones-modo-lectura">
-                        <button type="button" class="btn-editar-info" onclick="activarEdicionPerfil()">Editar información</button>
-                        <button type="button" class="btn-cambiar-clave" onclick="abrirModal('modal-cambiar-clave')">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-                                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-                            </svg>
-                            <span>Cambiar contraseña</span>
-                        </button>
-                    </div>
-
-                    <div class="acciones-perfil" id="acciones-modo-edicion" style="display: none;">
-                        <button type="button" class="btn-cancelar-perfil" onclick="cancelarEdicionPerfil()">Cancelar</button>
-                        <button type="submit" class="btn-guardar-perfil-verde">Guardar cambios</button>
-                    </div>
-                </form>
-
-                <div class="columna-avatar-perfil">
-                    <div class="circulo-avatar-grande" id="contenedor-avatar-grande">
-                        <img id="img-avatar-perfil" alt="Foto de perfil" style="display: none;">
-                        <svg id="svg-avatar-defecto" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                            <circle cx="12" cy="7" r="4"></circle>
+                <div class="banner-perfil-der">
+                    <div class="pill-anio-escolar">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M22 10v6M2 10l10-5 10 5-10 5z"></path>
+                            <path d="M6 12v5c3 3 9 3 12 0v-5"></path>
                         </svg>
-                    </div>
-
-                    <div class="pildora-rol-perfil" id="perfil-rol-badge">Coordinador Académico</div>
-
-                    <input type="file" id="input-foto-perfil" accept="image/*" style="display: none;" onchange="procesarNuevaFoto(event)">
-
-                    <div class="grupo-botones-foto">
-                        <button type="button" class="btn-cambiar-foto" onclick="document.getElementById('input-foto-perfil').click()">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
-                                <circle cx="12" cy="13" r="4"></circle>
-                            </svg>
-                            <span>Cambiar foto</span>
-                        </button>
-
-                        <button type="button" class="btn-eliminar-foto" id="btn-eliminar-foto" onclick="abrirModal('modal-confirmar-eliminar-foto')" style="display: none;" title="Quitar fotografía actual">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <polyline points="3 6 5 6 21 6"></polyline>
-                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                            </svg>
-                            <span>Eliminar</span>
-                        </button>
+                        <span>Año escolar <strong><?php echo $anio_escolar; ?></strong></span>
                     </div>
                 </div>
-            </div>
-        </section>
+            </header>
 
+            <section class="tarjeta-perfil-usuario">
+                <div class="barra-titulo-datos">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                    <span>Datos personales</span>
+                </div>
+
+                <div class="cuerpo-perfil-grid">
+                    <form class="form-datos-usuario" onsubmit="event.preventDefault();">
+                        <div class="campo-perfil">
+                            <label for="coord-nombre">Nombre</label>
+                            <input type="text" id="coord-nombre" value="<?php echo htmlspecialchars($nombre); ?>" readonly>
+                        </div>
+
+                        <div class="campo-perfil">
+                            <label for="coord-cedula">Número de cédula</label>
+                            <input type="text" id="coord-cedula" value="<?php echo htmlspecialchars($cedula_sesion); ?>" readonly>
+                        </div>
+
+                        <div class="campo-perfil">
+                            <label for="coord-correo">Correo electrónico</label>
+                            <input type="email" id="coord-correo" value="jmena@cedesdonbosco.ed.cr" readonly>
+                        </div>
+
+                        <div class="campo-perfil">
+                            <label for="coord-departamento">Departamento</label>
+                            <input type="text" id="coord-departamento" value="Coordinación Académica" readonly>
+                        </div>
+
+                        <div class="acciones-perfil">
+                            <button type="button" class="btn-cambiar-clave" onclick="abrirModal('modal-cambiar-clave')">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                                    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                                </svg>
+                                <span>Cambiar contraseña</span>
+                            </button>
+                        </div>
+                    </form>
+
+                    <div class="columna-avatar-usuario">
+                        <div class="circulo-avatar-grande" id="contenedor-avatar-grande">
+                            <img id="img-avatar-coord" alt="Foto de perfil" style="display: none;">
+                            <svg id="svg-avatar-defecto" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="12" cy="7" r="4"></circle>
+                            </svg>
+                        </div>
+
+                        <div class="pildora-rol-usuario" id="coord-rol-badge"><?php echo htmlspecialchars($rol); ?></div>
+
+                        <input type="file" id="input-foto-coord" accept="image/*" style="display: none;" onchange="procesarNuevaFotoCoord(event)">
+
+                        <div class="grupo-botones-foto">
+                            <button type="button" class="btn-cambiar-foto" onclick="document.getElementById('input-foto-coord').click()">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                                    <circle cx="12" cy="13" r="4"></circle>
+                                </svg>
+                                <span>Cambiar foto</span>
+                            </button>
+
+                            <button type="button" class="btn-eliminar-foto" id="btn-eliminar-foto" onclick="abrirModal('modal-confirmar-eliminar-foto')" style="display: none;" title="Quitar fotografía actual">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="3 6 5 6 21 6"></polyline>
+                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                </svg>
+                                <span>Eliminar</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </div>
     </main>
 </div>
 
@@ -222,7 +221,7 @@ $anio_escolar = date('Y');
 <div class="fondo-modal" id="modal-confirmar-eliminar-foto" onclick="cerrarSiFuera(event, 'modal-confirmar-eliminar-foto')">
     <div class="caja-modal">
         <button type="button" class="cerrar-modal-x" onclick="cerrarModal('modal-confirmar-eliminar-foto')" aria-label="Cerrar">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 18px; height: 18px;">
                 <line x1="18" y1="6" x2="6" y2="18"></line>
                 <line x1="6" y1="6" x2="18" y2="18"></line>
             </svg>
@@ -242,7 +241,7 @@ $anio_escolar = date('Y');
 
         <div class="botones-modal">
             <button type="button" class="btn-modal-cancelar" onclick="cerrarModal('modal-confirmar-eliminar-foto')">Cancelar</button>
-            <button type="button" class="btn-modal-confirmar" style="border: none; cursor: pointer;" onclick="confirmarEliminarFotoPerfil()">Sí, eliminar</button>
+            <button type="button" class="btn-modal-confirmar" style="border: none; cursor: pointer;" onclick="confirmarEliminarFotoCoord()">Sí, eliminar</button>
         </div>
     </div>
 </div>
@@ -251,34 +250,68 @@ $anio_escolar = date('Y');
 <div class="fondo-modal" id="modal-cambiar-clave" onclick="cerrarSiFuera(event, 'modal-cambiar-clave')">
     <div class="caja-modal caja-modal-clave">
         <button type="button" class="cerrar-modal-x" onclick="cerrarModal('modal-cambiar-clave')" aria-label="Cerrar">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 18px; height: 18px;">
                 <line x1="18" y1="6" x2="6" y2="18"></line>
                 <line x1="6" y1="6" x2="18" y2="18"></line>
             </svg>
         </button>
 
-        <h2>Cambiar contraseña</h2>
-        <p class="subtexto-clave">Ingresa tu contraseña actual y define una nueva clave segura para tu cuenta institucional.</p>
+        <div class="cabecera-modal-clave">
+            <span class="icono-llave-clave">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                </svg>
+            </span>
+            <div>
+                <h2>Cambiar contraseña</h2>
+                <p class="subtexto-clave">Ingresa tu contraseña actual y define una nueva clave segura para tu cuenta institucional.</p>
+            </div>
+        </div>
 
         <form onsubmit="guardarNuevaClave(event)" class="form-clave-modal">
             <div class="grupo-clave">
                 <label for="clave-actual">Contraseña actual</label>
-                <input type="password" id="clave-actual" placeholder="••••••••" required>
+                <div class="campo-clave-wrapper">
+                    <input type="password" id="clave-actual" placeholder="••••••••" required>
+                    <button type="button" class="btn-ojito-clave" onclick="alternarVisibilidadClave('clave-actual', this)" title="Mostrar contraseña" aria-label="Mostrar contraseña">
+                        <svg class="icono-ojo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                            <circle cx="12" cy="12" r="3"></circle>
+                        </svg>
+                    </button>
+                </div>
             </div>
 
             <div class="grupo-clave">
                 <label for="clave-nueva">Nueva contraseña</label>
-                <input type="password" id="clave-nueva" minlength="6" placeholder="Mínimo 6 caracteres" required>
+                <div class="campo-clave-wrapper">
+                    <input type="password" id="clave-nueva" minlength="6" placeholder="Mínimo 6 caracteres" required>
+                    <button type="button" class="btn-ojito-clave" onclick="alternarVisibilidadClave('clave-nueva', this)" title="Mostrar contraseña" aria-label="Mostrar contraseña">
+                        <svg class="icono-ojo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                            <circle cx="12" cy="12" r="3"></circle>
+                        </svg>
+                    </button>
+                </div>
             </div>
 
             <div class="grupo-clave">
                 <label for="clave-confirmar">Confirmar nueva contraseña</label>
-                <input type="password" id="clave-confirmar" minlength="6" placeholder="Repite la nueva contraseña" required>
+                <div class="campo-clave-wrapper">
+                    <input type="password" id="clave-confirmar" minlength="6" placeholder="Repite la nueva contraseña" required>
+                    <button type="button" class="btn-ojito-clave" onclick="alternarVisibilidadClave('clave-confirmar', this)" title="Mostrar contraseña" aria-label="Mostrar contraseña">
+                        <svg class="icono-ojo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                            <circle cx="12" cy="12" r="3"></circle>
+                        </svg>
+                    </button>
+                </div>
             </div>
 
             <p class="mensaje-error-clave" id="error-clave-texto" style="display: none;"></p>
 
-            <div class="botones-modal">
+            <div class="botones-modal botones-clave-alineados">
                 <button type="button" class="btn-modal-cancelar" onclick="cerrarModal('modal-cambiar-clave')">Cancelar</button>
                 <button type="submit" class="btn-modal-guardar-verde">Actualizar contraseña</button>
             </div>
@@ -286,27 +319,27 @@ $anio_escolar = date('Y');
     </div>
 </div>
 
-<!-- MODAL: NOTIFICACIÓN DE GUARDADO EXITOSO -->
-<div class="fondo-modal" id="modal-perfil-exito" onclick="cerrarSiFuera(event, 'modal-perfil-exito')">
-    <div class="caja-modal">
-        <button type="button" class="cerrar-modal-x" onclick="cerrarModal('modal-perfil-exito')" aria-label="Cerrar">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+<!-- MODAL: ÉXITO -->
+<div class="fondo-modal" id="modal-docente-exito" onclick="cerrarSiFuera(event, 'modal-docente-exito')">
+    <div class="caja-modal" style="max-width: 400px; padding: 26px 24px; text-align: center;">
+        <button type="button" class="cerrar-modal-x" onclick="cerrarModal('modal-docente-exito')" aria-label="Cerrar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 18px; height: 18px;">
                 <line x1="18" y1="6" x2="6" y2="18"></line>
                 <line x1="6" y1="6" x2="18" y2="18"></line>
             </svg>
         </button>
 
-        <div class="icono-modal-verde">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+        <div class="icono-modal-verde" style="width: 54px; height: 54px; border-radius: 50%; margin: 0 auto 14px auto; background-color: #dcfce7; color: #16a34a; display: flex; align-items: center; justify-content: center;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width: 26px; height: 26px; display: block;">
                 <polyline points="20 6 9 17 4 12"></polyline>
             </svg>
         </div>
 
-        <h2 id="titulo-exito-perfil">Información actualizada</h2>
-        <p id="mensaje-exito-perfil">Tus datos personales se guardaron correctamente.</p>
+        <h2 id="titulo-exito-docente" style="font-size: 20px; margin-bottom: 6px;">Foto actualizada</h2>
+        <p id="mensaje-exito-docente" style="font-size: 13.5px; color: #64748b; margin-bottom: 18px;">La fotografía de perfil se actualizó correctamente.</p>
 
         <div class="botones-modal" style="justify-content: center;">
-            <button type="button" class="btn-modal-guardar-verde" onclick="cerrarModal('modal-perfil-exito')">Aceptar</button>
+            <button type="button" class="btn-modal-guardar-verde" onclick="cerrarModal('modal-docente-exito')">Aceptar</button>
         </div>
     </div>
 </div>
@@ -315,7 +348,7 @@ $anio_escolar = date('Y');
 <div class="fondo-modal" id="modal-salir" onclick="cerrarSiFuera(event, 'modal-salir')">
     <div class="caja-modal">
         <button type="button" class="cerrar-modal-x" onclick="cerrarModal('modal-salir')" aria-label="Cerrar">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 18px; height: 18px;">
                 <line x1="18" y1="6" x2="6" y2="18"></line>
                 <line x1="6" y1="6" x2="18" y2="18"></line>
             </svg>
@@ -340,45 +373,43 @@ $anio_escolar = date('Y');
 </div>
 
 <script>
-    const perfilPorDefecto = {
+    const perfilCoordDefecto = {
         nombre: "<?php echo addslashes($nombre); ?>",
-        cedula: "1-0945-0612",
+        cedula: "<?php echo addslashes($cedula_sesion); ?>",
         correo: "jmena@cedesdonbosco.ed.cr",
         departamento: "Coordinación Académica",
         foto: ""
     };
 
-    let datosPerfilActual = { ...perfilPorDefecto };
+    let datosCoordActual = { ...perfilCoordDefecto };
 
     function obtenerIniciales(nombreCompleto) {
         const partes = nombreCompleto.trim().split(/\s+/);
-        if (partes.length === 0 || !partes[0]) return "JM";
+        if (!partes.length || !partes[0]) return "JM";
         if (partes.length === 1) return partes[0].substring(0, 2).toUpperCase();
         return (partes[0][0] + partes[partes.length - 1][0]).toUpperCase();
     }
 
-    function pintarDatosPerfil() {
-        document.getElementById('perfil-nombre').value = datosPerfilActual.nombre;
-        document.getElementById('perfil-cedula').value = datosPerfilActual.cedula;
-        document.getElementById('perfil-correo').value = datosPerfilActual.correo;
-        document.getElementById('perfil-departamento').value = datosPerfilActual.departamento;
+    function pintarDatosCoord() {
+        document.getElementById('coord-nombre').value = datosCoordActual.nombre;
+        document.getElementById('coord-cedula').value = datosCoordActual.cedula;
+        document.getElementById('coord-correo').value = datosCoordActual.correo;
+        document.getElementById('coord-departamento').value = datosCoordActual.departamento;
 
-        // Sincronizar menú lateral izquierdo (nombre + foto o iniciales)
-        document.getElementById('menu-nombre-usuario').textContent = datosPerfilActual.nombre;
+        document.getElementById('menu-nombre-usuario').textContent = datosCoordActual.nombre;
         const elAvatarMenu = document.getElementById('menu-avatar-iniciales');
-        if (datosPerfilActual.foto && datosPerfilActual.foto.startsWith('data:image')) {
-            elAvatarMenu.innerHTML = `<img src="${datosPerfilActual.foto}" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%; display: block;">`;
+        if (datosCoordActual.foto && datosCoordActual.foto.startsWith('data:image')) {
+            elAvatarMenu.innerHTML = `<img src="${datosCoordActual.foto}" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%; display: block;">`;
         } else {
-            elAvatarMenu.textContent = obtenerIniciales(datosPerfilActual.nombre);
+            elAvatarMenu.textContent = obtenerIniciales(datosCoordActual.nombre);
         }
 
-        // Foto de perfil y visibilidad del botón Eliminar
-        const img = document.getElementById('img-avatar-perfil');
+        const img = document.getElementById('img-avatar-coord');
         const svg = document.getElementById('svg-avatar-defecto');
         const btnEliminar = document.getElementById('btn-eliminar-foto');
 
-        if (datosPerfilActual.foto && datosPerfilActual.foto.startsWith('data:image')) {
-            img.src = datosPerfilActual.foto;
+        if (datosCoordActual.foto && datosCoordActual.foto.startsWith('data:image')) {
+            img.src = datosCoordActual.foto;
             img.style.display = 'block';
             svg.style.display = 'none';
             btnEliminar.style.display = 'inline-flex';
@@ -390,71 +421,55 @@ $anio_escolar = date('Y');
         }
     }
 
-    function activarEdicionPerfil() {
-        const inputs = document.querySelectorAll('.form-datos-personales input');
-        inputs.forEach(inp => {
-            inp.removeAttribute('readonly');
-            inp.classList.add('editable-activo');
-        });
-        document.getElementById('perfil-nombre').focus();
-        document.getElementById('acciones-modo-lectura').style.display = 'none';
-        document.getElementById('acciones-modo-edicion').style.display = 'flex';
-    }
-
-    function cancelarEdicionPerfil() {
-        const inputs = document.querySelectorAll('.form-datos-personales input');
-        inputs.forEach(inp => {
-            inp.setAttribute('readonly', 'readonly');
-            inp.classList.remove('editable-activo');
-        });
-        pintarDatosPerfil();
-        document.getElementById('acciones-modo-edicion').style.display = 'none';
-        document.getElementById('acciones-modo-lectura').style.display = 'flex';
-    }
-
-    function guardarCambiosPerfil(e) {
-        e.preventDefault();
-
-        datosPerfilActual.nombre = document.getElementById('perfil-nombre').value.trim();
-        datosPerfilActual.cedula = document.getElementById('perfil-cedula').value.trim();
-        datosPerfilActual.correo = document.getElementById('perfil-correo').value.trim();
-        datosPerfilActual.departamento = document.getElementById('perfil-departamento').value.trim();
-
-        localStorage.setItem('perfil_coordinador_cedes', JSON.stringify(datosPerfilActual));
-
-        cancelarEdicionPerfil();
-        document.getElementById('titulo-exito-perfil').textContent = "Información actualizada";
-        document.getElementById('mensaje-exito-perfil').textContent = "Tus datos personales se guardaron correctamente.";
-        abrirModal('modal-perfil-exito');
-    }
-
-    function procesarNuevaFoto(e) {
+    function procesarNuevaFotoCoord(e) {
         const archivo = e.target.files[0];
         if (!archivo) return;
 
         const lector = new FileReader();
         lector.onload = function(ev) {
-            datosPerfilActual.foto = ev.target.result;
-            localStorage.setItem('perfil_coordinador_cedes', JSON.stringify(datosPerfilActual));
-            pintarDatosPerfil();
+            datosCoordActual.foto = ev.target.result;
+            localStorage.setItem('perfil_coordinador_cedes', JSON.stringify(datosCoordActual));
+            pintarDatosCoord();
 
-            document.getElementById('titulo-exito-perfil').textContent = "Foto actualizada";
-            document.getElementById('mensaje-exito-perfil').textContent = "Tu fotografía de perfil se actualizó correctamente.";
-            abrirModal('modal-perfil-exito');
+            document.getElementById('titulo-exito-docente').textContent = "Foto actualizada";
+            document.getElementById('mensaje-exito-docente').textContent = "La fotografía de perfil se actualizó correctamente.";
+            abrirModal('modal-docente-exito');
         };
         lector.readAsDataURL(archivo);
         e.target.value = "";
     }
 
-    function confirmarEliminarFotoPerfil() {
+    function confirmarEliminarFotoCoord() {
         cerrarModal('modal-confirmar-eliminar-foto');
-        datosPerfilActual.foto = "";
-        localStorage.setItem('perfil_coordinador_cedes', JSON.stringify(datosPerfilActual));
-        pintarDatosPerfil();
+        datosCoordActual.foto = "";
+        localStorage.setItem('perfil_coordinador_cedes', JSON.stringify(datosCoordActual));
+        pintarDatosCoord();
 
-        document.getElementById('titulo-exito-perfil').textContent = "Foto eliminada";
-        document.getElementById('mensaje-exito-perfil').textContent = "Se restauró el ícono predeterminado de tu perfil.";
-        abrirModal('modal-perfil-exito');
+        document.getElementById('titulo-exito-docente').textContent = "Foto eliminada";
+        document.getElementById('mensaje-exito-docente').textContent = "Se restauró el ícono predeterminado.";
+        abrirModal('modal-docente-exito');
+    }
+
+    function alternarVisibilidadClave(inputId, btn) {
+        const input = document.getElementById(inputId);
+        if (!input) return;
+
+        const mostrar = input.type === 'password';
+        input.type = mostrar ? 'text' : 'password';
+        btn.classList.toggle('activo', mostrar);
+        btn.title = mostrar ? 'Ocultar contraseña' : 'Mostrar contraseña';
+        btn.setAttribute('aria-label', btn.title);
+
+        btn.innerHTML = mostrar
+            ? `<svg class="icono-ojo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"></path>
+                    <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"></path>
+                    <line x1="1" y1="1" x2="23" y2="23"></line>
+               </svg>`
+            : `<svg class="icono-ojo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                    <circle cx="12" cy="12" r="3"></circle>
+               </svg>`;
     }
 
     function guardarNuevaClave(e) {
@@ -475,9 +490,9 @@ $anio_escolar = date('Y');
         document.getElementById('clave-confirmar').value = "";
 
         cerrarModal('modal-cambiar-clave');
-        document.getElementById('titulo-exito-perfil').textContent = "Contraseña actualizada";
-        document.getElementById('mensaje-exito-perfil').textContent = "Tu contraseña de acceso fue modificada con éxito.";
-        abrirModal('modal-perfil-exito');
+        document.getElementById('titulo-exito-docente').textContent = "Contraseña actualizada";
+        document.getElementById('mensaje-exito-docente').textContent = "Tu contraseña de acceso fue modificada con éxito.";
+        abrirModal('modal-docente-exito');
     }
 
     function abrirModal(id) {
@@ -502,9 +517,9 @@ $anio_escolar = date('Y');
     window.onload = function() {
         const guardado = localStorage.getItem('perfil_coordinador_cedes');
         if (guardado) {
-            datosPerfilActual = { ...perfilPorDefecto, ...JSON.parse(guardado) };
+            datosCoordActual = { ...perfilCoordDefecto, ...JSON.parse(guardado) };
         }
-        pintarDatosPerfil();
+        pintarDatosCoord();
     };
 
     document.addEventListener('keydown', function(e) {
@@ -512,7 +527,7 @@ $anio_escolar = date('Y');
             cerrarModal('modal-salir');
             cerrarModal('modal-confirmar-eliminar-foto');
             cerrarModal('modal-cambiar-clave');
-            cerrarModal('modal-perfil-exito');
+            cerrarModal('modal-docente-exito');
         }
     });
 </script>

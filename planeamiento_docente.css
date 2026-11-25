@@ -195,6 +195,56 @@
     border-radius: 99px;
 }
 
+/* MODAL DE CONFIRMACIÓN DE PLANEAMIENTO IGUAL AL MODAL DE PERFIL */
+#modal-entrega-exito .caja-modal,
+#modal-entrega-exito .caja-modal-exito {
+    max-width: 400px;
+    width: 100%;
+    padding: 26px 24px;
+    border-radius: 18px;
+    text-align: center;
+    background-color: #ffffff;
+}
+
+#modal-entrega-exito .icono-modal-verde,
+#modal-entrega-exito .icono-exito-circular {
+    width: 54px;
+    height: 54px;
+    min-width: 54px;
+    min-height: 54px;
+    border-radius: 50%;
+    margin: 0 auto 14px auto;
+    background-color: #dcfce7;
+    color: #16a34a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+#modal-entrega-exito .icono-modal-verde svg,
+#modal-entrega-exito .icono-exito-circular svg {
+    width: 26px !important;
+    height: 26px !important;
+    max-width: 26px !important;
+    max-height: 26px !important;
+    color: #16a34a;
+    display: block;
+}
+
+#modal-entrega-exito h2 {
+    font-size: 20px;
+    font-weight: 800;
+    color: #071342;
+    margin: 0 0 6px 0;
+}
+
+#modal-entrega-exito p {
+    font-size: 13.5px;
+    color: #64748b;
+    margin: 0 0 18px 0;
+}
+
 /* RESPONSIVE */
 @media (max-width: 768px) {
     .contenido-archivos-docente {

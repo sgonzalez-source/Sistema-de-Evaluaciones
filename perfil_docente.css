@@ -16,6 +16,7 @@ aside.menu.menu-docente .pie-menu a.enlace-perfil-menu.activo-perfil {
     background-color: rgba(255, 255, 255, 0.12);
 }
 
+/* CONTENIDO PRINCIPAL DE INFORMACIÓN PERSONAL */
 .contenido-perfil-docente {
     padding: 20px 30px 34px 30px;
     background-color: #f1f5f9;
@@ -85,6 +86,7 @@ aside.menu.menu-docente .pie-menu a.enlace-perfil-menu.activo-perfil {
     width: 18px;
     height: 18px;
     color: #071342;
+    flex-shrink: 0;
 }
 
 .cuerpo-perfil-grid {
@@ -125,36 +127,12 @@ aside.menu.menu-docente .pie-menu a.enlace-perfil-menu.activo-perfil {
     transition: border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-.campo-perfil input.editable-activo,
-.campo-perfil select.editable-activo {
-    background-color: #ffffff;
-    border-color: #2563eb;
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
-}
-
 .acciones-perfil {
     display: flex;
     align-items: center;
     gap: 12px;
     flex-wrap: wrap;
     margin-top: 8px;
-}
-
-.btn-editar-info {
-    background-color: #071342;
-    color: #ffffff;
-    border: none;
-    border-radius: 9px;
-    padding: 10px 20px;
-    font-size: 13.5px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: background-color 0.2s ease, transform 0.12s ease;
-}
-
-.btn-editar-info:hover {
-    background-color: #11246e;
-    transform: translateY(-1px);
 }
 
 .btn-cambiar-clave {
@@ -180,32 +158,6 @@ aside.menu.menu-docente .pie-menu a.enlace-perfil-menu.activo-perfil {
 .btn-cambiar-clave svg {
     width: 15px;
     height: 15px;
-}
-
-.btn-cancelar-perfil {
-    background-color: #f1f5f9;
-    color: #334155;
-    border: 1px solid #cbd5e1;
-    border-radius: 9px;
-    padding: 10px 18px;
-    font-size: 13.5px;
-    font-weight: 700;
-    cursor: pointer;
-}
-
-.btn-guardar-perfil-verde {
-    background-color: #16a34a;
-    color: #ffffff;
-    border: none;
-    border-radius: 9px;
-    padding: 10px 20px;
-    font-size: 13.5px;
-    font-weight: 700;
-    cursor: pointer;
-}
-
-.btn-guardar-perfil-verde:hover {
-    background-color: #15803d;
 }
 
 /* COLUMNA DERECHA: AVATAR */
@@ -309,52 +261,154 @@ aside.menu.menu-docente .pie-menu a.enlace-perfil-menu.activo-perfil {
     height: 15px;
 }
 
-/* MODAL CAMBIAR CONTRASEÑA */
+/* MODAL CAMBIAR CONTRASEÑA ESTILIZADO + OJITO */
 .caja-modal-clave {
-    max-width: 430px;
+    max-width: 440px;
+    width: 100%;
+    padding: 26px 26px 24px 26px;
+    border-radius: 18px;
     text-align: left;
+    background-color: #ffffff;
+    box-shadow: 0 20px 45px rgba(7, 19, 66, 0.18);
+}
+
+.cabecera-modal-clave {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 18px;
+    padding-right: 24px;
+}
+
+.icono-llave-clave {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    background-color: #eff6ff;
+    color: #071342;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.icono-llave-clave svg {
+    width: 19px;
+    height: 19px;
 }
 
 .caja-modal-clave h2 {
-    margin-bottom: 6px;
+    font-size: 19px;
+    font-weight: 800;
+    color: #071342;
+    margin: 0 0 4px 0;
 }
 
 .subtexto-clave {
-    font-size: 13px;
+    font-size: 12.5px;
+    line-height: 1.45;
     color: #64748b;
-    margin-bottom: 16px;
+    margin: 0;
 }
 
 .form-clave-modal {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 14px;
 }
 
 .grupo-clave {
     display: flex;
     flex-direction: column;
-    gap: 5px;
+    gap: 6px;
 }
 
 .grupo-clave label {
-    font-size: 12.5px;
+    font-size: 13px;
     font-weight: 700;
     color: #0f172a;
 }
 
-.grupo-clave input {
-    padding: 9px 12px;
-    border: 1px solid #cbd5e1;
+.campo-clave-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.campo-clave-wrapper input {
+    width: 100%;
+    height: 42px;
+    padding: 0 42px 0 13px;
+    border: 1.5px solid #cbd5e1;
+    border-radius: 10px;
+    font-size: 14px;
+    color: #0f172a;
+    background-color: #f8fafc;
+    outline: none;
+    transition: border-color 0.18s ease, background-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.campo-clave-wrapper input:focus {
+    background-color: #ffffff;
+    border-color: #071342;
+    box-shadow: 0 0 0 3px rgba(7, 19, 66, 0.12);
+}
+
+.btn-ojito-clave {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 30px;
+    height: 30px;
+    background-color: transparent;
+    border: none;
     border-radius: 8px;
-    font-size: 13.5px;
+    color: #475569;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: color 0.15s ease, background-color 0.15s ease;
+}
+
+.btn-ojito-clave:hover {
+    color: #071342;
+    background-color: #e2e8f0;
+}
+
+.btn-ojito-clave.activo {
+    color: #071342;
+    background-color: #dbeafe;
+}
+
+.btn-ojito-clave svg.icono-ojo {
+    width: 18px !important;
+    height: 18px !important;
+    min-width: 18px !important;
+    min-height: 18px !important;
+    display: block;
 }
 
 .mensaje-error-clave {
     color: #dc2626;
+    background-color: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: 8px;
+    padding: 8px 12px;
     font-size: 12.5px;
     font-weight: 600;
     margin: 0;
+}
+
+.botones-clave-alineados {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 10px;
+    margin-top: 6px;
 }
 
 /* TAMAÑO COMPACTO Y CENTRADO PARA ICONOS DE MODALES */

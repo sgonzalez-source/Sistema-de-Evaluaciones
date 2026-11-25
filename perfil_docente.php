@@ -23,7 +23,7 @@ $anio_escolar = date('Y');
     <title>Información Personal - CEDES Don Bosco</title>
     <link rel="stylesheet" href="principal.css?v=58">
     <link rel="stylesheet" href="inicio_docente.css?v=5">
-    <link rel="stylesheet" href="perfil_docente.css?v=3">
+    <link rel="stylesheet" href="perfil_docente.css?v=5">
 </head>
 <body>
 
@@ -128,40 +128,28 @@ $anio_escolar = date('Y');
                 </div>
 
                 <div class="cuerpo-perfil-grid">
-                    <form class="form-datos-docente" onsubmit="guardarCambiosDocente(event)">
+                    <form class="form-datos-docente" onsubmit="event.preventDefault();">
                         <div class="campo-perfil">
                             <label for="docente-nombre">Nombre</label>
-                            <input type="text" id="docente-nombre" value="<?php echo htmlspecialchars($nombre); ?>" readonly required>
+                            <input type="text" id="docente-nombre" value="<?php echo htmlspecialchars($nombre); ?>" readonly>
                         </div>
 
                         <div class="campo-perfil">
                             <label for="docente-cedula">Número de cédula</label>
-                            <input type="text" id="docente-cedula" value="<?php echo htmlspecialchars($cedula_sesion); ?>" readonly required>
+                            <input type="text" id="docente-cedula" value="<?php echo htmlspecialchars($cedula_sesion); ?>" readonly>
                         </div>
 
                         <div class="campo-perfil">
                             <label for="docente-correo">Correo electrónico</label>
-                            <input type="email" id="docente-correo" value="lrodriguez@cedesdonbosco.ed.cr" readonly required>
+                            <input type="email" id="docente-correo" value="lrodriguez@cedesdonbosco.ed.cr" readonly>
                         </div>
 
                         <div class="campo-perfil">
                             <label for="docente-materia">Materia asignada</label>
-                            <select id="docente-materia" disabled>
-                                <option value="Español">Español</option>
-                                <option value="Química">Química</option>
-                                <option value="Matemáticas">Matemáticas</option>
-                                <option value="Música">Música</option>
-                                <option value="Ciencias">Ciencias</option>
-                                <option value="Informática">Informática</option>
-                                <option value="Estudios Sociales">Estudios Sociales</option>
-                                <option value="Inglés">Inglés</option>
-                                <option value="Cívica">Cívica</option>
-                                <option value="Educación Física">Educación Física</option>
-                            </select>
+                            <input type="text" id="docente-materia" value="Español" readonly>
                         </div>
 
-                        <div class="acciones-perfil" id="acciones-modo-lectura">
-                            <button type="button" class="btn-editar-info" onclick="activarEdicionDocente()">Editar información</button>
+                        <div class="acciones-perfil">
                             <button type="button" class="btn-cambiar-clave" onclick="abrirModal('modal-cambiar-clave')">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
@@ -169,11 +157,6 @@ $anio_escolar = date('Y');
                                 </svg>
                                 <span>Cambiar contraseña</span>
                             </button>
-                        </div>
-
-                        <div class="acciones-perfil" id="acciones-modo-edicion" style="display: none;">
-                            <button type="button" class="btn-cancelar-perfil" onclick="cancelarEdicionDocente()">Cancelar</button>
-                            <button type="submit" class="btn-guardar-perfil-verde">Guardar cambios</button>
                         </div>
                     </form>
 
@@ -219,7 +202,7 @@ $anio_escolar = date('Y');
 <div class="fondo-modal" id="modal-confirmar-eliminar-foto" onclick="cerrarSiFuera(event, 'modal-confirmar-eliminar-foto')">
     <div class="caja-modal">
         <button type="button" class="cerrar-modal-x" onclick="cerrarModal('modal-confirmar-eliminar-foto')" aria-label="Cerrar">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 18px; height: 18px;">
                 <line x1="18" y1="6" x2="6" y2="18"></line>
                 <line x1="6" y1="6" x2="18" y2="18"></line>
             </svg>
@@ -248,34 +231,68 @@ $anio_escolar = date('Y');
 <div class="fondo-modal" id="modal-cambiar-clave" onclick="cerrarSiFuera(event, 'modal-cambiar-clave')">
     <div class="caja-modal caja-modal-clave">
         <button type="button" class="cerrar-modal-x" onclick="cerrarModal('modal-cambiar-clave')" aria-label="Cerrar">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 18px; height: 18px;">
                 <line x1="18" y1="6" x2="6" y2="18"></line>
                 <line x1="6" y1="6" x2="18" y2="18"></line>
             </svg>
         </button>
 
-        <h2>Cambiar contraseña</h2>
-        <p class="subtexto-clave">Ingresa tu contraseña actual y define una nueva clave segura para tu cuenta institucional.</p>
+        <div class="cabecera-modal-clave">
+            <span class="icono-llave-clave">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                </svg>
+            </span>
+            <div>
+                <h2>Cambiar contraseña</h2>
+                <p class="subtexto-clave">Ingresa tu contraseña actual y define una nueva clave segura para tu cuenta institucional.</p>
+            </div>
+        </div>
 
         <form onsubmit="guardarNuevaClave(event)" class="form-clave-modal">
             <div class="grupo-clave">
                 <label for="clave-actual">Contraseña actual</label>
-                <input type="password" id="clave-actual" placeholder="••••••••" required>
+                <div class="campo-clave-wrapper">
+                    <input type="password" id="clave-actual" placeholder="••••••••" required>
+                    <button type="button" class="btn-ojito-clave" onclick="alternarVisibilidadClave('clave-actual', this)" title="Mostrar contraseña" aria-label="Mostrar contraseña">
+                        <svg class="icono-ojo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                            <circle cx="12" cy="12" r="3"></circle>
+                        </svg>
+                    </button>
+                </div>
             </div>
 
             <div class="grupo-clave">
                 <label for="clave-nueva">Nueva contraseña</label>
-                <input type="password" id="clave-nueva" minlength="6" placeholder="Mínimo 6 caracteres" required>
+                <div class="campo-clave-wrapper">
+                    <input type="password" id="clave-nueva" minlength="6" placeholder="Mínimo 6 caracteres" required>
+                    <button type="button" class="btn-ojito-clave" onclick="alternarVisibilidadClave('clave-nueva', this)" title="Mostrar contraseña" aria-label="Mostrar contraseña">
+                        <svg class="icono-ojo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                            <circle cx="12" cy="12" r="3"></circle>
+                        </svg>
+                    </button>
+                </div>
             </div>
 
             <div class="grupo-clave">
                 <label for="clave-confirmar">Confirmar nueva contraseña</label>
-                <input type="password" id="clave-confirmar" minlength="6" placeholder="Repite la nueva contraseña" required>
+                <div class="campo-clave-wrapper">
+                    <input type="password" id="clave-confirmar" minlength="6" placeholder="Repite la nueva contraseña" required>
+                    <button type="button" class="btn-ojito-clave" onclick="alternarVisibilidadClave('clave-confirmar', this)" title="Mostrar contraseña" aria-label="Mostrar contraseña">
+                        <svg class="icono-ojo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                            <circle cx="12" cy="12" r="3"></circle>
+                        </svg>
+                    </button>
+                </div>
             </div>
 
             <p class="mensaje-error-clave" id="error-clave-texto" style="display: none;"></p>
 
-            <div class="botones-modal">
+            <div class="botones-modal botones-clave-alineados">
                 <button type="button" class="btn-modal-cancelar" onclick="cerrarModal('modal-cambiar-clave')">Cancelar</button>
                 <button type="submit" class="btn-modal-guardar-verde">Actualizar contraseña</button>
             </div>
@@ -285,22 +302,22 @@ $anio_escolar = date('Y');
 
 <!-- MODAL: ÉXITO -->
 <div class="fondo-modal" id="modal-docente-exito" onclick="cerrarSiFuera(event, 'modal-docente-exito')">
-    <div class="caja-modal">
+    <div class="caja-modal" style="max-width: 400px; padding: 26px 24px; text-align: center;">
         <button type="button" class="cerrar-modal-x" onclick="cerrarModal('modal-docente-exito')" aria-label="Cerrar">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 18px; height: 18px;">
                 <line x1="18" y1="6" x2="6" y2="18"></line>
                 <line x1="6" y1="6" x2="18" y2="18"></line>
             </svg>
         </button>
 
-        <div class="icono-modal-verde">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+        <div class="icono-modal-verde" style="width: 54px; height: 54px; border-radius: 50%; margin: 0 auto 14px auto; background-color: #dcfce7; color: #16a34a; display: flex; align-items: center; justify-content: center;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width: 26px; height: 26px; display: block;">
                 <polyline points="20 6 9 17 4 12"></polyline>
             </svg>
         </div>
 
-        <h2 id="titulo-exito-docente">Información actualizada</h2>
-        <p id="mensaje-exito-docente">Los datos del docente se guardaron correctamente.</p>
+        <h2 id="titulo-exito-docente" style="font-size: 20px; margin-bottom: 6px;">Foto actualizada</h2>
+        <p id="mensaje-exito-docente" style="font-size: 13.5px; color: #64748b; margin-bottom: 18px;">La fotografía de perfil se actualizó correctamente.</p>
 
         <div class="botones-modal" style="justify-content: center;">
             <button type="button" class="btn-modal-guardar-verde" onclick="cerrarModal('modal-docente-exito')">Aceptar</button>
@@ -312,7 +329,7 @@ $anio_escolar = date('Y');
 <div class="fondo-modal" id="modal-salir" onclick="cerrarSiFuera(event, 'modal-salir')">
     <div class="caja-modal">
         <button type="button" class="cerrar-modal-x" onclick="cerrarModal('modal-salir')" aria-label="Cerrar">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 18px; height: 18px;">
                 <line x1="18" y1="6" x2="6" y2="18"></line>
                 <line x1="6" y1="6" x2="18" y2="18"></line>
             </svg>
@@ -386,50 +403,6 @@ $anio_escolar = date('Y');
         }
     }
 
-    function activarEdicionDocente() {
-        document.querySelectorAll('.form-datos-docente input').forEach(inp => {
-            inp.removeAttribute('readonly');
-            inp.classList.add('editable-activo');
-        });
-        const selMateria = document.getElementById('docente-materia');
-        selMateria.removeAttribute('disabled');
-        selMateria.classList.add('editable-activo');
-
-        document.getElementById('docente-nombre').focus();
-        document.getElementById('acciones-modo-lectura').style.display = 'none';
-        document.getElementById('acciones-modo-edicion').style.display = 'flex';
-    }
-
-    function cancelarEdicionDocente() {
-        document.querySelectorAll('.form-datos-docente input').forEach(inp => {
-            inp.setAttribute('readonly', 'readonly');
-            inp.classList.remove('editable-activo');
-        });
-        const selMateria = document.getElementById('docente-materia');
-        selMateria.setAttribute('disabled', 'disabled');
-        selMateria.classList.remove('editable-activo');
-
-        pintarDatosDocente();
-        document.getElementById('acciones-modo-edicion').style.display = 'none';
-        document.getElementById('acciones-modo-lectura').style.display = 'flex';
-    }
-
-    function guardarCambiosDocente(e) {
-        e.preventDefault();
-
-        datosDocenteActual.nombre = document.getElementById('docente-nombre').value.trim();
-        datosDocenteActual.cedula = document.getElementById('docente-cedula').value.trim();
-        datosDocenteActual.correo = document.getElementById('docente-correo').value.trim();
-        datosDocenteActual.materia = document.getElementById('docente-materia').value;
-
-        localStorage.setItem('perfil_docente_cedes', JSON.stringify(datosDocenteActual));
-
-        cancelarEdicionDocente();
-        document.getElementById('titulo-exito-docente').textContent = "Información actualizada";
-        document.getElementById('mensaje-exito-docente').textContent = "Los datos de la docente se guardaron correctamente.";
-        abrirModal('modal-docente-exito');
-    }
-
     function procesarNuevaFotoDocente(e) {
         const archivo = e.target.files[0];
         if (!archivo) return;
@@ -457,6 +430,28 @@ $anio_escolar = date('Y');
         document.getElementById('titulo-exito-docente').textContent = "Foto eliminada";
         document.getElementById('mensaje-exito-docente').textContent = "Se restauró el ícono predeterminado.";
         abrirModal('modal-docente-exito');
+    }
+
+    function alternarVisibilidadClave(inputId, btn) {
+        const input = document.getElementById(inputId);
+        if (!input) return;
+
+        const mostrar = input.type === 'password';
+        input.type = mostrar ? 'text' : 'password';
+        btn.classList.toggle('activo', mostrar);
+        btn.title = mostrar ? 'Ocultar contraseña' : 'Mostrar contraseña';
+        btn.setAttribute('aria-label', btn.title);
+
+        btn.innerHTML = mostrar
+            ? `<svg class="icono-ojo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"></path>
+                    <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"></path>
+                    <line x1="1" y1="1" x2="23" y2="23"></line>
+               </svg>`
+            : `<svg class="icono-ojo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                    <circle cx="12" cy="12" r="3"></circle>
+               </svg>`;
     }
 
     function guardarNuevaClave(e) {
