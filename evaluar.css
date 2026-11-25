@@ -9,7 +9,6 @@
     gap: 14px;
 }
 
-
 .contenido-evaluar .banner-izq h1,
 .titulo-seccion-bold {
     font-size: 22px !important;
@@ -95,7 +94,7 @@
 
 .grid-docentes-evaluar {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
     gap: 14px;
 }
 
@@ -416,6 +415,7 @@
 .scroll-rubrica-horizontal {
     flex: 1;
     overflow: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
 .tabla-rubrica-oficial {
@@ -684,11 +684,68 @@
     height: 30px;
 }
 
+/* ==========================================================================
+   DISEÑO RESPONSIVE - EVALUAR DOCENTE
+   ========================================================================== */
+
+@media (min-width: 1440px) {
+    .panel-mitad {
+        height: 650px;
+    }
+}
+
 @media (max-width: 1050px) {
+    .contenido-evaluar {
+        padding: 18px 20px 24px 20px;
+    }
+
     .split-screen-evaluacion {
         grid-template-columns: 1fr;
     }
+
     .panel-mitad {
         height: 500px;
+    }
+
+    .panel-rubrica {
+        height: auto;
+        max-height: 620px;
+    }
+}
+
+@media (max-width: 768px) {
+    .contenido-evaluar {
+        padding: 14px 12px 24px 12px;
+    }
+
+    .caja-busqueda,
+    .acciones-derecha,
+    .select-filtro {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .grid-docentes-evaluar {
+        grid-template-columns: 1fr;
+    }
+
+    .grupo-seccion-rapida,
+    .btn-volver-docentes {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .panel-planeamiento {
+        height: 380px;
+        padding: 8px;
+    }
+
+    .barra-botones-finales {
+        flex-direction: column-reverse;
+        width: 100%;
+    }
+
+    .barra-botones-finales button {
+        width: 100%;
     }
 }

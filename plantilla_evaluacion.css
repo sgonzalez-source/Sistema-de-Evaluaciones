@@ -9,7 +9,6 @@
     gap: 16px;
 }
 
-
 .contenido-plantillas .banner-izq h1,
 .titulo-seccion-bold {
     font-size: 22px !important;
@@ -54,12 +53,14 @@
     background-color: #ffffff;
     border: 1.2px solid #cbd5e1;
     border-radius: 14px;
-    overflow: hidden;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
     box-shadow: 0 2px 6px rgba(15, 23, 42, 0.03);
 }
 
 .tabla-plantilla-individual {
     width: 100%;
+    min-width: 600px;
     border-collapse: collapse;
     table-layout: fixed;
 }
@@ -298,6 +299,7 @@
     border: 1.5px solid #475569;
     border-radius: 12px;
     overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
     box-shadow: 0 2px 8px rgba(15, 23, 42, 0.05);
 }
 
@@ -601,4 +603,49 @@
 .icono-modal-verde svg {
     width: 30px;
     height: 30px;
+}
+
+/* ==========================================================================
+   DISEÑO RESPONSIVE - PLANTILLAS DE EVALUACIÓN
+   ========================================================================== */
+
+@media (min-width: 1440px) {
+    .lista-bloques-plantillas {
+        max-width: 1220px;
+    }
+}
+
+@media (max-width: 1024px) {
+    .contenido-plantillas {
+        padding: 18px 20px 24px 20px;
+    }
+}
+
+@media (max-width: 768px) {
+    .contenido-plantillas {
+        padding: 14px 12px 24px 12px;
+    }
+
+    .btn-crear-plantilla-verde,
+    .btn-volver-plantillas,
+    .btn-agregar-criterio {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .campo-inline-tarjeta {
+        min-width: 100%;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 5px;
+    }
+
+    .barra-acciones-editor {
+        flex-direction: column-reverse;
+        width: 100%;
+    }
+
+    .barra-acciones-editor button {
+        width: 100%;
+    }
 }

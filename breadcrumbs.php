@@ -1,42 +1,62 @@
 <?php
-
-
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
+$rol_actual     = $_SESSION['rol'] ?? 'Coordinador';
+$es_docente     = (strcasecmp($rol_actual, 'Docente') === 0);
+$url_inicio_rol = $es_docente ? 'inicio_docente.php' : 'principal.php';
+
 $mapa_paginas = [
     'principal.php'            => 'Inicio',
+    'inicio_docente.php'       => 'Inicio',
     'docentes.php'             => 'Gestión de Docentes',
     'plantilla_evaluacion.php' => 'Plantillas de evaluación',
     'evaluar.php'              => 'Evaluación',
-    'estadistica.php'          => 'Estadística'
+    'estadisticas.php'         => 'Estadística',
+    'estadistica.php'          => 'Estadística',
+    'planeamiento_docente.php' => 'Planeamiento',
+    'mis_evaluaciones.php'     => 'Mis evaluaciones',
+    'perfil_docente.php'       => 'Perfil de usuario',
+    'perfil.php'               => 'Perfil de usuario'
 ];
 
 $archivo_actual = basename($_SERVER['PHP_SELF']);
 $titulo_actual  = $titulo_miga ?? ($mapa_paginas[$archivo_actual] ?? ucfirst(str_replace('.php', '', $archivo_actual)));
 
-// Detecta si el usuario viene directamente desde Home (principal.php)
+// Si cambió el rol o la raíz guardada no coincide con el rol actual, reinicia el rastro
+if (
+    !isset($_SESSION['ruta_navegacion']) ||
+    !is_array($_SESSION['ruta_navegacion']) ||
+    empty($_SESSION['ruta_navegacion']) ||
+    (($_SESSION['ruta_navegacion'][0]['url'] ?? '') !== $url_inicio_rol)
+) {
+    $_SESSION['ruta_navegacion'] = [
+        ['titulo' => 'Inicio', 'url' => $url_inicio_rol]
+    ];
+}
+
+// Detecta si el usuario viene directamente desde el Inicio de su rol
 $pagina_anterior = $_SERVER['HTTP_REFERER'] ?? '';
-$viene_de_inicio = (strpos($pagina_anterior, 'principal.php') !== false);
+$viene_de_inicio = (strpos($pagina_anterior, $url_inicio_rol) !== false);
 
 // 1. Si hace clic directamente en una migaja anterior (?miga_idx=X), recorta hasta ese punto
-if (isset($_GET['miga_idx']) && isset($_SESSION['ruta_navegacion'])) {
+if (isset($_GET['miga_idx'])) {
     $idx_clic = (int) $_GET['miga_idx'];
     if (isset($_SESSION['ruta_navegacion'][$idx_clic])) {
         $_SESSION['ruta_navegacion'] = array_slice($_SESSION['ruta_navegacion'], 0, $idx_clic + 1);
     }
 }
 
-// 2. Si está en Inicio o viene directamente desde Inicio (principal.php), reinicia el rastro
-if ($archivo_actual === 'principal.php') {
+// 2. Si está en el Inicio de su rol, reinicia el rastro a ese Inicio
+if ($archivo_actual === $url_inicio_rol) {
     $_SESSION['ruta_navegacion'] = [
-        ['titulo' => 'Inicio', 'url' => 'principal.php']
+        ['titulo' => 'Inicio', 'url' => $url_inicio_rol]
     ];
 } else {
-    if ($viene_de_inicio || !isset($_SESSION['ruta_navegacion']) || empty($_SESSION['ruta_navegacion'])) {
+    if ($viene_de_inicio) {
         $_SESSION['ruta_navegacion'] = [
-            ['titulo' => 'Inicio', 'url' => 'principal.php']
+            ['titulo' => 'Inicio', 'url' => $url_inicio_rol]
         ];
     }
 
@@ -62,9 +82,9 @@ if ($archivo_actual === 'principal.php') {
 ?>
 
 <nav class="migas-pan" id="migas-pan-dinamicas" aria-label="Ruta de navegación">
-    <?php 
+    <?php
     $total_pasos = count($_SESSION['ruta_navegacion']);
-    foreach ($_SESSION['ruta_navegacion'] as $i => $paso): 
+    foreach ($_SESSION['ruta_navegacion'] as $i => $paso):
         $es_ultimo = ($i === $total_pasos - 1);
         $separador = (strpos($paso['url'], '?') !== false) ? '&' : '?';
         $url_con_indice = $paso['url'] . $separador . 'miga_idx=' . $i;

@@ -149,6 +149,9 @@
     font-weight: 700;
     padding: 4px 10px;
     border-radius: 99px;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
     white-space: nowrap;
 }
 
@@ -187,9 +190,46 @@
     color: #071342;
 }
 
-@media (max-width: 980px) {
-    .grid-kpis-estadistica,
+/* ==========================================================================
+   DISEÑO RESPONSIVE - ESTADÍSTICAS
+   ========================================================================== */
+
+@media (min-width: 1440px) {
+    .canvas-wrapper {
+        height: 260px;
+    }
+}
+
+@media (max-width: 1024px) {
+    .contenido-estadisticas {
+        padding: 18px 20px 24px 20px;
+    }
+
+    .grid-kpis-estadistica {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
     .grid-graficos-estadistica {
         grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .contenido-estadisticas {
+        padding: 14px 12px 24px 12px;
+    }
+
+    .grid-kpis-estadistica {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .card-kpi-est,
+    .card-grafico-est {
+        padding: 14px 16px;
+    }
+
+    .canvas-wrapper {
+        height: 200px;
     }
 }

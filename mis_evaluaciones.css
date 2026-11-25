@@ -1,0 +1,391 @@
+.contenido-evaluaciones-docente {
+    padding: 20px 30px 34px 30px;
+    gap: 16px;
+    background-color: #f1f5f9;
+}
+
+.contenido-evaluaciones-docente .banner-izq h1,
+.titulo-seccion-bold {
+    font-size: 22px !important;
+    font-weight: 800 !important;
+    color: #071342 !important;
+    letter-spacing: -0.4px !important;
+    margin: 0 !important;
+}
+
+.evaluaciones-wrapper {
+    width: 100%;
+    max-width: 1220px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+/* BANNER DOBLE RESPALDO (CORREO + SISTEMA) */
+.banner-respaldo-correo {
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-left: 4.5px solid #2563eb;
+    border-radius: 16px;
+    padding: 14px 22px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    box-shadow: 0 2px 10px rgba(15, 23, 42, 0.04);
+}
+
+.respaldo-correo-izq {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.icono-respaldo-correo {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    background-color: #eff6ff;
+    color: #1d4ed8;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.icono-respaldo-correo svg {
+    width: 19px;
+    height: 19px;
+}
+
+.respaldo-correo-izq strong {
+    display: block;
+    font-size: 14px;
+    font-weight: 800;
+    color: #071342;
+}
+
+.respaldo-correo-izq p {
+    font-size: 12px;
+    color: #64748b;
+    margin-top: 2px;
+}
+
+.respaldo-puntaje-pill {
+    background-color: #f8fafc;
+    border: 1px solid #cbd5e1;
+    border-radius: 12px;
+    padding: 8px 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+}
+
+.respaldo-puntaje-pill span {
+    font-size: 11px;
+    font-weight: 700;
+    color: #64748b;
+    text-transform: uppercase;
+}
+
+.respaldo-puntaje-pill strong {
+    font-size: 17px;
+    font-weight: 800;
+    color: #071342;
+}
+
+/* HOJA DE RÚBRICA COMPLETA */
+.hoja-rubrica-completa-card {
+    background-color: #ffffff;
+    border: 1.5px solid #cbd5e1;
+    border-radius: 14px;
+    padding: 16px;
+    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.05);
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.tabla-rubrica-scroll {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.tabla-rubrica-docente-full {
+    width: 100%;
+    min-width: 960px;
+    border-collapse: collapse;
+    background-color: #ffffff;
+}
+
+.fila-encabezado-datos td.celda-dato-inst {
+    border: 1px solid #94a3b8;
+    padding: 9px 14px;
+    font-size: 13px;
+    color: #0f172a;
+    background-color: #ffffff;
+}
+
+.fila-encabezado-datos td.celda-dato-inst span {
+    color: #334155;
+    margin-right: 4px;
+}
+
+.celda-anio-logo {
+    border: 1px solid #94a3b8;
+    padding: 8px 14px;
+    background-color: #ffffff;
+    text-align: center;
+    vertical-align: middle;
+}
+
+.bloque-anio-texto {
+    font-size: 14px;
+    color: #0f172a;
+    margin-bottom: 4px;
+}
+
+.logo-rubrica-inst {
+    max-height: 40px;
+    width: auto;
+    object-fit: contain;
+    display: inline-block;
+}
+
+.fila-banner-amarillo {
+    background-color: #fde68a;
+    border: 1px solid #94a3b8;
+    padding: 9px 12px;
+    text-align: center;
+    font-size: 13px;
+    font-weight: 800;
+    color: #0f172a;
+    letter-spacing: 0.35px;
+}
+
+.fila-cabecera-columnas th {
+    background-color: #93c5fd;
+    border: 1px solid #94a3b8;
+    padding: 10px 8px;
+    font-size: 12.5px;
+    font-weight: 800;
+    color: #0f172a;
+    text-align: center;
+    line-height: 1.25;
+}
+
+.col-th-criterio { width: 15%; }
+.col-th-nivel    { width: 16.5%; }
+.col-th-seleccion { width: 9.5%; }
+.col-th-puntaje  { width: 9.5%; }
+
+.celda-criterio-full {
+    background-color: #e2e8f0;
+    border: 1px solid #94a3b8;
+    padding: 11px 10px;
+    text-align: center;
+    font-size: 13px;
+    font-weight: 800;
+    font-style: italic;
+    color: #0f172a;
+    line-height: 1.3;
+    vertical-align: middle;
+}
+
+.celda-nivel-full {
+    background-color: #ffffff;
+    border: 1px solid #cbd5e1;
+    padding: 10px 9px;
+    text-align: center;
+    font-size: 12px;
+    line-height: 1.35;
+    color: #1e293b;
+    vertical-align: middle;
+}
+
+.celda-nivel-full.marcada {
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.celda-nivel-full.marcada.excelente {
+    background-color: #dcfce7;
+    border: 2.5px solid #15803d;
+}
+
+.celda-nivel-full.marcada.muy-bueno {
+    background-color: #dbeafe;
+    border: 2.5px solid #1d4ed8;
+}
+
+.celda-nivel-full.marcada.bueno {
+    background-color: #fef9c3;
+    border: 2.5px solid #ca8a04;
+}
+
+.celda-nivel-full.marcada.insuficiente {
+    background-color: #fee2e2;
+    border: 2.5px solid #dc2626;
+}
+
+.celda-seleccion-full,
+.celda-puntaje-full {
+    border: 1px solid #94a3b8;
+    padding: 10px 8px;
+    text-align: center;
+    vertical-align: middle;
+    background-color: #ffffff;
+}
+
+.pill-nivel-elegido {
+    display: inline-block;
+    background-color: #eff6ff;
+    border: 1px solid #bfdbfe;
+    color: #071342;
+    font-size: 11.5px;
+    font-weight: 700;
+    padding: 4px 9px;
+    border-radius: 99px;
+    white-space: nowrap;
+}
+
+.badge-pts-full {
+    display: inline-block;
+    font-size: 12.5px;
+    font-weight: 800;
+    padding: 5px 10px;
+    border-radius: 8px;
+    white-space: nowrap;
+}
+
+.badge-pts-full.p4 { background-color: #dcfce7; color: #15803d; }
+.badge-pts-full.p3 { background-color: #dbeafe; color: #1d4ed8; }
+.badge-pts-full.p2 { background-color: #fef9c3; color: #a16207; }
+.badge-pts-full.p1 { background-color: #fee2e2; color: #b91c1c; }
+
+.fila-total-rubrica-full td {
+    background-color: #f8fafc;
+    border: 1px solid #94a3b8;
+    padding: 10px 14px;
+    font-size: 13.5px;
+    color: #071342;
+}
+
+.texto-total-label {
+    font-weight: 800;
+    text-align: right;
+}
+
+.col-centro {
+    text-align: center;
+}
+
+.badge-respaldo-mini {
+    display: inline-block;
+    background-color: #e0e7ff;
+    color: #3730a3;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 9px;
+    border-radius: 99px;
+    white-space: nowrap;
+}
+
+/* OBSERVACIONES DEL COORDINADOR */
+.bloque-observaciones-full {
+    background-color: #f8fafc;
+    border: 1px solid #cbd5e1;
+    border-left: 4px solid #071342;
+    border-radius: 10px;
+    padding: 12px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.cabecera-obs-full {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.cabecera-obs-full strong {
+    font-size: 13.5px;
+    font-weight: 800;
+    color: #071342;
+}
+
+.cabecera-obs-full span {
+    font-size: 12px;
+    color: #64748b;
+    font-weight: 600;
+}
+
+.bloque-observaciones-full p {
+    font-size: 13px;
+    line-height: 1.5;
+    color: #1e293b;
+    margin: 0;
+}
+
+/* BOTÓN DESCARGAR DESGLOSE EN PDF */
+.accion-descargar-pdf {
+    display: flex;
+    justify-content: center;
+    padding-top: 4px;
+}
+
+.btn-descargar-desglose-pdf {
+    background-color: #071342;
+    color: #ffffff;
+    border: none;
+    border-radius: 11px;
+    padding: 12px 26px;
+    font-size: 14px;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(7, 19, 66, 0.22);
+    transition: background-color 0.2s ease, transform 0.12s ease;
+}
+
+.btn-descargar-desglose-pdf:hover {
+    background-color: #11246e;
+    transform: translateY(-1px);
+}
+
+.btn-descargar-desglose-pdf svg {
+    width: 18px;
+    height: 18px;
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+    .contenido-evaluaciones-docente {
+        padding: 14px 12px 26px 12px;
+    }
+
+    .hoja-rubrica-completa-card,
+    .banner-respaldo-correo {
+        padding: 12px;
+        border-radius: 12px;
+    }
+
+    .respaldo-puntaje-pill {
+        width: 100%;
+        align-items: flex-start;
+    }
+
+    .btn-descargar-desglose-pdf {
+        width: 100%;
+        justify-content: center;
+    }
+}

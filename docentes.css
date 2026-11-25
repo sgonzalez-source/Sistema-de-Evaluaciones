@@ -118,12 +118,14 @@
     background-color: #ffffff;
     border: 1.2px solid #cbd5e1;
     border-radius: 14px;
-    overflow: hidden;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
     box-shadow: 0 2px 6px rgba(15, 23, 42, 0.03);
 }
 
 .tabla-docentes {
     width: 100%;
+    min-width: 680px;
     border-collapse: collapse;
     font-size: 13.5px;
     color: #1e293b;
@@ -137,6 +139,7 @@
     text-align: left;
     padding: 13px 18px;
     border-bottom: 1.2px solid #bfdbfe;
+    white-space: nowrap;
 }
 
 .tabla-docentes thead th.col-acciones-header {
@@ -160,6 +163,7 @@
 .col-cedula {
     font-weight: 600;
     color: #475569;
+    white-space: nowrap;
 }
 
 .col-nombre {
@@ -183,6 +187,7 @@
     border-radius: 999px;
     font-size: 12px;
     font-weight: 700;
+    white-space: nowrap;
 }
 
 .icono-pill {
@@ -228,6 +233,7 @@
 
 .col-acciones {
     text-align: center;
+    white-space: nowrap;
 }
 
 .grupo-acciones-docente {
@@ -483,4 +489,38 @@
 .detalle-pdf-texto {
     font-size: 13px;
     color: #64748b;
+}
+
+/* ==========================================================================
+   DISEÑO RESPONSIVE - GESTIÓN DE DOCENTES
+   ========================================================================== */
+
+@media (max-width: 1024px) {
+    .contenido-docentes {
+        padding: 18px 20px 24px 20px;
+    }
+}
+
+@media (max-width: 768px) {
+    .contenido-docentes {
+        padding: 14px 12px 24px 12px;
+    }
+
+    .caja-busqueda,
+    .acciones-derecha,
+    .select-filtro,
+    .btn-agregar-docente {
+        width: 100%;
+        max-width: 100%;
+        justify-content: center;
+    }
+
+    .caja-busqueda {
+        justify-content: flex-start;
+    }
+
+    .tabla-docentes thead th,
+    .tabla-docentes tbody td {
+        padding: 11px 12px;
+    }
 }

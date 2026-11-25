@@ -1,20 +1,80 @@
 <?php
 session_start();
 
-// Credenciales temporales
-$cedula_valida = "18965420";
-$contrasena_valida = "7894";
+// Cuentas temporales de prueba (el sistema identifica el rol automáticamente)
+$usuarios_temporales = [
+    [
+        'id' => 1,
+        'cedula' => '18965420',
+        'password' => '7894',
+        'nombre' => 'Javier Mena',
+        'rol' => 'Coordinador',
+        'destino' => 'principal.php'
+    ],
+    [
+        'id' => 101,
+        'cedula' => '100564782',
+        'password' => '1234',
+        'nombre' => 'Lucía Rodríguez',
+        'rol' => 'Docente',
+        'destino' => 'inicio_docente.php'
+    ],
+    [
+        'id' => 102,
+        'cedula' => '203648647',
+        'password' => '1234',
+        'nombre' => 'Mario López',
+        'rol' => 'Docente',
+        'destino' => 'inicio_docente.php'
+    ],
+    [
+        'id' => 103,
+        'cedula' => '187263944',
+        'password' => '1234',
+        'nombre' => 'Randall Ocón',
+        'rol' => 'Docente',
+        'destino' => 'inicio_docente.php'
+    ],
+    [
+        'id' => 104,
+        'cedula' => '166478230',
+        'password' => '1234',
+        'nombre' => 'Sharon Mendes',
+        'rol' => 'Docente',
+        'destino' => 'inicio_docente.php'
+    ]
+];
+
+function redirigirPorRol() {
+    $rol = $_SESSION['rol'] ?? 'Coordinador';
+    if ($rol === 'Docente') {
+        header("Location: inicio_docente.php");
+    } else {
+        header("Location: principal.php");
+    }
+    exit();
+}
 
 // Si se envió el formulario al presionar "Ingresar"
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $cedula = trim($_POST['cedula'] ?? '');
     $password = trim($_POST['password'] ?? '');
 
-    if ($cedula === $cedula_valida && $password === $contrasena_valida) {
-        $_SESSION['usuario_id'] = 1;
-        $_SESSION['usuario'] = "Javier Mena";
-        $_SESSION['rol'] = "Coordinador";
-        header("Location: principal.php");
+    $usuario_encontrado = null;
+    foreach ($usuarios_temporales as $u) {
+        if ($u['cedula'] === $cedula && $u['password'] === $password) {
+            $usuario_encontrado = $u;
+            break;
+        }
+    }
+
+    if ($usuario_encontrado !== null) {
+        $_SESSION['usuario_id'] = $usuario_encontrado['id'];
+        $_SESSION['cedula'] = $usuario_encontrado['cedula'];
+        $_SESSION['usuario'] = $usuario_encontrado['nombre'];
+        $_SESSION['rol'] = $usuario_encontrado['rol'];
+
+        header("Location: " . $usuario_encontrado['destino']);
         exit();
     } else {
         header("Location: inicio_sesion.php?error=1");
@@ -22,10 +82,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// Si ya tiene una sesión activa, redirige directo a principal.php
+// Si ya tiene una sesión activa, redirige según su rol
 if (isset($_SESSION['usuario_id'])) {
-    header("Location: principal.php");
-    exit();
+    redirigirPorRol();
 }
 ?>
 <!DOCTYPE html>
@@ -34,7 +93,7 @@ if (isset($_SESSION['usuario_id'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CEDES Don Bosco - Iniciar Sesión</title>
-    <link rel="stylesheet" href="login.css">
+    <link rel="stylesheet" href="login.css?v=2">
 </head>
 <body>
 

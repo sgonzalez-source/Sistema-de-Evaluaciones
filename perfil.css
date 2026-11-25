@@ -359,11 +359,50 @@
     height: 30px;
 }
 
+/* ==========================================================================
+   DISEÑO RESPONSIVE - PERFIL DE USUARIO
+   ========================================================================== */
+
+@media (min-width: 1440px) {
+    .tarjeta-perfil-usuario {
+        max-width: 1180px;
+    }
+}
+
 @media (max-width: 820px) {
+    .contenido-perfil {
+        padding: 16px 14px 24px 14px;
+    }
+
+    .tarjeta-perfil-usuario {
+        padding: 18px 16px 22px 16px;
+    }
+
     .cuerpo-perfil-grid {
         grid-template-columns: 1fr;
+        gap: 24px;
+        padding: 0;
     }
+
+    .columna-avatar-perfil {
+        order: -1;
+        padding-bottom: 16px;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
     .campo-perfil input {
         max-width: 100%;
+    }
+}
+
+@media (max-width: 540px) {
+    .acciones-perfil {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .acciones-perfil button {
+        width: 100%;
+        justify-content: center;
     }
 }

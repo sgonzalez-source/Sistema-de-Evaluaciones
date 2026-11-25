@@ -1,0 +1,209 @@
+.contenido-archivos-docente {
+    padding: 20px 30px 30px 30px;
+    gap: 16px;
+    background-color: #f1f5f9;
+}
+
+.contenido-archivos-docente .banner-izq h1,
+.titulo-seccion-bold {
+    font-size: 22px !important;
+    font-weight: 800 !important;
+    color: #071342 !important;
+    letter-spacing: -0.4px !important;
+    margin: 0 !important;
+}
+
+.archivos-wrapper {
+    width: 100%;
+    max-width: 980px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.card-subir-archivos,
+.card-historial-entregas {
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 20px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    box-shadow: 0 2px 10px rgba(15, 23, 42, 0.04);
+}
+
+.card-subir-archivos {
+    border-top: 3.5px solid #2563eb;
+}
+
+.card-historial-entregas {
+    border-top: 3.5px solid #c8a464;
+}
+
+.cabecera-card-archivos {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.cabecera-card-archivos-izq {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.cabecera-card-archivos h2 {
+    font-size: 17px;
+    font-weight: 800;
+    color: #071342;
+}
+
+.cabecera-card-archivos p {
+    font-size: 12px;
+    color: #64748b;
+}
+
+.icono-widget-docente.verde {
+    background-color: #dcfce7;
+    color: #15803d;
+}
+
+.badge-total-entregas {
+    font-size: 11.5px;
+    font-weight: 700;
+    background-color: #eff6ff;
+    color: #1d4ed8;
+    padding: 4px 12px;
+    border-radius: 99px;
+}
+
+.zona-drop-archivos {
+    background-color: #f8fafc;
+    border: 1.5px dashed #93c5fd;
+    border-radius: 14px;
+    padding: 26px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 10px;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.zona-drop-archivos:hover,
+.zona-drop-archivos.arrastrando {
+    background-color: #eff6ff;
+    border-color: #1d4ed8;
+}
+
+.ayuda-formato-pdf {
+    font-size: 12px;
+    color: #64748b;
+}
+
+/* LISTA DE HISTORIAL */
+.lista-historial-entregas {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.fila-historial-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    padding: 13px 16px;
+    background-color: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    flex-wrap: wrap;
+    transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.fila-historial-item:hover {
+    background-color: #f1f5f9;
+    border-color: #cbd5e1;
+}
+
+.fila-historial-izq {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+}
+
+.icono-pdf-fila {
+    background-color: #fee2e2;
+    color: #dc2626;
+    font-size: 11px;
+    font-weight: 800;
+    padding: 6px 9px;
+    border-radius: 8px;
+    flex-shrink: 0;
+}
+
+.detalle-historial-texto {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.detalle-historial-texto strong {
+    font-size: 14px;
+    font-weight: 700;
+    color: #071342;
+}
+
+.detalle-historial-texto span {
+    font-size: 12px;
+    color: #64748b;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.fila-historial-der {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.fecha-entrega-pill {
+    font-size: 12.5px;
+    font-weight: 700;
+    color: #0f172a;
+    background-color: #ffffff;
+    border: 1px solid #cbd5e1;
+    padding: 4px 12px;
+    border-radius: 99px;
+}
+
+.estado-entrega-pill {
+    font-size: 11.5px;
+    font-weight: 700;
+    background-color: #dcfce7;
+    color: #15803d;
+    padding: 4px 11px;
+    border-radius: 99px;
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+    .contenido-archivos-docente {
+        padding: 14px 12px 24px 12px;
+    }
+
+    .card-subir-archivos,
+    .card-historial-entregas {
+        padding: 16px 16px;
+        border-radius: 14px;
+    }
+}

@@ -1,0 +1,417 @@
+aside.menu.menu-docente .pie-menu a.enlace-perfil-menu,
+aside.menu.menu-docente .pie-menu a.enlace-perfil-menu strong,
+aside.menu.menu-docente .pie-menu a.enlace-perfil-menu p {
+    text-decoration: none !important;
+    border-bottom: none !important;
+}
+
+aside.menu.menu-docente .pie-menu a.enlace-perfil-menu {
+    padding: 8px 10px;
+    border-radius: 12px;
+    transition: background-color 0.2s ease;
+}
+
+aside.menu.menu-docente .pie-menu a.enlace-perfil-menu:hover,
+aside.menu.menu-docente .pie-menu a.enlace-perfil-menu.activo-perfil {
+    background-color: rgba(255, 255, 255, 0.12);
+}
+
+.contenido-perfil-docente {
+    padding: 20px 30px 34px 30px;
+    background-color: #f1f5f9;
+}
+
+.perfil-docente-wrapper {
+    width: 100%;
+    max-width: 1040px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.banner-perfil-superior {
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-left: 4.5px solid #071342;
+    border-radius: 16px;
+    padding: 18px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    box-shadow: 0 2px 10px rgba(15, 23, 42, 0.04);
+}
+
+.banner-perfil-izq h1 {
+    font-size: 24px;
+    font-weight: 800;
+    color: #071342;
+    letter-spacing: -0.4px;
+    margin: 0 0 4px 0;
+}
+
+.banner-perfil-izq p {
+    font-size: 13px;
+    color: #64748b;
+    margin: 0;
+}
+
+.tarjeta-perfil-docente {
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 18px;
+    padding: 22px 26px 28px 26px;
+    box-shadow: 0 2px 10px rgba(15, 23, 42, 0.04);
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.barra-titulo-datos {
+    background-color: #eff6ff;
+    color: #071342;
+    border-radius: 10px;
+    padding: 11px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 15px;
+    font-weight: 800;
+}
+
+.barra-titulo-datos svg {
+    width: 18px;
+    height: 18px;
+    color: #071342;
+}
+
+.cuerpo-perfil-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.35fr) minmax(240px, 0.65fr);
+    gap: 32px;
+    align-items: center;
+}
+
+.form-datos-docente {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.campo-perfil {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.campo-perfil label {
+    font-size: 13px;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.campo-perfil input,
+.campo-perfil select {
+    width: 100%;
+    padding: 10px 14px;
+    font-size: 14px;
+    color: #0f172a;
+    background-color: #f8fafc;
+    border: 1px solid #cbd5e1;
+    border-radius: 10px;
+    outline: none;
+    transition: border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.campo-perfil input.editable-activo,
+.campo-perfil select.editable-activo {
+    background-color: #ffffff;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+.acciones-perfil {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 8px;
+}
+
+.btn-editar-info {
+    background-color: #071342;
+    color: #ffffff;
+    border: none;
+    border-radius: 9px;
+    padding: 10px 20px;
+    font-size: 13.5px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.12s ease;
+}
+
+.btn-editar-info:hover {
+    background-color: #11246e;
+    transform: translateY(-1px);
+}
+
+.btn-cambiar-clave {
+    background-color: #ffffff;
+    color: #0f172a;
+    border: 1px solid #cbd5e1;
+    border-radius: 9px;
+    padding: 10px 18px;
+    font-size: 13.5px;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.btn-cambiar-clave:hover {
+    background-color: #f8fafc;
+    border-color: #94a3b8;
+}
+
+.btn-cambiar-clave svg {
+    width: 15px;
+    height: 15px;
+}
+
+.btn-cancelar-perfil {
+    background-color: #f1f5f9;
+    color: #334155;
+    border: 1px solid #cbd5e1;
+    border-radius: 9px;
+    padding: 10px 18px;
+    font-size: 13.5px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.btn-guardar-perfil-verde {
+    background-color: #16a34a;
+    color: #ffffff;
+    border: none;
+    border-radius: 9px;
+    padding: 10px 20px;
+    font-size: 13.5px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.btn-guardar-perfil-verde:hover {
+    background-color: #15803d;
+}
+
+/* COLUMNA DERECHA: AVATAR */
+.columna-avatar-docente {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    padding: 12px;
+}
+
+.circulo-avatar-grande {
+    width: 132px;
+    height: 132px;
+    border-radius: 50%;
+    border: 4.5px solid #071342;
+    background-color: #ffffff;
+    color: #071342;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    box-shadow: 0 6px 18px rgba(7, 19, 66, 0.08);
+}
+
+.circulo-avatar-grande img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.circulo-avatar-grande svg {
+    width: 66px;
+    height: 66px;
+}
+
+.pildora-rol-docente {
+    background-color: #eff6ff;
+    color: #071342;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 6px 16px;
+    border-radius: 99px;
+}
+
+.grupo-botones-foto {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.btn-cambiar-foto {
+    background-color: #ffffff;
+    color: #0f172a;
+    border: 1px solid #cbd5e1;
+    border-radius: 9px;
+    padding: 8px 16px;
+    font-size: 13px;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.btn-cambiar-foto:hover {
+    background-color: #f8fafc;
+    border-color: #94a3b8;
+}
+
+.btn-cambiar-foto svg {
+    width: 15px;
+    height: 15px;
+}
+
+.btn-eliminar-foto {
+    background-color: #fef2f2;
+    color: #dc2626;
+    border: 1px solid #fecaca;
+    border-radius: 9px;
+    padding: 8px 14px;
+    font-size: 13px;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+}
+
+.btn-eliminar-foto:hover {
+    background-color: #fee2e2;
+}
+
+.btn-eliminar-foto svg {
+    width: 15px;
+    height: 15px;
+}
+
+/* MODAL CAMBIAR CONTRASEÑA */
+.caja-modal-clave {
+    max-width: 430px;
+    text-align: left;
+}
+
+.caja-modal-clave h2 {
+    margin-bottom: 6px;
+}
+
+.subtexto-clave {
+    font-size: 13px;
+    color: #64748b;
+    margin-bottom: 16px;
+}
+
+.form-clave-modal {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.grupo-clave {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.grupo-clave label {
+    font-size: 12.5px;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.grupo-clave input {
+    padding: 9px 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    font-size: 13.5px;
+}
+
+.mensaje-error-clave {
+    color: #dc2626;
+    font-size: 12.5px;
+    font-weight: 600;
+    margin: 0;
+}
+
+/* TAMAÑO COMPACTO Y CENTRADO PARA ICONOS DE MODALES */
+#modal-docente-exito .caja-modal,
+#modal-confirmar-eliminar-foto .caja-modal,
+#modal-salir .caja-modal {
+    max-width: 400px;
+    padding: 26px 24px;
+    text-align: center;
+}
+
+#modal-docente-exito .icono-modal-verde,
+#modal-confirmar-eliminar-foto .icono-modal-rojo,
+#modal-salir .icono-modal-rojo {
+    width: 54px;
+    height: 54px;
+    min-width: 54px;
+    min-height: 54px;
+    border-radius: 50%;
+    margin: 0 auto 14px auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+#modal-docente-exito .icono-modal-verde {
+    background-color: #dcfce7;
+    color: #16a34a;
+}
+
+#modal-docente-exito .icono-modal-verde svg,
+#modal-confirmar-eliminar-foto .icono-modal-rojo svg,
+#modal-salir .icono-modal-rojo svg {
+    width: 26px !important;
+    height: 26px !important;
+    max-width: 26px !important;
+    max-height: 26px !important;
+    display: block;
+}
+
+/* RESPONSIVE */
+@media (max-width: 860px) {
+    .cuerpo-perfil-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+}
+
+@media (max-width: 768px) {
+    .contenido-perfil-docente {
+        padding: 14px 12px 26px 12px;
+    }
+
+    .banner-perfil-superior,
+    .tarjeta-perfil-docente {
+        padding: 16px 18px;
+        border-radius: 14px;
+    }
+}
