@@ -1,5 +1,6 @@
 <?php
 session_start();
+require_once "conexion.php";
 
 if (isset($_GET['salir'])) {
     session_destroy();
@@ -7,13 +8,95 @@ if (isset($_GET['salir'])) {
     exit();
 }
 
+date_default_timezone_set('America/Costa_Rica');
+$anio_escolar = date('Y');
+$titulo_miga = "Perfil de usuario";
+
+// Valores por defecto
 $nombre = $_SESSION["usuario"] ?? "Javier Mena";
 $rol = $_SESSION["rol"] ?? "Coordinador Académico";
 $cedula_sesion = $_SESSION["cedula"] ?? "1-0945-0612";
-$titulo_miga = "Perfil de usuario";
+$correo_bd = "jmena@cedesdonbosco.ed.cr";
+$departamento_bd = "Coordinación Académica";
 
-date_default_timezone_set('America/Costa_Rica');
-$anio_escolar = date('Y');
+// Consultar datos reales desde usuarios, roles y detalle_usuario
+try {
+    $stmt = $pdo->prepare("
+        SELECT u.cedula, u.nombre, u.apellido1, u.apellido2,
+               r.nombre AS nombre_rol,
+               d.correo, d.departamento
+        FROM usuarios u
+        LEFT JOIN roles r ON u.id_rol = r.id_rol
+        LEFT JOIN detalle_usuario d ON u.cedula = d.cedula
+        WHERE u.cedula = :cedula
+        LIMIT 1
+    ");
+    $stmt->execute([':cedula' => $cedula_sesion]);
+    $fila = $stmt->fetch();
+
+    if ($fila) {
+        $nombre = trim($fila['nombre'] . " " . $fila['apellido1']);
+        if (!empty($fila['nombre_rol'])) {
+            $rol = $fila['nombre_rol'];
+        }
+        if (!empty($fila['correo'])) {
+            $correo_bd = $fila['correo'];
+        }
+        if (!empty($fila['departamento'])) {
+            $departamento_bd = $fila['departamento'];
+        }
+    }
+} catch (PDOException $e) {
+    // Si falla la consulta, conserva los valores por defecto
+}
+
+// Actualizar contraseña en la base de datos si se envía el formulario desde PHP
+$mensaje_clave_estado = "";
+$tipo_clave_estado = "";
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion_cambiar_clave'])) {
+    $clave_actual = $_POST['clave_actual'] ?? '';
+    $clave_nueva = $_POST['clave_nueva'] ?? '';
+    $clave_confirmar = $_POST['clave_confirmar'] ?? '';
+
+    if ($clave_nueva !== $clave_confirmar) {
+        $mensaje_clave_estado = "Las contraseñas nuevas no coinciden. Verifica e intenta de nuevo.";
+        $tipo_clave_estado = "error";
+    } elseif (strlen($clave_nueva) < 6) {
+        $mensaje_clave_estado = "La nueva contraseña debe tener al menos 6 caracteres.";
+        $tipo_clave_estado = "error";
+    } else {
+        try {
+            $stmtClave = $pdo->prepare("SELECT contrasena FROM usuarios WHERE cedula = :cedula LIMIT 1");
+            $stmtClave->execute([':cedula' => $cedula_sesion]);
+            $usuarioClave = $stmtClave->fetch();
+
+            $clave_valida = false;
+            if ($usuarioClave) {
+                $guardada = $usuarioClave['contrasena'];
+                if (password_verify($clave_actual, $guardada) || $clave_actual === $guardada) {
+                    $clave_valida = true;
+                }
+            }
+
+            if (!$clave_valida) {
+                $mensaje_clave_estado = "La contraseña actual no es correcta.";
+                $tipo_clave_estado = "error";
+            } else {
+                $stmtUpdate = $pdo->prepare("UPDATE usuarios SET contrasena = :nueva WHERE cedula = :cedula");
+                $stmtUpdate->execute([
+                    ':nueva' => $clave_nueva,
+                    ':cedula' => $cedula_sesion
+                ]);
+                $mensaje_clave_estado = "Tu contraseña de acceso fue modificada con éxito.";
+                $tipo_clave_estado = "exito";
+            }
+        } catch (PDOException $e) {
+            $mensaje_clave_estado = "No se pudo actualizar la contraseña en la base de datos.";
+            $tipo_clave_estado = "error";
+        }
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -160,12 +243,12 @@ $anio_escolar = date('Y');
 
                         <div class="campo-perfil">
                             <label for="coord-correo">Correo electrónico</label>
-                            <input type="email" id="coord-correo" value="jmena@cedesdonbosco.ed.cr" readonly>
+                            <input type="email" id="coord-correo" value="<?php echo htmlspecialchars($correo_bd); ?>" readonly>
                         </div>
 
                         <div class="campo-perfil">
                             <label for="coord-departamento">Departamento</label>
-                            <input type="text" id="coord-departamento" value="Coordinación Académica" readonly>
+                            <input type="text" id="coord-departamento" value="<?php echo htmlspecialchars($departamento_bd); ?>" readonly>
                         </div>
 
                         <div class="acciones-perfil">
@@ -269,11 +352,13 @@ $anio_escolar = date('Y');
             </div>
         </div>
 
-        <form onsubmit="guardarNuevaClave(event)" class="form-clave-modal">
+        <form method="POST" action="perfil.php" onsubmit="return validarFormularioClave(event)" class="form-clave-modal">
+            <input type="hidden" name="accion_cambiar_clave" value="1">
+
             <div class="grupo-clave">
                 <label for="clave-actual">Contraseña actual</label>
                 <div class="campo-clave-wrapper">
-                    <input type="password" id="clave-actual" placeholder="••••••••" required>
+                    <input type="password" id="clave-actual" name="clave_actual" placeholder="••••••••" required>
                     <button type="button" class="btn-ojito-clave" onclick="alternarVisibilidadClave('clave-actual', this)" title="Mostrar contraseña" aria-label="Mostrar contraseña">
                         <svg class="icono-ojo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
@@ -286,7 +371,7 @@ $anio_escolar = date('Y');
             <div class="grupo-clave">
                 <label for="clave-nueva">Nueva contraseña</label>
                 <div class="campo-clave-wrapper">
-                    <input type="password" id="clave-nueva" minlength="6" placeholder="Mínimo 6 caracteres" required>
+                    <input type="password" id="clave-nueva" name="clave_nueva" minlength="6" placeholder="Mínimo 6 caracteres" required>
                     <button type="button" class="btn-ojito-clave" onclick="alternarVisibilidadClave('clave-nueva', this)" title="Mostrar contraseña" aria-label="Mostrar contraseña">
                         <svg class="icono-ojo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
@@ -299,7 +384,7 @@ $anio_escolar = date('Y');
             <div class="grupo-clave">
                 <label for="clave-confirmar">Confirmar nueva contraseña</label>
                 <div class="campo-clave-wrapper">
-                    <input type="password" id="clave-confirmar" minlength="6" placeholder="Repite la nueva contraseña" required>
+                    <input type="password" id="clave-confirmar" name="clave_confirmar" minlength="6" placeholder="Repite la nueva contraseña" required>
                     <button type="button" class="btn-ojito-clave" onclick="alternarVisibilidadClave('clave-confirmar', this)" title="Mostrar contraseña" aria-label="Mostrar contraseña">
                         <svg class="icono-ojo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
@@ -309,7 +394,9 @@ $anio_escolar = date('Y');
                 </div>
             </div>
 
-            <p class="mensaje-error-clave" id="error-clave-texto" style="display: none;"></p>
+            <p class="mensaje-error-clave" id="error-clave-texto" style="<?php echo ($tipo_clave_estado === 'error') ? 'display: block;' : 'display: none;'; ?>">
+                <?php echo ($tipo_clave_estado === 'error') ? htmlspecialchars($mensaje_clave_estado) : ''; ?>
+            </p>
 
             <div class="botones-modal botones-clave-alineados">
                 <button type="button" class="btn-modal-cancelar" onclick="cerrarModal('modal-cambiar-clave')">Cancelar</button>
@@ -376,8 +463,8 @@ $anio_escolar = date('Y');
     const perfilCoordDefecto = {
         nombre: "<?php echo addslashes($nombre); ?>",
         cedula: "<?php echo addslashes($cedula_sesion); ?>",
-        correo: "jmena@cedesdonbosco.ed.cr",
-        departamento: "Coordinación Académica",
+        correo: "<?php echo addslashes($correo_bd); ?>",
+        departamento: "<?php echo addslashes($departamento_bd); ?>",
         foto: ""
     };
 
@@ -472,27 +559,20 @@ $anio_escolar = date('Y');
                </svg>`;
     }
 
-    function guardarNuevaClave(e) {
-        e.preventDefault();
+    function validarFormularioClave(e) {
         const nueva = document.getElementById('clave-nueva').value;
         const confirmar = document.getElementById('clave-confirmar').value;
         const errorBox = document.getElementById('error-clave-texto');
 
         if (nueva !== confirmar) {
+            e.preventDefault();
             errorBox.textContent = "Las contraseñas nuevas no coinciden. Verifica e intenta de nuevo.";
             errorBox.style.display = 'block';
-            return;
+            return false;
         }
 
         errorBox.style.display = 'none';
-        document.getElementById('clave-actual').value = "";
-        document.getElementById('clave-nueva').value = "";
-        document.getElementById('clave-confirmar').value = "";
-
-        cerrarModal('modal-cambiar-clave');
-        document.getElementById('titulo-exito-docente').textContent = "Contraseña actualizada";
-        document.getElementById('mensaje-exito-docente').textContent = "Tu contraseña de acceso fue modificada con éxito.";
-        abrirModal('modal-docente-exito');
+        return true;
     }
 
     function abrirModal(id) {
@@ -520,6 +600,17 @@ $anio_escolar = date('Y');
             datosCoordActual = { ...perfilCoordDefecto, ...JSON.parse(guardado) };
         }
         pintarDatosCoord();
+
+        const estadoClave = "<?php echo addslashes($tipo_clave_estado); ?>";
+        const mensajeClave = "<?php echo addslashes($mensaje_clave_estado); ?>";
+
+        if (estadoClave === "exito") {
+            document.getElementById('titulo-exito-docente').textContent = "Contraseña actualizada";
+            document.getElementById('mensaje-exito-docente').textContent = mensajeClave;
+            abrirModal('modal-docente-exito');
+        } else if (estadoClave === "error") {
+            abrirModal('modal-cambiar-clave');
+        }
     };
 
     document.addEventListener('keydown', function(e) {

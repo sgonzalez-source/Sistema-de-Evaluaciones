@@ -1,5 +1,6 @@
 <?php
 session_start();
+require_once "conexion.php";
 
 if (isset($_GET['salir'])) {
     session_destroy();
@@ -7,12 +8,86 @@ if (isset($_GET['salir'])) {
     exit();
 }
 
-$nombre = $_SESSION["usuario"] ?? "Javier Mena";
-$rol = $_SESSION["rol"] ?? "Coordinador";
+date_default_timezone_set('America/Costa_Rica');
+$anio_escolar = (int)date('Y');
 $titulo_miga = "Estadística";
 
-date_default_timezone_set('America/Costa_Rica');
-$anio_escolar = date('Y');
+$nombre = $_SESSION["usuario"] ?? "Javier Mena";
+$rol = $_SESSION["rol"] ?? "Coordinador";
+$cedula_sesion = $_SESSION["cedula"] ?? "1-0945-0612";
+
+// Consultar usuario en la base de datos
+try {
+    $stmtUser = $pdo->prepare("
+        SELECT u.nombre, u.apellido1, r.nombre AS nombre_rol
+        FROM usuarios u
+        LEFT JOIN roles r ON u.id_rol = r.id_rol
+        WHERE u.cedula = :cedula
+        LIMIT 1
+    ");
+    $stmtUser->execute([':cedula' => $cedula_sesion]);
+    $filaUser = $stmtUser->fetch();
+    if ($filaUser) {
+        $nombre = trim($filaUser['nombre'] . " " . $filaUser['apellido1']);
+        if (!empty($filaUser['nombre_rol'])) {
+            $rol = $filaUser['nombre_rol'];
+        }
+    }
+} catch (PDOException $e) {
+    // Conserva valores por defecto si no hay registro
+}
+
+// Consultar docentes, materias y planeamientos desde la base de datos
+$docentes_bd = [];
+$planeamientos_bd = [];
+$criterios_bd = [];
+
+try {
+    $stmtDoc = $pdo->query("
+        SELECT u.cedula, u.nombre, u.apellido1,
+               COALESCE(m.nombre, 'General') AS materia,
+               1 AS activo
+        FROM usuarios u
+        INNER JOIN roles r ON u.id_rol = r.id_rol
+        LEFT JOIN detalle_usuario d ON u.cedula = d.cedula
+        LEFT JOIN materias m ON d.id_materia = m.id_materia
+        WHERE LOWER(r.nombre) LIKE '%docente%'
+        ORDER BY u.nombre ASC
+    ");
+    $filasDoc = $stmtDoc->fetchAll();
+    foreach ($filasDoc as $d) {
+        $docentes_bd[] = [
+            'cedula' => $d['cedula'],
+            'nombre' => trim($d['nombre'] . " " . $d['apellido1']),
+            'materia' => $d['materia'],
+            'activo' => ((int)$d['activo'] === 1)
+        ];
+    }
+
+    $stmtPlan = $pdo->query("
+        SELECT id_planeamiento, cedula_docente, id_periodo, archivo, fecha_subido
+        FROM planeamientos
+        ORDER BY id_planeamiento DESC
+    ");
+    $planeamientos_bd = $stmtPlan->fetchAll();
+
+    $stmtCrit = $pdo->query("
+        SELECT descripcion
+        FROM criterios
+        ORDER BY id_criterio ASC
+        LIMIT 5
+    ");
+    $filasCrit = $stmtCrit->fetchAll();
+    foreach ($filasCrit as $fc) {
+        if (!empty($fc['descripcion'])) {
+            $criterios_bd[] = $fc['descripcion'];
+        }
+    }
+} catch (PDOException $e) {
+    $docentes_bd = [];
+    $planeamientos_bd = [];
+    $criterios_bd = [];
+}
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -96,8 +171,8 @@ $anio_escolar = date('Y');
             <a href="perfil.php" class="usuario" style="text-decoration: none; color: inherit; cursor: pointer;" title="Ver perfil de usuario">
                 <div class="avatar-iniciales" id="menu-avatar-iniciales">JM</div>
                 <div class="info-usuario">
-                    <strong id="menu-nombre-usuario"><?php echo $nombre; ?></strong>
-                    <p><?php echo $rol; ?></p>
+                    <strong id="menu-nombre-usuario"><?php echo htmlspecialchars($nombre); ?></strong>
+                    <p><?php echo htmlspecialchars($rol); ?></p>
                 </div>
             </a>
 
@@ -271,6 +346,10 @@ $anio_escolar = date('Y');
 </div>
 
 <script>
+    const docentesBD = <?php echo json_encode($docentes_bd, JSON_UNESCAPED_UNICODE); ?>;
+    const planeamientosBD = <?php echo json_encode($planeamientos_bd, JSON_UNESCAPED_UNICODE); ?>;
+    const criteriosBD = <?php echo json_encode($criterios_bd, JSON_UNESCAPED_UNICODE); ?>;
+
     const docentesRespaldo = [
         { cedula: "100564782", nombre: "Lucía Rodríguez", materia: "Español", activo: true },
         { cedula: "203648647", nombre: "Mario López", materia: "Química", activo: true },
@@ -278,13 +357,15 @@ $anio_escolar = date('Y');
         { cedula: "166478230", nombre: "Sharon Mendes", materia: "Música", activo: true }
     ];
 
-    const nombresCriterios = [
-        "Observación de clase",
-        "Dominio de contenidos",
-        "Planeación",
-        "Mediación pedagógica",
-        "Metacognición"
-    ];
+    const nombresCriterios = (Array.isArray(criteriosBD) && criteriosBD.length > 0)
+        ? criteriosBD
+        : [
+            "Observación de clase",
+            "Dominio de contenidos",
+            "Planeación",
+            "Mediación pedagógica",
+            "Metacognición"
+        ];
 
     let chartsInstancias = {};
 
@@ -365,7 +446,10 @@ $anio_escolar = date('Y');
     function construirEstadisticas() {
         sincronizarPerfilMenu();
 
-        const docentes = JSON.parse(localStorage.getItem('lista_docentes_cedes') || 'null') || docentesRespaldo;
+        const docentes = (Array.isArray(docentesBD) && docentesBD.length > 0)
+            ? docentesBD
+            : (JSON.parse(localStorage.getItem('lista_docentes_cedes') || 'null') || docentesRespaldo);
+
         const evalObj = JSON.parse(localStorage.getItem('evaluaciones_docentes_cedes') || '{}');
 
         const cedulasValidas = new Set(docentes.map(d => d.cedula));
@@ -373,9 +457,14 @@ $anio_escolar = date('Y');
             .filter(([ced]) => docentes.length === 0 || cedulasValidas.has(ced))
             .map(([ced, data]) => ({ cedula: ced, ...data }));
 
+        const cedulasConEntregaBD = new Set(
+            (Array.isArray(planeamientosBD) ? planeamientosBD : []).map(p => p.cedula_docente)
+        );
+
         const totalDocentes = docentes.length;
         const totalEvaluados = evaluacionesValidas.length;
-        const pendientes = Math.max(0, totalDocentes - totalEvaluados);
+        const docentesSinEntrega = docentes.filter(d => !cedulasConEntregaBD.has(d.cedula)).length;
+        const pendientes = totalDocentes > 0 ? docentesSinEntrega : Math.max(0, totalDocentes - totalEvaluados);
         const pctCoberturaGlobal = totalDocentes > 0 ? Math.round((totalEvaluados / totalDocentes) * 100) : 0;
 
         let sumaNotas = 0;
@@ -389,22 +478,23 @@ $anio_escolar = date('Y');
         document.getElementById('est-cobertura-sub').textContent = `${pctCoberturaGlobal}% de ${totalDocentes} docentes registrados`;
 
         document.getElementById('est-entregas-pendientes').textContent = `${pendientes} ${pendientes === 1 ? 'Pendiente' : 'Pendientes'}`;
-        document.getElementById('est-pendientes-sub').textContent = pendientes === 0 ? "¡Todos los docentes evaluados!" : "Docentes pendientes de revisión";
+        document.getElementById('est-pendientes-sub').textContent = pendientes === 0 ? "¡Todos los docentes entregaron!" : "Docentes sin planeamiento registrado";
 
         document.getElementById('est-nota-promedio').textContent = promedioNum.toFixed(2);
         document.getElementById('est-nivel-global').textContent = totalEvaluados === 0
             ? "Sin calificaciones aún"
             : (promedioNum >= 85 ? "Nivel Sobresaliente" : (promedioNum >= 70 ? "Nivel Satisfactorio" : "Requiere acompañamiento"));
 
-        const sumaCriterios = [0, 0, 0, 0, 0];
-        const conteoCriterios = [0, 0, 0, 0, 0];
+        const cantCrit = nombresCriterios.length;
+        const sumaCriterios = new Array(cantCrit).fill(0);
+        const conteoCriterios = new Array(cantCrit).fill(0);
         const distNiveles = { excelente: 0, muyBueno: 0, bueno: 0, insuficiente: 0 };
 
         evaluacionesValidas.forEach(ev => {
             if (Array.isArray(ev.puntajes)) {
                 ev.puntajes.forEach((pts, idx) => {
                     const p = Number(pts) || 0;
-                    if (p > 0 && idx < 5) {
+                    if (p > 0 && idx < cantCrit) {
                         sumaCriterios[idx] += (p / 4) * 100;
                         conteoCriterios[idx] += 1;
 
@@ -480,6 +570,8 @@ $anio_escolar = date('Y');
     function renderizarGraficos(datos) {
         Object.values(chartsInstancias).forEach(ch => ch && ch.destroy());
 
+        const coloresBarra = ['#071342', '#1d4ed8', '#15803d', '#0ea5e9', '#6366f1'];
+
         chartsInstancias.criterios = new Chart(document.getElementById('chart-criterios'), {
             type: 'bar',
             data: {
@@ -487,7 +579,7 @@ $anio_escolar = date('Y');
                 datasets: [{
                     label: 'Promedio (%)',
                     data: datos.promediosCriterios,
-                    backgroundColor: ['#071342', '#1d4ed8', '#15803d', '#0ea5e9', '#6366f1'],
+                    backgroundColor: nombresCriterios.map((_, i) => coloresBarra[i % coloresBarra.length]),
                     borderRadius: 6,
                     barPercentage: 0.55
                 }]

@@ -1,5 +1,6 @@
 <?php
 session_start();
+require_once "conexion.php";
 
 if (isset($_GET['salir'])) {
     session_destroy();
@@ -7,15 +8,105 @@ if (isset($_GET['salir'])) {
     exit();
 }
 
+date_default_timezone_set('America/Costa_Rica');
+$anio_escolar = (int)date('Y');
+$mes_actual = (int)date('n');
+$periodo_actual = ($mes_actual >= 2 && $mes_actual <= 7) ? "I Periodo" : "II Periodo";
+$titulo_miga = "Mis evaluaciones";
+
 $nombre = $_SESSION["usuario"] ?? "Randall Ocón";
 $rol = $_SESSION["rol"] ?? "Docente";
 $cedula_sesion = $_SESSION["cedula"] ?? "187263944";
-$titulo_miga = "Mis evaluaciones";
+$correo_docente_bd = "";
 
-date_default_timezone_set('America/Costa_Rica');
-$anio_escolar = date('Y');
-$mes_actual = (int)date('n');
-$periodo_actual = ($mes_actual >= 2 && $mes_actual <= 7) ? "I Periodo" : "II Periodo";
+// Consultar datos del docente desde usuarios, roles y detalle_usuario
+try {
+    $stmtDoc = $pdo->prepare("
+        SELECT u.nombre, u.apellido1, u.apellido2,
+               r.nombre AS nombre_rol,
+               d.correo
+        FROM usuarios u
+        LEFT JOIN roles r ON u.id_rol = r.id_rol
+        LEFT JOIN detalle_usuario d ON u.cedula = d.cedula
+        WHERE u.cedula = :cedula
+        LIMIT 1
+    ");
+    $stmtDoc->execute([':cedula' => $cedula_sesion]);
+    $filaDoc = $stmtDoc->fetch();
+
+    if ($filaDoc) {
+        $nombre = trim($filaDoc['nombre'] . " " . $filaDoc['apellido1']);
+        if (!empty($filaDoc['nombre_rol'])) {
+            $rol = $filaDoc['nombre_rol'];
+        }
+        if (!empty($filaDoc['correo'])) {
+            $correo_docente_bd = $filaDoc['correo'];
+        }
+    }
+} catch (PDOException $e) {
+    // Conserva valores por defecto si no hay registro
+}
+
+// Consultar criterios y niveles desde la base de datos para armar la rúbrica
+$criterios_bd = [];
+$anio_rubrica_bd = (string)$anio_escolar;
+
+try {
+    $stmtRub = $pdo->query("
+        SELECT r.id_rubrica, r.activo, p.anio_escolar
+        FROM rubricas r
+        LEFT JOIN periodos p ON r.id_periodo = p.id_periodo
+        ORDER BY r.activo DESC, r.id_rubrica DESC
+        LIMIT 1
+    ");
+    $filaRub = $stmtRub->fetch();
+
+    if ($filaRub) {
+        if (!empty($filaRub['anio_escolar'])) {
+            $anio_rubrica_bd = (string)$filaRub['anio_escolar'];
+        }
+
+        $stmtCrit = $pdo->prepare("
+            SELECT id_criterio, descripcion
+            FROM criterios
+            WHERE id_rubrica = :id_rubrica
+            ORDER BY id_criterio ASC
+        ");
+        $stmtCrit->execute([':id_rubrica' => (int)$filaRub['id_rubrica']]);
+        $filasCrit = $stmtCrit->fetchAll();
+
+        foreach ($filasCrit as $idx => $crit) {
+            $stmtNiv = $pdo->prepare("
+                SELECT n.descripcion, p.puntos
+                FROM niveles_evaluacion n
+                LEFT JOIN puntos p ON n.id_puntos = p.id_puntos
+                WHERE n.id_criterio = :id_criterio
+                ORDER BY p.puntos DESC, n.id_niveles_evaluacion ASC
+            ");
+            $stmtNiv->execute([':id_criterio' => (int)$crit['id_criterio']]);
+            $filasNiv = $stmtNiv->fetchAll();
+
+            $mapaNiveles = [4 => "", 3 => "", 2 => "", 1 => ""];
+            foreach ($filasNiv as $nIdx => $niv) {
+                $ptsVal = isset($niv['puntos']) ? (int)$niv['puntos'] : (4 - $nIdx);
+                if (isset($mapaNiveles[$ptsVal])) {
+                    $mapaNiveles[$ptsVal] = $niv['descripcion'];
+                }
+            }
+
+            // Puntaje de prueba por defecto si aún no hay evaluación guardada en localStorage
+            $puntajeDefecto = ($idx % 2 === 0) ? 4 : 3;
+
+            $criterios_bd[] = [
+                'criterio' => $crit['descripcion'],
+                'puntajeAsignado' => $puntajeDefecto,
+                'niveles' => $mapaNiveles
+            ];
+        }
+    }
+} catch (PDOException $e) {
+    $criterios_bd = [];
+}
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -24,7 +115,7 @@ $periodo_actual = ($mes_actual >= 2 && $mes_actual <= 7) ? "I Periodo" : "II Per
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mis Evaluaciones - CEDES Don Bosco</title>
     <link rel="stylesheet" href="principal.css?v=58">
-    <link rel="stylesheet" href="inicio_docente.css?v=4">
+    <link rel="stylesheet" href="inicio_docente.css?v=5">
     <link rel="stylesheet" href="mis_evaluaciones.css?v=3">
 </head>
 <body>
@@ -137,7 +228,7 @@ $periodo_actual = ($mes_actual >= 2 && $mes_actual <= 7) ? "I Periodo" : "II Per
 
                 <div class="respaldo-puntaje-pill">
                     <span>Puntaje total</span>
-                    <strong id="puntaje-total-banner">17 / 20 pts</strong>
+                    <strong id="puntaje-total-banner">0 / 0 pts</strong>
                 </div>
             </section>
 
@@ -155,14 +246,14 @@ $periodo_actual = ($mes_actual >= 2 && $mes_actual <= 7) ? "I Periodo" : "II Per
                                 </td>
                                 <td rowspan="2" colspan="3" class="celda-anio-logo">
                                     <div class="bloque-anio-texto">
-                                        <span>Año:</span> <strong id="dato-anio"><?php echo $anio_escolar; ?></strong>
+                                        <span>Año:</span> <strong id="dato-anio"><?php echo htmlspecialchars($anio_rubrica_bd); ?></strong>
                                     </div>
                                     <img src="logo_black.png" alt="CEDES Don Bosco" class="logo-rubrica-inst">
                                 </td>
                             </tr>
                             <tr class="fila-encabezado-datos">
                                 <td colspan="2" class="celda-dato-inst">
-                                    <span>Curso lectivo:</span> <strong id="dato-curso"><?php echo $anio_escolar; ?></strong>
+                                    <span>Curso lectivo:</span> <strong id="dato-curso"><?php echo htmlspecialchars($anio_rubrica_bd); ?></strong>
                                 </td>
                                 <td colspan="2" class="celda-dato-inst">
                                     <span>Periodo:</span> <strong id="dato-periodo"><?php echo htmlspecialchars($periodo_actual); ?></strong>
@@ -192,7 +283,7 @@ $periodo_actual = ($mes_actual >= 2 && $mes_actual <= 7) ? "I Periodo" : "II Per
                             <tr class="fila-total-rubrica-full">
                                 <td colspan="5" class="texto-total-label">Puntaje total obtenido en la rúbrica</td>
                                 <td class="col-centro"><span class="badge-respaldo-mini">Correo + Sistema</span></td>
-                                <td class="col-centro"><strong id="puntaje-total-pie">17 / 20 pts</strong></td>
+                                <td class="col-centro"><strong id="puntaje-total-pie">0 / 0 pts</strong></td>
                             </tr>
                         </tfoot>
                     </table>
@@ -256,8 +347,33 @@ $periodo_actual = ($mes_actual >= 2 && $mes_actual <= 7) ? "I Periodo" : "II Per
 <script>
     const cedulaActual = "<?php echo addslashes($cedula_sesion); ?>";
     const nombreSesion = "<?php echo addslashes($nombre); ?>";
-    const anioEscolar = "<?php echo $anio_escolar; ?>";
+    const correoBD = "<?php echo addslashes($correo_docente_bd); ?>";
+    const anioEscolar = "<?php echo htmlspecialchars($anio_rubrica_bd); ?>";
     const periodoActual = "<?php echo addslashes($periodo_actual); ?>";
+    const criteriosBD = <?php echo json_encode($criterios_bd, JSON_UNESCAPED_UNICODE); ?>;
+
+    const criteriosRespaldo = [
+        {
+            criterio: "Observación de clase",
+            puntajeAsignado: 4,
+            niveles: {
+                4: "Las clases son dinámicas, participativas y promueven el aprendizaje activo.",
+                3: "Las clases son generalmente participativas y promueven el aprendizaje.",
+                2: "Las clases pueden ser un poco pasivas y no siempre promueven el aprendizaje.",
+                1: "Las clases son generalmente pasivas y no promueven el aprendizaje."
+            }
+        },
+        {
+            criterio: "Planeación",
+            puntajeAsignado: 3,
+            niveles: {
+                4: "Los planes de clase son claros, concisos, están bien organizados y se alinean con los objetivos.",
+                3: "Los planes de clase son generalmente claros, concisos, están organizados y se alinean con los objetivos.",
+                2: "Los planes de clase pueden ser un poco confusos y desorganizados. No siempre se alinean.",
+                1: "Los planes de clase son confusos y desorganizados. No se alinean con los objetivos."
+            }
+        }
+    ];
 
     const rubricaCompletaPorDefecto = {
         seccion: "12-2",
@@ -265,58 +381,7 @@ $periodo_actual = ($mes_actual >= 2 && $mes_actual <= 7) ? "I Periodo" : "II Per
         periodo: periodoActual,
         fechaEvaluacion: "24/11/2026",
         observaciones: "Excelente disposición y dominio en la mediación pedagógica. Se sugiere fortalecer la evidencia de retroalimentación individualizada al cierre de cada sesión.",
-        criterios: [
-            {
-                criterio: "Observación de clase",
-                puntajeAsignado: 4,
-                niveles: {
-                    4: "Las clases son dinámicas, participativas y promueven el aprendizaje activo.",
-                    3: "Las clases son generalmente participativas y promueven el aprendizaje.",
-                    2: "Las clases pueden ser un poco pasivas y no siempre promueven el aprendizaje.",
-                    1: "Las clases son generalmente pasivas y no promueven el aprendizaje."
-                }
-            },
-            {
-                criterio: "Dominio de los contenidos",
-                puntajeAsignado: 3,
-                niveles: {
-                    4: "Demuestra un dominio excepcional del contenido y las estrategias de enseñanza.",
-                    3: "Tiene un buen dominio del contenido y las estrategias de enseñanza.",
-                    2: "Tiene un dominio básico del contenido y las estrategias de enseñanza.",
-                    1: "Tiene un dominio limitado del contenido y las estrategias de enseñanza."
-                }
-            },
-            {
-                criterio: "Planeación",
-                puntajeAsignado: 4,
-                niveles: {
-                    4: "Los planes de clase son claros, concisos, están bien organizados y se alinean con los objetivos.",
-                    3: "Los planes de clase son generalmente claros, concisos, están organizados y se alinean con los objetivos.",
-                    2: "Los planes de clase pueden ser un poco confusos y desorganizados. No siempre se alinean.",
-                    1: "Los planes de clase son confusos y desorganizados. No se alinean con los objetivos."
-                }
-            },
-            {
-                criterio: "Mediación pedagógica",
-                puntajeAsignado: 3,
-                niveles: {
-                    4: "Utiliza una variedad de estrategias de enseñanza efectivas y adaptadas al grupo.",
-                    3: "Utiliza algunas estrategias de enseñanza efectivas para guiar el aprendizaje.",
-                    2: "Utiliza pocas estrategias de enseñanza efectivas y requiere mayor dinamismo.",
-                    1: "No utiliza estrategias de enseñanza efectivas durante la sesión."
-                }
-            },
-            {
-                criterio: "Metacognición del contenido (retroalimentación)",
-                puntajeAsignado: 3,
-                niveles: {
-                    4: "Brinda retroalimentación clara, oportuna y constante que favorece la autoevaluación.",
-                    3: "Brinda retroalimentación a los estudiantes, pero puede profundizar en el cierre.",
-                    2: "La retroalimentación a los estudiantes es escasa o no es del todo útil.",
-                    1: "No brinda retroalimentación a los estudiantes sobre su desempeño."
-                }
-            }
-        ]
+        criterios: (Array.isArray(criteriosBD) && criteriosBD.length > 0) ? criteriosBD : criteriosRespaldo
     };
 
     function etiquetaNivel(pts) {
@@ -393,7 +458,7 @@ $periodo_actual = ($mes_actual >= 2 && $mes_actual <= 7) ? "I Periodo" : "II Per
     function renderizarRubricaCompleta() {
         const perfil = JSON.parse(localStorage.getItem('perfil_docente_cedes') || 'null');
         const nombreDocente = (perfil && perfil.nombre) ? perfil.nombre : nombreSesion;
-        const correoDocente = (perfil && perfil.correo) ? perfil.correo : "correo institucional del docente";
+        const correoDocente = correoBD || ((perfil && perfil.correo) ? perfil.correo : "correo institucional del docente");
 
         document.getElementById('menu-nombre-usuario').textContent = nombreDocente;
         const elAvatar = document.getElementById('menu-avatar-iniciales');
@@ -580,4 +645,4 @@ $periodo_actual = ($mes_actual >= 2 && $mes_actual <= 7) ? "I Periodo" : "II Per
 </script>
 
 </body>
-</html>   
+</html>

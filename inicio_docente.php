@@ -1,5 +1,6 @@
 <?php
 session_start();
+require_once "conexion.php";
 
 if (isset($_GET['salir'])) {
     session_destroy();
@@ -7,15 +8,135 @@ if (isset($_GET['salir'])) {
     exit();
 }
 
+date_default_timezone_set('America/Costa_Rica');
+$anio_escolar = (int)date('Y');
+$mes_actual = (int)date('n');
+$periodo_mep_auto = ($mes_actual >= 2 && $mes_actual <= 7) ? "I Periodo" : "II Periodo";
+$titulo_miga = "Inicio";
+
 $nombre = $_SESSION["usuario"] ?? "Lucía Rodríguez";
 $rol = $_SESSION["rol"] ?? "Docente";
 $cedula_sesion = $_SESSION["cedula"] ?? "100564782";
-$titulo_miga = "Inicio";
 
-date_default_timezone_set('America/Costa_Rica');
-$anio_escolar = date('Y');
-$mes_actual = (int)date('n');
-$periodo_mep_auto = ($mes_actual >= 2 && $mes_actual <= 7) ? "I Periodo" : "II Periodo";
+// Consultar datos del docente desde usuarios y roles
+try {
+    $stmtDoc = $pdo->prepare("
+        SELECT u.nombre, u.apellido1, r.nombre AS nombre_rol
+        FROM usuarios u
+        LEFT JOIN roles r ON u.id_rol = r.id_rol
+        WHERE u.cedula = :cedula
+        LIMIT 1
+    ");
+    $stmtDoc->execute([':cedula' => $cedula_sesion]);
+    $filaDoc = $stmtDoc->fetch();
+    if ($filaDoc) {
+        $nombre = trim($filaDoc['nombre'] . " " . $filaDoc['apellido1']);
+        if (!empty($filaDoc['nombre_rol'])) {
+            $rol = $filaDoc['nombre_rol'];
+        }
+    }
+} catch (PDOException $e) {
+    // Conserva valores por defecto si no hay registro
+}
+
+// Consultar periodo y fecha límite desde periodos
+$id_periodo_actual = 1;
+$fecha_limite_bd = ($mes_actual >= 2 && $mes_actual <= 7) ? "{$anio_escolar}-07-17" : "{$anio_escolar}-11-27";
+
+try {
+    $stmtPer = $pdo->prepare("
+        SELECT id_periodo, cierre_entrega
+        FROM periodos
+        WHERE anio_escolar = :anio
+        ORDER BY id_periodo DESC
+        LIMIT 1
+    ");
+    $stmtPer->execute([':anio' => $anio_escolar]);
+    $filaPer = $stmtPer->fetch();
+
+    if ($filaPer) {
+        if (!empty($filaPer['id_periodo'])) {
+            $id_periodo_actual = (int)$filaPer['id_periodo'];
+        }
+        if (!empty($filaPer['cierre_entrega'])) {
+            $fecha_limite_bd = date('Y-m-d', strtotime($filaPer['cierre_entrega']));
+        }
+    } else {
+        $stmtAny = $pdo->query("SELECT id_periodo, cierre_entrega FROM periodos ORDER BY id_periodo DESC LIMIT 1");
+        $filaAny = $stmtAny->fetch();
+        if ($filaAny) {
+            if (!empty($filaAny['id_periodo'])) {
+                $id_periodo_actual = (int)$filaAny['id_periodo'];
+            }
+            if (!empty($filaAny['cierre_entrega'])) {
+                $fecha_limite_bd = date('Y-m-d', strtotime($filaAny['cierre_entrega']));
+            }
+        }
+    }
+} catch (PDOException $e) {
+    // Usa valores por defecto si no hay registro
+}
+
+// Guardar nuevo planeamiento en la BD si llega por POST
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion_subir_planeamiento_inicio'])) {
+    header('Content-Type: application/json; charset=utf-8');
+    $nombre_archivo = trim($_POST['archivo'] ?? '');
+
+    if ($nombre_archivo === '') {
+        echo json_encode(['ok' => false, 'mensaje' => 'Nombre de archivo inválido.']);
+        exit();
+    }
+
+    try {
+        $fecha_ahora = date('Y-m-d H:i:s');
+        $stmtIns = $pdo->prepare("
+            INSERT INTO planeamientos (cedula_docente, id_periodo, archivo, fecha_subido)
+            VALUES (:cedula, :id_periodo, :archivo, :fecha_subido)
+        ");
+        $stmtIns->execute([
+            ':cedula' => $cedula_sesion,
+            ':id_periodo' => $id_periodo_actual,
+            ':archivo' => $nombre_archivo,
+            ':fecha_subido' => $fecha_ahora
+        ]);
+
+        echo json_encode([
+            'ok' => true,
+            'archivo' => $nombre_archivo,
+            'fecha_formateada' => date('d/m/Y', strtotime($fecha_ahora))
+        ]);
+    } catch (PDOException $e) {
+        echo json_encode(['ok' => false, 'mensaje' => 'Error al guardar planeamiento.']);
+    }
+    exit();
+}
+
+// Consultar planeamientos entregados del docente desde la BD
+$entregas_bd = [];
+try {
+    $stmtEnt = $pdo->prepare("
+        SELECT id_planeamiento, archivo, fecha_subido
+        FROM planeamientos
+        WHERE cedula_docente = :cedula
+        ORDER BY id_planeamiento ASC
+    ");
+    $stmtEnt->execute([':cedula' => $cedula_sesion]);
+    $filasEnt = $stmtEnt->fetchAll();
+
+    foreach ($filasEnt as $idx => $fila) {
+        $ts = !empty($fila['fecha_subido']) ? strtotime($fila['fecha_subido']) : time();
+        $entregas_bd[] = [
+            'titulo' => 'Planeamiento ' . ($idx + 1),
+            'archivo' => $fila['archivo'],
+            'fecha' => date('d/m/Y', $ts),
+            'estado' => 'Entregado'
+        ];
+    }
+} catch (PDOException $e) {
+    $entregas_bd = [];
+}
+
+$primer_nombre = explode(' ', trim($nombre))[0] ?: "Docente";
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -106,7 +227,7 @@ $periodo_mep_auto = ($mes_actual >= 2 && $mes_actual <= 7) ? "I Periodo" : "II P
             <header class="card-bienvenida-docente">
                 <div class="bienvenida-docente-izq">
                     <span class="saludo-tag-docente">PANEL DOCENTE · EN VIVO</span>
-                    <h1 id="saludo-docente">¡Hola, <?php echo htmlspecialchars(explode(' ', trim($nombre))[0]); ?>!</h1>
+                    <h1 id="saludo-docente">¡Hola, <?php echo htmlspecialchars($primer_nombre); ?>!</h1>
                     <p>Te damos la bienvenida al sistema de evaluaciones docentes.</p>
                 </div>
 
@@ -159,7 +280,7 @@ $periodo_mep_auto = ($mes_actual >= 2 && $mes_actual <= 7) ? "I Periodo" : "II P
 
                     <div class="entrega-col">
                         <span class="etiqueta-suave">Fecha límite de entrega</span>
-                        <strong class="fecha-limite-texto" id="fecha-limite-docente">27 Noviembre 2026</strong>
+                        <strong class="fecha-limite-texto" id="fecha-limite-docente">27 Noviembre <?php echo $anio_escolar; ?></strong>
                     </div>
                 </div>
             </section>
@@ -177,7 +298,7 @@ $periodo_mep_auto = ($mes_actual >= 2 && $mes_actual <= 7) ? "I Periodo" : "II P
                         </span>
                     </div>
                     <div class="kpi-fila-subtexto">
-                        <strong class="kpi-docente-valor" id="kpi-planeamientos-entregados">1/2</strong>
+                        <strong class="kpi-docente-valor" id="kpi-planeamientos-entregados">0/2</strong>
                         <span class="kpi-ayuda-link" id="kpi-subtexto-planeamientos">Ver entregas →</span>
                     </div>
                 </article>
@@ -210,7 +331,7 @@ $periodo_mep_auto = ($mes_actual >= 2 && $mes_actual <= 7) ? "I Periodo" : "II P
                         </span>
                     </div>
                     <div class="kpi-cierre-fila">
-                        <strong class="kpi-docente-valor" id="kpi-proximo-cierre-num">2</strong>
+                        <strong class="kpi-docente-valor" id="kpi-proximo-cierre-num">0</strong>
                         <span class="kpi-cierre-unidad">días</span>
                     </div>
                 </article>
@@ -312,7 +433,9 @@ $periodo_mep_auto = ($mes_actual >= 2 && $mes_actual <= 7) ? "I Periodo" : "II P
 
 <script>
     const cedulaActual = "<?php echo addslashes($cedula_sesion); ?>";
+    const fechaLimiteBD = "<?php echo htmlspecialchars($fecha_limite_bd); ?>";
     const totalPlaneamientosMeta = 2;
+    let entregasBD = <?php echo json_encode($entregas_bd, JSON_UNESCAPED_UNICODE); ?>;
 
     function sincronizarPerfilDocente() {
         const guardado = JSON.parse(localStorage.getItem('perfil_docente_cedes') || 'null');
@@ -334,16 +457,8 @@ $periodo_mep_auto = ($mes_actual >= 2 && $mes_actual <= 7) ? "I Periodo" : "II P
     }
 
     function obtenerFechaLimiteISO() {
-        const clavesPosibles = [
-            'fecha_limite_planeamiento_cedes',
-            'fecha_limite_entrega_cedes',
-            'fecha_cierre_periodo_cedes'
-        ];
-        for (const clave of clavesPosibles) {
-            const valor = localStorage.getItem(clave);
-            if (valor && /^\d{4}-\d{2}-\d{2}$/.test(valor.trim())) {
-                return valor.trim();
-            }
+        if (fechaLimiteBD && /^\d{4}-\d{2}-\d{2}$/.test(fechaLimiteBD.trim())) {
+            return fechaLimiteBD.trim();
         }
         return "2026-11-27";
     }
@@ -358,21 +473,10 @@ $periodo_mep_auto = ($mes_actual >= 2 && $mes_actual <= 7) ? "I Periodo" : "II P
     }
 
     function obtenerEntregasDocente() {
-        const rawHist = localStorage.getItem(`historial_planeamientos_${cedulaActual}`);
-        if (rawHist) {
-            try {
-                const arr = JSON.parse(rawHist);
-                if (Array.isArray(arr) && arr.length > 0) return arr;
-            } catch (e) {}
+        if (Array.isArray(entregasBD) && entregasBD.length > 0) {
+            return entregasBD;
         }
-
-        const docentes = JSON.parse(localStorage.getItem('lista_docentes_cedes') || '[]');
-        const doc = docentes.find(d => d.cedula === cedulaActual);
-        if (doc && doc.pdf) {
-            return [{ titulo: "Planeamiento 1", archivo: doc.pdf, fecha: "15 de Octubre" }];
-        }
-
-        return [{ titulo: "Planeamiento 1", archivo: "Planeamiento_01_2026.pdf", fecha: "15 de Octubre" }];
+        return [];
     }
 
     function obtenerEvaluacionesDelDocente() {
@@ -419,12 +523,7 @@ $periodo_mep_auto = ($mes_actual >= 2 && $mes_actual <= 7) ? "I Periodo" : "II P
     function actualizarDashboardEnTiempoReal() {
         sincronizarPerfilDocente();
 
-        // 1. Periodo MEP y Próximo Cierre
-        const periodoGuardado = localStorage.getItem('periodo_vigente_mep_cedes');
-        if (periodoGuardado) {
-            document.getElementById('periodo-vigente-mep').textContent = periodoGuardado;
-        }
-
+        // 1. Periodo MEP y Próximo Cierre desde BD
         const fechaISO = obtenerFechaLimiteISO();
         const partes = fechaISO.split('-');
         const meses = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
@@ -444,24 +543,24 @@ $periodo_mep_auto = ($mes_actual >= 2 && $mes_actual <= 7) ? "I Periodo" : "II P
             badgeEstado.classList.remove('cerrado');
         }
 
-        // 2. Planeamientos entregados (1/2 -> 2/2)
+        // 2. Planeamientos entregados desde BD
         const entregas = obtenerEntregasDocente();
         const entregadosCount = entregas.length;
         document.getElementById('kpi-planeamientos-entregados').textContent = `${entregadosCount}/${totalPlaneamientosMeta}`;
         document.getElementById('kpi-subtexto-planeamientos').textContent =
-            entregadosCount >= totalPlaneamientosMeta ? "Entrega completa ✓" : "Falta 1 planeamiento →";
+            entregadosCount >= totalPlaneamientosMeta ? "Entrega completa ✓" : "Ver entregas →";
 
         const ultimaEntrega = entregas[entregadosCount - 1];
-        document.getElementById('fecha-subido-texto').textContent = ultimaEntrega?.fecha || "15 de Octubre";
+        document.getElementById('fecha-subido-texto').textContent = ultimaEntrega?.fecha || "Sin entregas";
 
-        // 3. Evaluaciones recibidas (cada evaluación distinta)
+        // 3. Evaluaciones recibidas
         const evaluaciones = obtenerEvaluacionesDelDocente();
         const cantEvaluaciones = evaluaciones.length;
         document.getElementById('kpi-evaluaciones-recibidas').textContent = String(cantEvaluaciones);
         const porcentajeBarra = Math.min(100, Math.round((cantEvaluaciones / totalPlaneamientosMeta) * 100));
         document.getElementById('barra-progreso-eval').style.width = `${porcentajeBarra}%`;
 
-        // 4. Estatus de mi planeamiento en tiempo real
+        // 4. Estatus de mi planeamiento
         const evaluandoAhora = estaCoordinadorEvaluandoAhora();
         const itemRev = document.getElementById('estatus-revision');
         const txtRev = document.getElementById('texto-estatus-revision');
@@ -493,7 +592,7 @@ $periodo_mep_auto = ($mes_actual >= 2 && $mes_actual <= 7) ? "I Periodo" : "II P
             txtRev.textContent = "En revisión por Coordinación";
             tagVivo.textContent = "Tiempo real";
             tagVivo.className = "tag-seguimiento-docente";
-            pieDetalle.textContent = "Aún no se ha entregado calificación final.";
+            pieDetalle.textContent = "Sincronizado con la base de datos y Mis evaluaciones.";
         }
 
         if (cantEvaluaciones > 0) {
@@ -513,32 +612,44 @@ $periodo_mep_auto = ($mes_actual >= 2 && $mes_actual <= 7) ? "I Periodo" : "II P
 
     function guardarArchivoPlaneamiento(archivo) {
         if (!archivo) return;
-        const lector = new FileReader();
-        lector.onload = function(ev) {
-            const hoy = new Date();
-            const fechaFormateada = `${String(hoy.getDate()).padStart(2, '0')}/${String(hoy.getMonth() + 1).padStart(2, '0')}/${hoy.getFullYear()}`;
 
-            const entregas = obtenerEntregasDocente();
-            entregas.push({
-                titulo: `Planeamiento ${entregas.length + 1}`,
+        const formData = new FormData();
+        formData.append('accion_subir_planeamiento_inicio', '1');
+        formData.append('archivo', archivo.name);
+
+        fetch('inicio_docente.php', {
+            method: 'POST',
+            body: formData
+        })
+        .then(res => res.json())
+        .then(data => {
+            const hoy = new Date();
+            const fechaFormateada = (data && data.fecha_formateada)
+                ? data.fecha_formateada
+                : `${String(hoy.getDate()).padStart(2, '0')}/${String(hoy.getMonth() + 1).padStart(2, '0')}/${hoy.getFullYear()}`;
+
+            entregasBD.push({
+                titulo: `Planeamiento ${entregasBD.length + 1}`,
                 archivo: archivo.name,
                 fecha: fechaFormateada,
                 estado: "Entregado"
             });
-            localStorage.setItem(`historial_planeamientos_${cedulaActual}`, JSON.stringify(entregas));
 
-            const docentes = JSON.parse(localStorage.getItem('lista_docentes_cedes') || '[]');
-            const idx = docentes.findIndex(d => d.cedula === cedulaActual);
-            if (idx !== -1) {
-                docentes[idx].pdf = archivo.name;
-                docentes[idx].pdfData = ev.target.result;
-                localStorage.setItem('lista_docentes_cedes', JSON.stringify(docentes));
-            }
-
+            document.getElementById('texto-arrastre-pdf').innerHTML = `Archivo registrado: <strong>${archivo.name}</strong>`;
+            actualizarDashboardEnTiempoReal();
+        })
+        .catch(() => {
+            const hoy = new Date();
+            const fechaFormateada = `${String(hoy.getDate()).padStart(2, '0')}/${String(hoy.getMonth() + 1).padStart(2, '0')}/${hoy.getFullYear()}`;
+            entregasBD.push({
+                titulo: `Planeamiento ${entregasBD.length + 1}`,
+                archivo: archivo.name,
+                fecha: fechaFormateada,
+                estado: "Entregado"
+            });
             document.getElementById('texto-arrastre-pdf').innerHTML = `Archivo listo: <strong>${archivo.name}</strong>`;
             actualizarDashboardEnTiempoReal();
-        };
-        lector.readAsDataURL(archivo);
+        });
     }
 
     function manejarSeleccionArchivo(e) {

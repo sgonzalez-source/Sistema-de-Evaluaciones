@@ -1,53 +1,9 @@
 <?php
 session_start();
+require_once "conexion.php";
 
-// Cuentas temporales de prueba (el sistema identifica el rol automáticamente)
-$usuarios_temporales = [
-    [
-        'id' => 1,
-        'cedula' => '18965420',
-        'password' => '7894',
-        'nombre' => 'Javier Mena',
-        'rol' => 'Coordinador',
-        'destino' => 'principal.php'
-    ],
-    [
-        'id' => 101,
-        'cedula' => '100564782',
-        'password' => '1234',
-        'nombre' => 'Lucía Rodríguez',
-        'rol' => 'Docente',
-        'destino' => 'inicio_docente.php'
-    ],
-    [
-        'id' => 102,
-        'cedula' => '203648647',
-        'password' => '1234',
-        'nombre' => 'Mario López',
-        'rol' => 'Docente',
-        'destino' => 'inicio_docente.php'
-    ],
-    [
-        'id' => 103,
-        'cedula' => '187263944',
-        'password' => '1234',
-        'nombre' => 'Randall Ocón',
-        'rol' => 'Docente',
-        'destino' => 'inicio_docente.php'
-    ],
-    [
-        'id' => 104,
-        'cedula' => '166478230',
-        'password' => '1234',
-        'nombre' => 'Sharon Mendes',
-        'rol' => 'Docente',
-        'destino' => 'inicio_docente.php'
-    ]
-];
-
-function redirigirPorRol() {
-    $rol = $_SESSION['rol'] ?? 'Coordinador';
-    if ($rol === 'Docente') {
+function redirigirPorRol($rol) {
+    if (stripos((string)$rol, 'docente') !== false) {
         header("Location: inicio_docente.php");
     } else {
         header("Location: principal.php");
@@ -60,23 +16,46 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $cedula = trim($_POST['cedula'] ?? '');
     $password = trim($_POST['password'] ?? '');
 
-    $usuario_encontrado = null;
-    foreach ($usuarios_temporales as $u) {
-        if ($u['cedula'] === $cedula && $u['password'] === $password) {
-            $usuario_encontrado = $u;
-            break;
-        }
+    if ($cedula === '' || $password === '') {
+        header("Location: inicio_sesion.php?error=1");
+        exit();
     }
 
-    if ($usuario_encontrado !== null) {
-        $_SESSION['usuario_id'] = $usuario_encontrado['id'];
-        $_SESSION['cedula'] = $usuario_encontrado['cedula'];
-        $_SESSION['usuario'] = $usuario_encontrado['nombre'];
-        $_SESSION['rol'] = $usuario_encontrado['rol'];
+    try {
+        $stmt = $pdo->prepare("
+            SELECT u.cedula, u.nombre, u.apellido1, u.apellido2, u.contrasena,
+                   r.nombre AS nombre_rol
+            FROM usuarios u
+            LEFT JOIN roles r ON u.id_rol = r.id_rol
+            WHERE u.cedula = :cedula
+            LIMIT 1
+        ");
+        $stmt->execute([':cedula' => $cedula]);
+        $usuario = $stmt->fetch();
 
-        header("Location: " . $usuario_encontrado['destino']);
-        exit();
-    } else {
+        $clave_valida = false;
+        if ($usuario) {
+            $guardada = (string)$usuario['contrasena'];
+            if (password_verify($password, $guardada) || $password === $guardada) {
+                $clave_valida = true;
+            }
+        }
+
+        if ($usuario && $clave_valida) {
+            $nombre_completo = trim($usuario['nombre'] . " " . $usuario['apellido1']);
+            $rol_usuario = !empty($usuario['nombre_rol']) ? $usuario['nombre_rol'] : 'Coordinador';
+
+            $_SESSION['usuario_id'] = $usuario['cedula'];
+            $_SESSION['cedula'] = $usuario['cedula'];
+            $_SESSION['usuario'] = $nombre_completo;
+            $_SESSION['rol'] = $rol_usuario;
+
+            redirigirPorRol($rol_usuario);
+        } else {
+            header("Location: inicio_sesion.php?error=1");
+            exit();
+        }
+    } catch (PDOException $e) {
         header("Location: inicio_sesion.php?error=1");
         exit();
     }
@@ -84,7 +63,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 // Si ya tiene una sesión activa, redirige según su rol
 if (isset($_SESSION['usuario_id'])) {
-    redirigirPorRol();
+    redirigirPorRol($_SESSION['rol'] ?? 'Coordinador');
 }
 ?>
 <!DOCTYPE html>

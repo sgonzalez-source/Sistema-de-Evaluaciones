@@ -3,7 +3,33 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-$rol_actual     = $_SESSION['rol'] ?? 'Coordinador';
+if (file_exists(__DIR__ . '/conexion.php')) {
+    require_once __DIR__ . '/conexion.php';
+}
+
+$rol_actual = $_SESSION['rol'] ?? 'Coordinador';
+
+// Si hay cédula en sesión y conexión PDO disponible, consulta el rol real en la BD
+if (!empty($_SESSION['cedula']) && isset($pdo) && ($pdo instanceof PDO)) {
+    try {
+        $stmtRolMiga = $pdo->prepare("
+            SELECT r.nombre AS nombre_rol
+            FROM usuarios u
+            LEFT JOIN roles r ON u.id_rol = r.id_rol
+            WHERE u.cedula = :cedula
+            LIMIT 1
+        ");
+        $stmtRolMiga->execute([':cedula' => $_SESSION['cedula']]);
+        $filaRolMiga = $stmtRolMiga->fetch();
+        if ($filaRolMiga && !empty($filaRolMiga['nombre_rol'])) {
+            $rol_actual = $filaRolMiga['nombre_rol'];
+            $_SESSION['rol'] = $rol_actual;
+        }
+    } catch (PDOException $e) {
+        // Conserva el rol en sesión si ocurre un error de consulta
+    }
+}
+
 $es_docente     = (strcasecmp($rol_actual, 'Docente') === 0);
 $url_inicio_rol = $es_docente ? 'inicio_docente.php' : 'principal.php';
 

@@ -1,5 +1,6 @@
 <?php
 session_start();
+require_once "conexion.php";
 
 if (isset($_GET['salir'])) {
     session_destroy();
@@ -7,14 +8,110 @@ if (isset($_GET['salir'])) {
     exit();
 }
 
+date_default_timezone_set('America/Costa_Rica');
+$anio_escolar = (int)date('Y');
+$mes_actual = (int)date('n');
+$periodo_mep_auto = ($mes_actual >= 2 && $mes_actual <= 7) ? "I Periodo" : "II Periodo";
+
 $nombre = $_SESSION["usuario"] ?? "Javier Mena";
 $rol = $_SESSION["rol"] ?? "Coordinador";
 $titulo_miga = "Plantillas de evaluación";
 
-date_default_timezone_set('America/Costa_Rica');
-$anio_escolar = date('Y');
-$mes_actual = (int)date('n');
-$periodo_mep_auto = ($mes_actual >= 2 && $mes_actual <= 7) ? "I Periodo" : "II Periodo";
+// Consultar usuario en BD si está disponible
+try {
+    $cedula_sesion = $_SESSION["cedula"] ?? "1-0945-0612";
+    $stmtUser = $pdo->prepare("
+        SELECT u.nombre, u.apellido1, r.nombre AS nombre_rol
+        FROM usuarios u
+        LEFT JOIN roles r ON u.id_rol = r.id_rol
+        WHERE u.cedula = :cedula
+        LIMIT 1
+    ");
+    $stmtUser->execute([':cedula' => $cedula_sesion]);
+    $filaUser = $stmtUser->fetch();
+    if ($filaUser) {
+        $nombre = trim($filaUser['nombre'] . " " . $filaUser['apellido1']);
+        if (!empty($filaUser['nombre_rol'])) {
+            $rol = $filaUser['nombre_rol'];
+        }
+    }
+} catch (PDOException $e) {
+    // Conserva valores por defecto si no hay sesión/fila
+}
+
+// Consultar rúbricas desde la base de datos
+$rubricas_bd = [];
+try {
+    $stmtRubricas = $pdo->query("
+        SELECT r.id_rubrica, r.nombre, r.descripcion, r.id_periodo, r.id_area, r.activo,
+               p.anio_escolar, a.nombre AS nombre_area
+        FROM rubricas r
+        LEFT JOIN periodos p ON r.id_periodo = p.id_periodo
+        LEFT JOIN areas a ON r.id_area = a.id_area
+        ORDER BY r.id_rubrica DESC
+    ");
+    $filasRubricas = $stmtRubricas->fetchAll();
+
+    foreach ($filasRubricas as $rub) {
+        $idRub = (int)$rub['id_rubrica'];
+
+        $stmtCrit = $pdo->prepare("
+            SELECT id_criterio, descripcion
+            FROM criterios
+            WHERE id_rubrica = :id_rubrica
+            ORDER BY id_criterio ASC
+        ");
+        $stmtCrit->execute([':id_rubrica' => $idRub]);
+        $filasCrit = $stmtCrit->fetchAll();
+
+        $criteriosArmados = [];
+        foreach ($filasCrit as $crit) {
+            $idCrit = (int)$crit['id_criterio'];
+            $stmtNiv = $pdo->prepare("
+                SELECT n.descripcion, p.nombre AS nombre_punto, p.puntos
+                FROM niveles_evaluacion n
+                LEFT JOIN puntos p ON n.id_puntos = p.id_puntos
+                WHERE n.id_criterio = :id_criterio
+                ORDER BY p.puntos DESC, n.id_niveles_evaluacion ASC
+            ");
+            $stmtNiv->execute([':id_criterio' => $idCrit]);
+            $filasNiv = $stmtNiv->fetchAll();
+
+            $descripciones = [];
+            for ($i = 0; $i < 4; $i++) {
+                $descripciones[] = $filasNiv[$i]['descripcion'] ?? "Descripción del nivel " . ($i + 1) . ".";
+            }
+
+            $criteriosArmados[] = [
+                'nombre' => $crit['descripcion'],
+                'descripciones' => $descripciones
+            ];
+        }
+
+        $rubricas_bd[] = [
+            'id' => 'bd_' . $idRub,
+            'id_rubrica_bd' => $idRub,
+            'nombre' => $rub['nombre'],
+            'descripcion' => $rub['descripcion'] ?: "Evaluación del desempeño del docente.",
+            'anio' => (string)($rub['anio_escolar'] ?: $anio_escolar),
+            'activa' => ((int)$rub['activo'] === 1),
+            'metaDocente' => "Randall Ocón",
+            'metaSeccion' => "12-2",
+            'metaPeriodo' => $periodo_mep_auto,
+            'tituloRubrica' => strtoupper($rub['nombre']) . " - CEDES DON BOSCO",
+            'colCriterio' => "Criterio",
+            'niveles' => [
+                ['nombre' => 'Excelente', 'puntos' => 4],
+                ['nombre' => 'Muy Bueno', 'puntos' => 3],
+                ['nombre' => 'Bueno', 'puntos' => 2],
+                ['nombre' => 'Insuficiente', 'puntos' => 1]
+            ],
+            'criterios' => $criteriosArmados
+        ];
+    }
+} catch (PDOException $e) {
+    $rubricas_bd = [];
+}
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -97,8 +194,8 @@ $periodo_mep_auto = ($mes_actual >= 2 && $mes_actual <= 7) ? "I Periodo" : "II P
             <a href="perfil.php" class="usuario" style="text-decoration: none; color: inherit; cursor: pointer;" title="Ver perfil de usuario">
                 <div class="avatar-iniciales" id="menu-avatar-iniciales">JM</div>
                 <div class="info-usuario">
-                    <strong id="menu-nombre-usuario"><?php echo $nombre; ?></strong>
-                    <p><?php echo $rol; ?></p>
+                    <strong id="menu-nombre-usuario"><?php echo htmlspecialchars($nombre); ?></strong>
+                    <p><?php echo htmlspecialchars($rol); ?></p>
                 </div>
             </a>
 
@@ -330,6 +427,8 @@ $periodo_mep_auto = ($mes_actual >= 2 && $mes_actual <= 7) ? "I Periodo" : "II P
 </div>
 
 <script>
+    const rubricasDesdeBD = <?php echo json_encode($rubricas_bd, JSON_UNESCAPED_UNICODE); ?>;
+
     const criteriosBase = [
         {
             nombre: "Observación de clase",
@@ -385,44 +484,6 @@ $periodo_mep_auto = ($mes_actual >= 2 && $mes_actual <= 7) ? "I Periodo" : "II P
             descripcion: "Evaluación del desempeño del docente (I Periodo).",
             anio: "2027",
             activa: true,
-            metaDocente: "Randall Ocón",
-            metaSeccion: "12-2",
-            metaPeriodo: "I Periodo",
-            tituloRubrica: "RÚBRICA DE OBSERVACIÓN DOCENTE COLEGIO TÉCNICO PROFESIONAL DON BOSCO",
-            colCriterio: "Criterio",
-            niveles: [
-                { nombre: "Excelente", puntos: 4 },
-                { nombre: "Muy Bueno", puntos: 3 },
-                { nombre: "Bueno", puntos: 2 },
-                { nombre: "Insuficiente", puntos: 1 }
-            ],
-            criterios: JSON.parse(JSON.stringify(criteriosBase))
-        },
-        {
-            id: "pl_2",
-            nombre: "Descripción de la rúbrica",
-            descripcion: "Evaluación del desempeño del docente.",
-            anio: "2026",
-            activa: true,
-            metaDocente: "Randall Ocón",
-            metaSeccion: "12-2",
-            metaPeriodo: "II Periodo",
-            tituloRubrica: "RÚBRICA DE OBSERVACIÓN DOCENTE COLEGIO TÉCNICO PROFESIONAL DON BOSCO",
-            colCriterio: "Criterio",
-            niveles: [
-                { nombre: "Excelente", puntos: 4 },
-                { nombre: "Muy Bueno", puntos: 3 },
-                { nombre: "Bueno", puntos: 2 },
-                { nombre: "Insuficiente", puntos: 1 }
-            ],
-            criterios: JSON.parse(JSON.stringify(criteriosBase))
-        },
-        {
-            id: "pl_3",
-            nombre: "Descripción de la rúbrica",
-            descripcion: "Evaluación del desempeño del docente.",
-            anio: "2023",
-            activa: false,
             metaDocente: "Randall Ocón",
             metaSeccion: "12-2",
             metaPeriodo: "I Periodo",
@@ -573,9 +634,9 @@ $periodo_mep_auto = ($mes_actual >= 2 && $mes_actual <= 7) ? "I Periodo" : "II P
         document.getElementById('input-desc-tarjeta').value = pl.descripcion || "";
         document.getElementById('ed-meta-docente').value = pl.metaDocente || "Randall Ocón";
         document.getElementById('ed-meta-seccion').value = pl.metaSeccion || "12-2";
-        document.getElementById('ed-meta-anio').value = pl.anio || "2027";
-        document.getElementById('ed-meta-curso').value = pl.anio || "2027";
-        document.getElementById('ed-meta-periodo').value = pl.metaPeriodo || "I Periodo";
+        document.getElementById('ed-meta-anio').value = pl.anio || "<?php echo $anio_escolar; ?>";
+        document.getElementById('ed-meta-curso').value = pl.anio || "<?php echo $anio_escolar; ?>";
+        document.getElementById('ed-meta-periodo').value = pl.metaPeriodo || "<?php echo $periodo_mep_auto; ?>";
         document.getElementById('ed-titulo-rubrica').value = pl.tituloRubrica || "RÚBRICA DE OBSERVACIÓN DOCENTE COLEGIO TÉCNICO PROFESIONAL DON BOSCO";
         document.getElementById('ed-col-criterio').value = pl.colCriterio || "Criterio";
 
@@ -593,7 +654,7 @@ $periodo_mep_auto = ($mes_actual >= 2 && $mes_actual <= 7) ? "I Periodo" : "II P
 
         const tbody = document.getElementById('tbody-criterios-editor');
         tbody.innerHTML = "";
-        (pl.criterios || criteriosBase).forEach(crit => agregarFilaCriterio(crit));
+        (pl.criterios && pl.criterios.length ? pl.criterios : criteriosBase).forEach(crit => agregarFilaCriterio(crit));
     }
 
     function agregarFilaCriterio(datos = null) {
@@ -754,12 +815,17 @@ $periodo_mep_auto = ($mes_actual >= 2 && $mes_actual <= 7) ? "I Periodo" : "II P
     window.onload = function() {
         sincronizarPerfilMenu();
 
-        const guardadas = localStorage.getItem('plantillas_rubrica_cedes_v2');
-        if (guardadas) {
-            listaPlantillas = JSON.parse(guardadas);
-        } else {
-            listaPlantillas = JSON.parse(JSON.stringify(plantillasIniciales));
+        if (Array.isArray(rubricasDesdeBD) && rubricasDesdeBD.length > 0) {
+            listaPlantillas = rubricasDesdeBD;
             guardarStorage();
+        } else {
+            const guardadas = localStorage.getItem('plantillas_rubrica_cedes_v2');
+            if (guardadas) {
+                listaPlantillas = JSON.parse(guardadas);
+            } else {
+                listaPlantillas = JSON.parse(JSON.stringify(plantillasIniciales));
+                guardarStorage();
+            }
         }
         renderizarListaBloques();
     };

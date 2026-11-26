@@ -1,5 +1,6 @@
 <?php
 session_start();
+require_once "conexion.php";
 
 if (isset($_GET['salir'])) {
     session_destroy();
@@ -7,10 +8,247 @@ if (isset($_GET['salir'])) {
     exit();
 }
 
+date_default_timezone_set('America/Costa_Rica');
+$anio_escolar = date('Y');
+$titulo_miga = "Gestión de Docentes";
+
 $nombre = $_SESSION["usuario"] ?? "Javier Mena";
 $rol = $_SESSION["rol"] ?? "Coordinador";
-$titulo_miga = "Gestión de Docentes";
-$anio_escolar = "2026";
+$cedula_sesion = $_SESSION["cedula"] ?? "1-0945-0612";
+
+// Consultar usuario en sesión desde la BD
+try {
+    $stmtUser = $pdo->prepare("
+        SELECT u.nombre, u.apellido1, r.nombre AS nombre_rol
+        FROM usuarios u
+        LEFT JOIN roles r ON u.id_rol = r.id_rol
+        WHERE u.cedula = :cedula
+        LIMIT 1
+    ");
+    $stmtUser->execute([':cedula' => $cedula_sesion]);
+    $filaUser = $stmtUser->fetch();
+    if ($filaUser) {
+        $nombre = trim($filaUser['nombre'] . " " . $filaUser['apellido1']);
+        if (!empty($filaUser['nombre_rol'])) {
+            $rol = $filaUser['nombre_rol'];
+        }
+    }
+} catch (PDOException $e) {
+    // Conserva valores por defecto si no hay registro
+}
+
+// Obtener periodo vigente para registrar planeamientos
+$id_periodo_actual = 1;
+try {
+    $stmtPer = $pdo->prepare("
+        SELECT id_periodo FROM periodos
+        WHERE anio_escolar = :anio
+        ORDER BY id_periodo DESC LIMIT 1
+    ");
+    $stmtPer->execute([':anio' => (int)$anio_escolar]);
+    $filaPer = $stmtPer->fetch();
+    if ($filaPer && !empty($filaPer['id_periodo'])) {
+        $id_periodo_actual = (int)$filaPer['id_periodo'];
+    } else {
+        $filaAny = $pdo->query("SELECT id_periodo FROM periodos ORDER BY id_periodo DESC LIMIT 1")->fetch();
+        if ($filaAny && !empty($filaAny['id_periodo'])) {
+            $id_periodo_actual = (int)$filaAny['id_periodo'];
+        }
+    }
+} catch (PDOException $e) {
+    $id_periodo_actual = 1;
+}
+
+// Helper para buscar o crear id_materia
+function obtenerOcrearMateria(PDO $pdo, string $nombreMateria): ?int {
+    $nombreMateria = trim($nombreMateria);
+    if ($nombreMateria === '') return null;
+
+    $stmt = $pdo->prepare("SELECT id_materia FROM materias WHERE nombre = :nombre LIMIT 1");
+    $stmt->execute([':nombre' => $nombreMateria]);
+    $fila = $stmt->fetch();
+    if ($fila) {
+        return (int)$fila['id_materia'];
+    }
+
+    $filaArea = $pdo->query("SELECT id_area FROM areas ORDER BY id_area ASC LIMIT 1")->fetch();
+    $idArea = $filaArea ? (int)$filaArea['id_area'] : null;
+
+    $ins = $pdo->prepare("INSERT INTO materias (nombre, id_area) VALUES (:nombre, :id_area)");
+    $ins->execute([':nombre' => $nombreMateria, ':id_area' => $idArea]);
+    return (int)$pdo->lastInsertId();
+}
+
+// Acciones POST desde el frontend (agregar, editar, eliminar)
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion_docente'])) {
+    header('Content-Type: application/json; charset=utf-8');
+    $accion = $_POST['accion_docente'];
+
+    try {
+        if ($accion === 'agregar' || $accion === 'editar') {
+            $cedula = trim($_POST['cedula'] ?? '');
+            $cedulaOriginal = trim($_POST['cedula_original'] ?? $cedula);
+            $nombreCompleto = trim($_POST['nombre'] ?? '');
+            $materiaNombre = trim($_POST['materia'] ?? 'Español');
+            $archivoPdf = trim($_POST['archivo_pdf'] ?? '');
+
+            if ($cedula === '' || $nombreCompleto === '') {
+                echo json_encode(['ok' => false, 'mensaje' => 'Cédula y nombre son obligatorios.']);
+                exit();
+            }
+
+            $partesNombre = preg_split('/\s+/', $nombreCompleto);
+            $nom = $partesNombre[0] ?? $nombreCompleto;
+            $ap1 = $partesNombre[1] ?? 'Docente';
+            $ap2 = $partesNombre[2] ?? '';
+
+            // Obtener id_rol de Docente
+            $stmtRol = $pdo->prepare("SELECT id_rol FROM roles WHERE LOWER(nombre) LIKE '%docente%' LIMIT 1");
+            $stmtRol->execute();
+            $filaRol = $stmtRol->fetch();
+            $idRolDocente = $filaRol ? (int)$filaRol['id_rol'] : 2;
+
+            $idMateria = obtenerOcrearMateria($pdo, $materiaNombre);
+
+            if ($accion === 'agregar') {
+                $stmtExiste = $pdo->prepare("SELECT cedula FROM usuarios WHERE cedula = :cedula LIMIT 1");
+                $stmtExiste->execute([':cedula' => $cedula]);
+                if ($stmtExiste->fetch()) {
+                    echo json_encode(['ok' => false, 'mensaje' => 'Ya existe un usuario con esa cédula.']);
+                    exit();
+                }
+
+                $insUser = $pdo->prepare("
+                    INSERT INTO usuarios (cedula, nombre, apellido1, apellido2, contrasena, id_rol)
+                    VALUES (:cedula, :nombre, :ap1, :ap2, :pass, :id_rol)
+                ");
+                $insUser->execute([
+                    ':cedula' => $cedula,
+                    ':nombre' => $nom,
+                    ':ap1' => $ap1,
+                    ':ap2' => $ap2,
+                    ':pass' => '123456',
+                    ':id_rol' => $idRolDocente
+                ]);
+
+                $correoDefecto = strtolower(preg_replace('/[^a-zA-Z0-9]/', '', $nom)) . "@cedesdonbosco.ed.cr";
+                $insDet = $pdo->prepare("
+                    INSERT INTO detalle_usuario (cedula, telefono, correo, departamento, id_materia)
+                    VALUES (:cedula, '', :correo, 'Docencia', :id_materia)
+                ");
+                $insDet->execute([
+                    ':cedula' => $cedula,
+                    ':correo' => $correoDefecto,
+                    ':id_materia' => $idMateria
+                ]);
+
+                if ($archivoPdf !== '') {
+                    $insPlan = $pdo->prepare("
+                        INSERT INTO planeamientos (cedula_docente, id_periodo, archivo, fecha_subido)
+                        VALUES (:cedula, :id_periodo, :archivo, NOW())
+                    ");
+                    $insPlan->execute([
+                        ':cedula' => $cedula,
+                        ':id_periodo' => $id_periodo_actual,
+                        ':archivo' => $archivoPdf
+                    ]);
+                }
+            } else {
+                $updUser = $pdo->prepare("
+                    UPDATE usuarios
+                    SET cedula = :nueva_cedula, nombre = :nombre, apellido1 = :ap1, apellido2 = :ap2
+                    WHERE cedula = :cedula_orig
+                ");
+                $updUser->execute([
+                    ':nueva_cedula' => $cedula,
+                    ':nombre' => $nom,
+                    ':ap1' => $ap1,
+                    ':ap2' => $ap2,
+                    ':cedula_orig' => $cedulaOriginal
+                ]);
+
+                $stmtDet = $pdo->prepare("SELECT id_detalle_usuario FROM detalle_usuario WHERE cedula = :cedula LIMIT 1");
+                $stmtDet->execute([':cedula' => $cedula]);
+                if ($stmtDet->fetch()) {
+                    $updDet = $pdo->prepare("UPDATE detalle_usuario SET id_materia = :id_materia WHERE cedula = :cedula");
+                    $updDet->execute([':id_materia' => $idMateria, ':cedula' => $cedula]);
+                } else {
+                    $insDet = $pdo->prepare("
+                        INSERT INTO detalle_usuario (cedula, telefono, correo, departamento, id_materia)
+                        VALUES (:cedula, '', '', 'Docencia', :id_materia)
+                    ");
+                    $insDet->execute([':cedula' => $cedula, ':id_materia' => $idMateria]);
+                }
+
+                if ($archivoPdf !== '') {
+                    $insPlan = $pdo->prepare("
+                        INSERT INTO planeamientos (cedula_docente, id_periodo, archivo, fecha_subido)
+                        VALUES (:cedula, :id_periodo, :archivo, NOW())
+                    ");
+                    $insPlan->execute([
+                        ':cedula' => $cedula,
+                        ':id_periodo' => $id_periodo_actual,
+                        ':archivo' => $archivoPdf
+                    ]);
+                }
+            }
+
+            echo json_encode(['ok' => true]);
+            exit();
+        }
+
+        if ($accion === 'eliminar') {
+            $cedula = trim($_POST['cedula'] ?? '');
+            if ($cedula !== '') {
+                $pdo->prepare("DELETE FROM planeamientos WHERE cedula_docente = :cedula")->execute([':cedula' => $cedula]);
+                $pdo->prepare("DELETE FROM detalle_usuario WHERE cedula = :cedula")->execute([':cedula' => $cedula]);
+                $pdo->prepare("DELETE FROM usuarios WHERE cedula = :cedula")->execute([':cedula' => $cedula]);
+            }
+            echo json_encode(['ok' => true]);
+            exit();
+        }
+    } catch (PDOException $e) {
+        echo json_encode(['ok' => false, 'mensaje' => 'Error en la base de datos: ' . $e->getMessage()]);
+        exit();
+    }
+}
+
+// Consultar lista de docentes y su último planeamiento desde la BD
+$docentes_bd = [];
+try {
+    $stmtDocentes = $pdo->query("
+        SELECT u.cedula, u.nombre, u.apellido1, u.apellido2,
+               COALESCE(m.nombre, 'Español') AS materia,
+               (
+                   SELECT p.archivo
+                   FROM planeamientos p
+                   WHERE p.cedula_docente = u.cedula
+                   ORDER BY p.id_planeamiento DESC
+                   LIMIT 1
+               ) AS ultimo_archivo
+        FROM usuarios u
+        INNER JOIN roles r ON u.id_rol = r.id_rol
+        LEFT JOIN detalle_usuario d ON u.cedula = d.cedula
+        LEFT JOIN materias m ON d.id_materia = m.id_materia
+        WHERE LOWER(r.nombre) LIKE '%docente%'
+        ORDER BY u.nombre ASC
+    ");
+    $filas = $stmtDocentes->fetchAll();
+
+    foreach ($filas as $f) {
+        $nombreCompletoDoc = trim($f['nombre'] . " " . $f['apellido1'] . (!empty($f['apellido2']) ? " " . $f['apellido2'] : ""));
+        $docentes_bd[] = [
+            'cedula' => $f['cedula'],
+            'nombre' => $nombreCompletoDoc,
+            'materia' => $f['materia'],
+            'pdf' => !empty($f['ultimo_archivo']) ? $f['ultimo_archivo'] : 'Planeamiento_2026.pdf',
+            'pdfData' => '',
+            'activo' => true
+        ];
+    }
+} catch (PDOException $e) {
+    $docentes_bd = [];
+}
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -99,8 +337,8 @@ $anio_escolar = "2026";
             <a href="perfil.php" class="usuario" style="text-decoration: none; color: inherit; cursor: pointer;" title="Ver perfil de usuario">
                 <div class="avatar-iniciales" id="menu-avatar-iniciales">JM</div>
                 <div class="info-usuario">
-                    <strong id="menu-nombre-usuario"><?php echo $nombre; ?></strong>
-                    <p><?php echo $rol; ?></p>
+                    <strong id="menu-nombre-usuario"><?php echo htmlspecialchars($nombre); ?></strong>
+                    <p><?php echo htmlspecialchars($rol); ?></p>
                 </div>
             </a>
 
@@ -338,15 +576,16 @@ $anio_escolar = "2026";
 </div>
 
 <script>
+    const docentesBD = <?php echo json_encode($docentes_bd, JSON_UNESCAPED_UNICODE); ?>;
+
     const docentesIniciales = [
-        { cedula: "100564782", nombre: "Lucía Rodríguez", materia: "Español", pdf: "Planeamiento_Espanol_Lucia.pdf", pdfData: "", activo: false },
-        { cedula: "203648647", nombre: "Mario López", materia: "Química", pdf: "Planeamiento_Quimica_Mario.pdf", pdfData: "", activo: true },
-        { cedula: "187263944", nombre: "Randall Ocón", materia: "Matemáticas", pdf: "Planeamiento_Mate_Randall.pdf", pdfData: "", activo: false },
-        { cedula: "166478230", nombre: "Sharon Mendes", materia: "Música", pdf: "Planeamiento_Musica_Sharon.pdf", pdfData: "", activo: true }
+        { cedula: "100564782", nombre: "Lucía Rodríguez", materia: "Español", pdf: "Planeamiento_Espanol_Lucia.pdf", pdfData: "", activo: true },
+        { cedula: "187263944", nombre: "Randall Ocón", materia: "Matemáticas", pdf: "Planeamiento_Mate_Randall.pdf", pdfData: "", activo: true }
     ];
 
     let listaDocentes = [];
     let indiceEditando = null;
+    let cedulaOriginalEditando = null;
     let indiceEliminando = null;
     const archivosTemporales = {};
 
@@ -478,6 +717,7 @@ $anio_escolar = "2026";
 
     function abrirModalAgregar() {
         indiceEditando = null;
+        cedulaOriginalEditando = null;
         document.getElementById('titulo-modal-docente').textContent = "Agregar Nuevo Docente";
         document.getElementById('subtexto-modal-docente').textContent = "Completa los datos para asignarlo a tu lista de docentes a cargo.";
         document.getElementById('btn-submit-docente').textContent = "Guardar Docente";
@@ -497,6 +737,7 @@ $anio_escolar = "2026";
         indiceEditando = indice;
         const doc = listaDocentes[indice];
         if (!doc) return;
+        cedulaOriginalEditando = doc.cedula;
 
         document.getElementById('titulo-modal-docente').textContent = "Editar Docente";
         document.getElementById('subtexto-modal-docente').textContent = "Modifica la información del docente o actualiza su planeamiento PDF.";
@@ -520,16 +761,26 @@ $anio_escolar = "2026";
         const nombre = document.getElementById('nuevo-nombre').value.trim();
         const materia = document.getElementById('nuevo-materia').value;
         const inputArchivo = document.getElementById('nuevo-planeamiento-archivo');
+        const esEdicion = (indiceEditando !== null);
+        const nombreArchivoNuevo = (inputArchivo.files && inputArchivo.files.length > 0) ? inputArchivo.files[0].name : "";
 
-        const finalizarGuardado = (nombrePdf, archivoBase64) => {
-            if (indiceEditando !== null) {
+        const formData = new FormData();
+        formData.append('accion_docente', esEdicion ? 'editar' : 'agregar');
+        formData.append('cedula', cedula);
+        formData.append('cedula_original', cedulaOriginalEditando || cedula);
+        formData.append('nombre', nombre);
+        formData.append('materia', materia);
+        formData.append('archivo_pdf', nombreArchivoNuevo);
+
+        const finalizarGuardado = (archivoBase64) => {
+            if (esEdicion) {
                 const anterior = listaDocentes[indiceEditando];
                 listaDocentes[indiceEditando] = {
                     ...anterior,
                     cedula: cedula,
                     nombre: nombre,
                     materia: materia,
-                    pdf: nombrePdf || anterior.pdf,
+                    pdf: nombreArchivoNuevo || anterior.pdf,
                     pdfData: archivoBase64 !== null ? archivoBase64 : anterior.pdfData
                 };
             } else {
@@ -537,7 +788,7 @@ $anio_escolar = "2026";
                     cedula: cedula,
                     nombre: nombre,
                     materia: materia,
-                    pdf: nombrePdf || "Planeamiento_2026.pdf",
+                    pdf: nombreArchivoNuevo || "Planeamiento_2026.pdf",
                     pdfData: archivoBase64 || "",
                     activo: true
                 });
@@ -545,15 +796,17 @@ $anio_escolar = "2026";
 
             try {
                 localStorage.setItem('lista_docentes_cedes', JSON.stringify(listaDocentes));
-            } catch (err) {
-                const idx = indiceEditando !== null ? indiceEditando : listaDocentes.length - 1;
-                listaDocentes[idx].pdfData = "";
-                localStorage.setItem('lista_docentes_cedes', JSON.stringify(listaDocentes));
-            }
+            } catch (err) {}
+
+            fetch('docentes.php', {
+                method: 'POST',
+                body: formData
+            }).catch(() => {});
 
             renderizarTabla();
             cerrarModal('modal-agregar');
             indiceEditando = null;
+            cedulaOriginalEditando = null;
         };
 
         if (inputArchivo.files && inputArchivo.files.length > 0) {
@@ -561,11 +814,11 @@ $anio_escolar = "2026";
             archivosTemporales[cedula] = URL.createObjectURL(archivo);
             const lector = new FileReader();
             lector.onload = function(evento) {
-                finalizarGuardado(archivo.name, evento.target.result);
+                finalizarGuardado(evento.target.result);
             };
             lector.readAsDataURL(archivo);
         } else {
-            finalizarGuardado(indiceEditando !== null ? "" : "Planeamiento_2026.pdf", null);
+            finalizarGuardado(null);
         }
     }
 
@@ -579,8 +832,17 @@ $anio_escolar = "2026";
 
     function confirmarEliminarDocente() {
         if (indiceEliminando !== null) {
+            const docElim = listaDocentes[indiceEliminando];
             listaDocentes.splice(indiceEliminando, 1);
             localStorage.setItem('lista_docentes_cedes', JSON.stringify(listaDocentes));
+
+            if (docElim && docElim.cedula) {
+                const formData = new FormData();
+                formData.append('accion_docente', 'eliminar');
+                formData.append('cedula', docElim.cedula);
+                fetch('docentes.php', { method: 'POST', body: formData }).catch(() => {});
+            }
+
             renderizarTabla();
             indiceEliminando = null;
         }
@@ -628,12 +890,14 @@ $anio_escolar = "2026";
     window.onload = function() {
         sincronizarPerfilMenu();
 
-        const guardados = localStorage.getItem('lista_docentes_cedes');
-        if (guardados) {
-            listaDocentes = JSON.parse(guardados);
+        if (Array.isArray(docentesBD) && docentesBD.length > 0) {
+            listaDocentes = docentesBD;
+            try {
+                localStorage.setItem('lista_docentes_cedes', JSON.stringify(listaDocentes));
+            } catch (e) {}
         } else {
-            listaDocentes = docentesIniciales;
-            localStorage.setItem('lista_docentes_cedes', JSON.stringify(listaDocentes));
+            const guardados = localStorage.getItem('lista_docentes_cedes');
+            listaDocentes = guardados ? JSON.parse(guardados) : docentesIniciales;
         }
 
         renderizarTabla();

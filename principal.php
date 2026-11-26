@@ -1,5 +1,6 @@
 <?php
 session_start();
+require_once "conexion.php";
 
 if (isset($_GET['salir'])) {
     session_destroy();
@@ -7,12 +8,42 @@ if (isset($_GET['salir'])) {
     exit();
 }
 
+date_default_timezone_set('America/Costa_Rica');
+$anio_escolar = (int)date('Y');
+$mes_actual = (int)date('n');
+$semestre_mep = ($mes_actual >= 2 && $mes_actual <= 7) ? "I Periodo" : "II Periodo";
+$periodo_vigente_auto = $semestre_mep . " " . $anio_escolar;
+
+// Valores por defecto
 $nombre_completo = $_SESSION["usuario"] ?? "Javier Mena";
-$primer_nombre = explode(" ", trim($nombre_completo))[0];
 $rol = $_SESSION["rol"] ?? "Coordinador";
+$cedula_sesion = $_SESSION["cedula"] ?? "1-0945-0612";
+
+// Consultar datos reales del usuario en la base de datos 
+try {
+    $stmtUsuario = $pdo->prepare("
+        SELECT u.cedula, u.nombre, u.apellido1, u.apellido2, r.nombre AS nombre_rol
+        FROM usuarios u
+        LEFT JOIN roles r ON u.id_rol = r.id_rol
+        WHERE u.cedula = :cedula
+        LIMIT 1
+    ");
+    $stmtUsuario->execute([':cedula' => $cedula_sesion]);
+    $filaUsuario = $stmtUsuario->fetch();
+
+    if ($filaUsuario) {
+        $nombre_completo = trim($filaUsuario['nombre'] . " " . $filaUsuario['apellido1']);
+        if (!empty($filaUsuario['nombre_rol'])) {
+            $rol = $filaUsuario['nombre_rol'];
+        }
+    }
+} catch (PDOException $e) {
+    // Si falla la consulta, conserva los valores de sesión o por defecto
+}
+
+$primer_nombre = explode(" ", trim($nombre_completo))[0];
 $titulo_miga = "Inicio";
 
-date_default_timezone_set('America/Costa_Rica');
 $hora = (int)date('G');
 $saludo = ($hora < 12) ? "BUENOS DÍAS" : (($hora < 18) ? "BUENAS TARDES" : "BUENAS NOCHES");
 
@@ -20,10 +51,27 @@ $dias_es = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "S�
 $meses_es = ["", "enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
 $fecha_hoy_texto = $dias_es[(int)date('w')] . ", " . date('j') . " de " . $meses_es[(int)date('n')] . " de " . date('Y');
 
-$anio_escolar = date('Y');
-$mes_actual = (int)date('n');
-$semestre_mep = ($mes_actual >= 2 && $mes_actual <= 7) ? "I Periodo" : "II Periodo";
-$periodo_vigente_auto = $semestre_mep . " " . $anio_escolar;
+// Consultar fecha límite de entrega desde la tabla periodos
+$fecha_limite_defecto = ($mes_actual >= 2 && $mes_actual <= 7) ? "{$anio_escolar}-07-17" : "{$anio_escolar}-11-27";
+$fecha_limite_bd = $fecha_limite_defecto;
+
+try {
+    $stmtPeriodo = $pdo->prepare("
+        SELECT cierre_entrega
+        FROM periodos
+        WHERE anio_escolar = :anio
+        ORDER BY id_periodo DESC
+        LIMIT 1
+    ");
+    $stmtPeriodo->execute([':anio' => $anio_escolar]);
+    $filaPeriodo = $stmtPeriodo->fetch();
+
+    if ($filaPeriodo && !empty($filaPeriodo['cierre_entrega'])) {
+        $fecha_limite_bd = date('Y-m-d', strtotime($filaPeriodo['cierre_entrega']));
+    }
+} catch (PDOException $e) {
+    // Usa la fecha por defecto si no hay registro aún
+}
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -105,8 +153,8 @@ $periodo_vigente_auto = $semestre_mep . " " . $anio_escolar;
             <a href="perfil.php" class="usuario" style="text-decoration: none; color: inherit; cursor: pointer;" title="Ver perfil de usuario">
                 <div class="avatar-iniciales" id="menu-avatar-iniciales">JM</div>
                 <div class="info-usuario">
-                    <strong id="menu-nombre-usuario"><?php echo $nombre_completo; ?></strong>
-                    <p><?php echo $rol; ?></p>
+                    <strong id="menu-nombre-usuario"><?php echo htmlspecialchars($nombre_completo); ?></strong>
+                    <p><?php echo htmlspecialchars($rol); ?></p>
                 </div>
             </a>
 
@@ -173,7 +221,7 @@ $periodo_vigente_auto = $semestre_mep . " " . $anio_escolar;
                 <div class="franja-datos-periodo">
                     <div class="dato-periodo-col">
                         <span class="sublabel-periodo">Periodo vigente (MEP)</span>
-                        <strong class="valor-periodo-destacado" id="nombre-periodo-vigente"><?php echo $periodo_vigente_auto; ?></strong>
+                        <strong class="valor-periodo-destacado" id="nombre-periodo-vigente"><?php echo htmlspecialchars($periodo_vigente_auto); ?></strong>
                     </div>
 
                     <div class="separador-subcaja"></div>
@@ -197,7 +245,7 @@ $periodo_vigente_auto = $semestre_mep . " " . $anio_escolar;
 
                         <div id="vista-fecha-edicion" class="editor-fecha-inline" style="display: none;">
                             <div class="caja-input-fecha-inline">
-                                <input type="date" id="input-fecha-limite-inline" value="<?php echo $anio_escolar; ?>-11-27">
+                                <input type="date" id="input-fecha-limite-inline" value="<?php echo htmlspecialchars($fecha_limite_bd); ?>">
                             </div>
                             <div class="acciones-fecha-inline">
                                 <button type="button" class="btn-cancelar-fecha-inline" onclick="cancelarEdicionFecha()">Cancelar</button>
@@ -562,10 +610,8 @@ $periodo_vigente_auto = $semestre_mep . " " . $anio_escolar;
     window.onload = function() {
         sincronizarPerfilMenu();
 
-        const anioActual = new Date().getFullYear();
-        const mesActual = new Date().getMonth() + 1;
-        const fechaDefecto = (mesActual >= 2 && mesActual <= 7) ? `${anioActual}-07-17` : `${anioActual}-11-27`;
-        const fechaGuardada = localStorage.getItem('fecha_limite_mep_cedes') || fechaDefecto;
+        const fechaDesdeBD = "<?php echo htmlspecialchars($fecha_limite_bd); ?>";
+        const fechaGuardada = localStorage.getItem('fecha_limite_mep_cedes') || fechaDesdeBD;
 
         aplicarFechaYCalendarioMep(fechaGuardada);
 
